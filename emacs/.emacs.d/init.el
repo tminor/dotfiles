@@ -24,6 +24,7 @@
 (require 'init-exec-path)
 (require 'init-ivy)
 (require 'init-modeline)
+(require 'init-org)
 (require 'init-vc)
 (require 'init-nav)
 (require 'init-dired)
@@ -33,7 +34,6 @@
 (require 'init-dired)
 (require 'init-hydra)
 (require 'init-eshell)
-(require 'init-org)
 (require 'init-mail)
 (require 'init-projectile)
 
