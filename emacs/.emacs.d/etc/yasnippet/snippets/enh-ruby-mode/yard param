@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: yard param
+# key: # @p
+# --
+\# @param $1 [$2] $3

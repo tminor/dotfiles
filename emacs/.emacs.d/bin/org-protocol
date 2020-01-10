@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+URL=\'$1\'
+
+ssh -Y tminor@solaire.sss.usg.edu emacsclient -c $URL
