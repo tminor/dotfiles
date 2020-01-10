@@ -7,8 +7,6 @@
 ;;; Code:
 
 (use-package magit
-  :straight
-  (:host github :repo "magit/magit")
   :general
   (tm/leader-def
     :infix "m"
@@ -39,7 +37,7 @@
   (:host github :repo "magit/forge")
   :after magit)
 
-(use-package vc-mode
+(use-package vc-hooks
   :straight nil
   :init
   (setq vc-follow-symlinks t))

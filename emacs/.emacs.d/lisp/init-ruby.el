@@ -6,10 +6,6 @@
 ;;
 ;;; Code:
 
-(use-package eruby-mode
-  :straight
-  (:host github :repo "petere/emacs-eruby-mode"))
-
 (use-package enh-ruby-mode
   :requires
   (exec-path-from-shell)

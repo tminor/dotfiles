@@ -7,17 +7,7 @@
 ;;
 ;;; Code:
 
-(use-package which-key
-  :defer 1
-  :general
-  (tm/leader-def
-    :infix "h"
-    :prefix-command 'tm/help-prefix-command
-    :prefix-map 'tm/help-prefix-map
-    "t" 'which-key-show-top-level
-    "M" 'which-key-show-major-mode)
-  :config
-  (which-key-mode 1))
+
 
 (use-package general
   :demand t
@@ -36,7 +26,6 @@
     :prefix-map 'tm/prefix-map))
 
 (use-package evil
-  :demand t
   :init
   (setq evil-want-keybinding nil)
   :general
@@ -46,6 +35,18 @@
    "/" 'swiper)
   :config
   (evil-mode 1))
+
+(use-package which-key
+  :defer 1
+  :general
+  (tm/leader-def
+    :infix "h"
+    :prefix-command 'tm/help-prefix-command
+    :prefix-map 'tm/help-prefix-map
+    "t" 'which-key-show-top-level
+    "M" 'which-key-show-major-mode)
+  :config
+  (which-key-mode 1))
 
 (use-package evil-collection
   :init

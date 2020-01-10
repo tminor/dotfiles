@@ -39,7 +39,6 @@
 (use-package eshell
   :init
   (require 'egp)
-  (require 'tm-eshell)
   :custom
   (eshell-prompt-function #'egp-theme)
   :config
