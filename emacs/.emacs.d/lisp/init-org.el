@@ -336,7 +336,10 @@ are equal return t."
 (setq epa-pinentry-mode 'loopback)
 (epa-file-enable)
 
+(use-package org-mime)
+
 (use-package pdf-tools)
+(pdf-tools-install)
 
 (use-package org-pdftools
   :straight

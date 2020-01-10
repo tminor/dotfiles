@@ -6,9 +6,9 @@
 ;;
 ;;; Code:
 
-(use-package dired+
-  :init
-  (with-eval-after-load "dired" '(require 'dired+)))
+;; (use-package dired+
+;;   :init
+;;   (with-eval-after-load "dired" '(require 'dired+)))
 
 (provide 'init-dired)
 ;;; init-dired.el ends here
