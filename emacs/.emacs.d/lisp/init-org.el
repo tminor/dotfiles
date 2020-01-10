@@ -349,9 +349,7 @@ are equal return t."
   :straight
   (:host github :repo "fuxialexander/org-noter"))
 
-(use-package org
-  :straight org-plus-contrib
-  :demand t
+(use-package org-plus-contrib
   :init
   (setq org-crypt-key nil)
   :hook
