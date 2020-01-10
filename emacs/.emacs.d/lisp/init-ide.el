@@ -7,9 +7,14 @@
 ;;
 ;;; Code:
 
+(use-package pos-tip)
+
 (require 'pos-tip)
 
 (use-package flycheck
+  :init
+  (with-eval-after-load 'flycheck
+    (flycheck-pos-tip-mode))
   :config
   ;; Config for RuboCop
   (setq flycheck-rubocoprc ".rubocop.yml")
@@ -20,10 +25,7 @@
   :hook
   (after-init . global-flycheck-mode))
 
-(use-package flycheck-pos-tip
-  :after '(flycheck pos-tip)
-  :hook
-  (prog-mode . (lambda () (flycheck-pos-tip-mode 1))))
+(use-package flycheck-pos-tip)
 
 (use-package company
   :init

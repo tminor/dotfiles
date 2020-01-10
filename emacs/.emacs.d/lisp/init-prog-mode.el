@@ -8,6 +8,8 @@
 ;;; Code:
 
 (require 'whitespace)
+(require 'hideshow)
+(require 'prog-mode)
 
 (setq whitespace-line-column 80) ;; limit line length
 (setq whitespace-style '(face lines-tail))
@@ -21,7 +23,9 @@
                     ("lambda" . ?λ)))
     (cl-pushnew symbol prettify-symbols-alist :test #'equal))
   :hook
-  (prog-mode . '(display-line-numbers-mode whitespace-mode)))
+  (prog-mode . display-line-numbers-mode)
+  (prog-mode . whitespace-mode)
+  (prog-mode . hs-minor-mode))
 
 (global-prettify-symbols-mode 1)
 
@@ -46,7 +50,7 @@
   :config
   (global-hl-todo-mode t))
 
-(use-package hs-minor-mode
+(use-package hideshow
   :straight nil
   :general
   (tm/leader-def
@@ -61,9 +65,7 @@
     "l" 'hs-hide-level)
   (:keymaps 'prog-mode-map
    :states 'normal
-   "TAB" 'hs-toggle-hiding)
-  :hook
-  (prog-mode . hs-minor-mode))
+   "TAB" 'hs-toggle-hiding))
 
 (use-package rainbow-delimiters
   :hook
