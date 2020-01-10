@@ -15,9 +15,6 @@
   (setq vr/engine 'pcre2el))
 
 (use-package visual-regexp
-  :demand t
-  :straight
-  (:host github :repo "benma/visual-regexp.el")
   :general
   (tm/leader-def
     "r" 'vr/isearch-forward
