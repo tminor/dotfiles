@@ -7,8 +7,6 @@
 ;;
 ;;; Code:
 
-
-
 (use-package general
   :demand t
   :config
@@ -27,7 +25,8 @@
 
 (use-package evil
   :init
-  (setq evil-want-keybinding nil)
+  (setq evil-want-keybinding nil
+	evil-want-integration t)
   :general
   ;; Override `evil-search-forward' binding in favor of `swiper'.
   (:states '(normal motion)
@@ -49,12 +48,12 @@
   (which-key-mode 1))
 
 (use-package evil-collection
+  :custom
+  (evil-collection-company-use-tng nil)
+  (evil-collection-setup-minibuffer t)
+  (evil-collection-term-sync-state-and-mode-p t)
   :init
-  (evil-collection-init)
-  :config
-  (setq evil-collection-company-use-tng nil
-	evil-collection-setup-minibuffer t
-	evil-collection-term-sync-state-and-mode-p t))
+  (evil-collection-init))
 
 (use-package evil-magit
   :after magit
@@ -65,6 +64,7 @@
   :after org
   :straight
   (:type git :host github :repo "Somelauw/evil-org-mode")
+  :commands 'evil-org-agenda-set-keys
   :hook
   (org-mode . evil-org-mode)
   (evil-org-mode . (lambda ()
