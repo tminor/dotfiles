@@ -10,8 +10,10 @@
   :defer t
   :config
   (setq cider-repl-history-file (no-littering-expand-var-file-name ".cider-repl-history")
-        nrepl-log-messages t)
-  (flycheck-clojure-setup))
+        nrepl-log-messages t))
+
+(use-package flycheck-clj-kondo)
+(use-package flycheck-joker)
 
 (use-package clojure-mode
   :config
@@ -33,9 +35,6 @@
   :hook
   (clojure-mode . lispy-mode)
   (clojure-mode . lispyville-mode))
-
-(use-package flycheck-clj-kondo)
-(use-package flycheck-joker)
 
 (provide 'init-clojure)
 ;;; init-clojure.el ends here
