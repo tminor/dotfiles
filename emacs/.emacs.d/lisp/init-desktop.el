@@ -134,5 +134,30 @@ line flags and their corresponding values.")
 	  (setq exwm-randr-workspace-monitor-plist (list 3 "eDP-1"
 							 2 "DP-1-2-8"
 							 1 "DP-1-2-1-8"))))))
+
+(defun tm/volume-amixer-change (amount)
+  (with-temp-buffer
+    (when (zerop
+	   (call-process "amixer" nil (current-buffer) nil
+			 "-q"
+			 "sset" emms-volume-amixer-control
+			 (format "%d%%%s" (abs amount)
+				 (if (< amount 0) "-" "+"))))
+      (if (re-search-backward "\\[\\([0-9]+%\\)\\]" nil t)
+	  (match-string 1)))
+    (setq global-mode-string (tm/volume-make-modeline-string))))
+
+(defun tm/toggle-mute ()
+  "Toggle mute amixer master volume."
+  (interactive)
+  (with-temp-buffer
+    (when (zerop
+	   (call-process "amixer" nil (current-buffer) nil
+			 "-q"
+			 "sset" (concat emms-volume-amixer-control ","
+					(format "%d" emms-volume-amixer-card))
+			 "toggle")))
+    (setq global-mode-string (tm/volume-make-modeline-string))))
+
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
