@@ -100,6 +100,48 @@ URL `http://ergoemacs.org/emacs/emacs_new_empty_buffer.html'"
 ;;; `display-buffer' configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (progn
+  ;; https://github.com/ndwarshuis/.emacs.d
+  (defmacro tm/with-advice (adlist &rest body)
+    "Execute BODY with temporary advice in ADLIST.
+
+Each element of ADLIST should be a list of the form
+  (SYMBOL WHERE FUNCTION [PROPS])
+suitable for passing to `advice-add'.  The BODY is wrapped in an
+`unwind-protect' form, so the advice will be removed even in the
+event of an error or nonlocal exit."
+    (declare (debug ((&rest (&rest form)) body))
+	     (indent 1))
+    `(progn
+       ,@(mapcar (lambda (adform)
+		   (cons 'advice-add adform))
+		 adlist)
+       (unwind-protect (progn ,@body)
+	 ,@(mapcar (lambda (adform)
+		     `(advice-remove ,(car adform) ,(nth 2 adform)))
+		   adlist))))
+
+  (with-eval-after-load 'org
+    (defun tm/org-todo-position (buffer alist)
+      (let ((win (car (cl-delete-if-not
+		       (lambda (window)
+			 (with-current-buffer (window-buffer window)
+			   (memq major-mode
+				 '(org-mode org-agenda-mode))))
+		       (window-list)))))
+	(when win
+	  (let ((buffer (window-buffer win)))
+	    (display-buffer-in-side-window ((side . right)
+					    (slot . 1)))))))
+
+    (defun tm/org-todo-window-advice (orig-fn &optional current-state)
+      "Advice to fix window placement in `org-fast-todo-selection'."
+      (let ((override '("\\*Org todo\\*" tm/org-todo-position)))
+	(add-to-list 'display-buffer-alist override)
+	(tm/with-advice
+	    ((#'org-switch-to-buffer-other-window :override #'pop-to-buffer))
+	  (unwind-protect (funcall orig-fn)
+	    (setq display-buffer-alist
+		  (delete override display-buffer-alist))))))
   ;; Some modes seem to ignore `display-buffer-alist'; this stack
   ;; exchange answer provides a method for working around this problem:
   ;; https://stackoverflow.com/a/21764397
