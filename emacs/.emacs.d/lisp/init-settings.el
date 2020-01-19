@@ -63,13 +63,9 @@
 ;; 		(buffer-string)))))
 ;;   (add-to-list 'savehist-additional-variables 'kill-ring))
 
-(use-package dimmer
-  :commands (dimmer-configure-which-key)
-  :init
-  (dimmer-configure-which-key))
-
-(use-package rainbow-mode)
-(rainbow-mode 1)
+(use-package rainbow-mode
+  :hook
+  (after-init . rainbow-mode))
 
 (use-package expand-region
   :general
