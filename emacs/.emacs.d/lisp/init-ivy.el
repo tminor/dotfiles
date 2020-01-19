@@ -58,7 +58,8 @@
     "C-r" 'counsel-minibuffer-history)
   (tm/leader-def
     "x" 'counsel-M-x
-    "y" 'counsel-yank-pop)
+    "y" 'counsel-yank-pop
+    "F" 'counsel-org-goto-all)
   (tm/leader-def
     :infix "f"
     :prefix-command 'tm/find-prefix-command
@@ -75,11 +76,6 @@
     "b" 'counsel-descbinds
     "f" 'counsel-describe-function
     "v" 'counsel-describe-variable)
-  (tm/leader-def
-    :infix "s"
-    :prefix-command 'tm/search-prefix-command
-    "" '(:which-key "search prefix" :ignore t)
-    "d" 'deadgrep)
   :custom
   (counsel-find-file-ignore-regexp "\\`\\.")
   (counsel-yank-pop-preselect-last t)
@@ -110,6 +106,14 @@
 (use-package all-the-icons-ivy
   :config
   (all-the-icons-ivy-setup))
+
+(use-package prescient)
+(use-package ivy-prescient
+  :hook
+  (ivy-mode . ivy-prescient-mode))
+(use-package company-prescient
+  :hook
+  (company-mode . company-prescient-mode))
 
 (provide 'init-ivy)
 ;;; init-ivy.el ends here
