@@ -6,6 +6,9 @@
 ;;
 ;;; Code:
 
+(require 'f)
+(require 'cl-lib)
+
 (defmacro tm/setq (var-name value)
   "Assign VALUE to VAR-NAME via `setq'."
   (let ((symbol (intern var-name)))
