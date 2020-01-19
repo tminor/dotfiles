@@ -74,11 +74,11 @@
   :straight
   (:host github :repo "magnars/expand-region.el"))
 
-;; (defun tm/disable-scroll-bars (frame)
-;;   "Toggle scrollbar in FRAME."
-;;   (modify-frame-parameters frame
-;;                            '((vertical-scroll-bars . nil)
-;;                              (horizontal-scroll-bars . nil))))
+(defun tm/disable-scroll-bars (frame)
+  "Toggle scrollbar in FRAME."
+  (modify-frame-parameters frame
+                           '((vertical-scroll-bars . nil)
+                             (horizontal-scroll-bars . nil))))
 
 ;; (add-hook 'after-make-frame-functions 'tm/disable-scroll-bars)
 
