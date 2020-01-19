@@ -40,20 +40,21 @@ be displayed."
           '(("unread" . notmuch-search-unread-face)
             ("flagged" . notmuch-search-flagged-face)))))
 
-(defun tm/notmuch-notify ()
-  "Generate desktop notifcations for new mail.
+(defun tm/notmuch-notify (time-range)
+  "Generate desktop notifcations for new mail received in TIME-RANGE.
 
-Utilize `notmuch-call-notmuch-sexp' to fetch the latest messages
-tagged inbox and send a notification to the desktop"
+This function utilizes `notmuch-call-notmuch-sexp' to fetch the
+latest messages tagged inbox and send a notification to the
+desktop.  TIME-RANGE should be the beginning of an Xapian date
+range.  For example, an input of \"20mins\" translates to
+\"date:20mins..\"."
   (let* ((latest-messages
-          (apply
-           #'notmuch-call-notmuch-sexp
-           '("search"
-             "--format=sexp"
-             "--format-version=4"
-             "--sort=newest-first"
-             "tag:inbox"
-             "date:45secs..")))
+          (apply #'notmuch-call-notmuch-sexp `("search"
+					       "--format=sexp"
+					       "--format-version=4"
+					       "--sort=newest-first"
+					       "tag:inbox"
+					       ,(format "date:%s.." time-range))))
          (who)
          (when)
          (what)
