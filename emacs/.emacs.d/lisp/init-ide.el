@@ -11,6 +11,8 @@
 
 (require 'pos-tip)
 
+(use-package flycheck-pos-tip)
+
 (use-package flycheck
   :init
   (with-eval-after-load 'flycheck
@@ -25,8 +27,6 @@
   :hook
   (after-init . global-flycheck-mode))
 
-(use-package flycheck-pos-tip)
-
 (use-package company
   :init
   (setq company-idle-delay 0.02)
@@ -34,9 +34,8 @@
   (prog-mode . company-mode))
 
 (use-package company-quickhelp
-  :after '(pos-tip company)
   :hook
-  (prog-mode . company-quickhelp-mode))
+  (company-mode . company-quickhelp-mode))
 
 (provide 'init-ide)
 ;;; init-ide.el ends here
