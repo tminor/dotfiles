@@ -159,5 +159,11 @@ line flags and their corresponding values.")
 			 "toggle")))
     (setq global-mode-string (tm/volume-make-modeline-string))))
 
+(use-package emms
+  :config
+  (require 'emms-setup)
+  (emms-all)
+  (setq emms-volume-change-function 'tm/volume-amixer-change))
+
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
