@@ -8,7 +8,7 @@
 
 (use-package lispy
   :hook
-  ((lisp-mode emacs-lisp-mode) . lispy-mode)
+  ((lisp-mode emacs-lisp-mode scheme-mode) . lispy-mode)
   :config
   (lispy-set-key-theme '(lispy c-digits)))
 
@@ -19,10 +19,11 @@
      '(slurp/barf-cp
        mark-toggle)))
   :hook
-  ((emacs-lisp-mode lisp-mode) . lispyville-mode)
-  ((emacs-lisp-mode lisp-mode) . (lambda ()
-				   (setq-local lisp-indent-function
-					       #'tm/lisp-indent-function))))
+  ((emacs-lisp-mode lisp-mode scheme-mode) . lispyville-mode)
+  ((emacs-lisp-mode lisp-mode scheme mode) .
+   (lambda ()
+     (setq-local lisp-indent-function
+		 #'tm/lisp-indent-function))))
 
 (provide 'init-lisp)
 ;;; init-lisp.el ends here
