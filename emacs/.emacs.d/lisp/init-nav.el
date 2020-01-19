@@ -94,8 +94,6 @@ URL `http://ergoemacs.org/emacs/emacs_new_empty_buffer.html'"
   "t" 'tm/new-empty-text-buffer
   "l" 'tm/new-empty-lisp-buffer)
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; `display-buffer' configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -142,6 +140,9 @@ event of an error or nonlocal exit."
 	  (unwind-protect (funcall orig-fn)
 	    (setq display-buffer-alist
 		  (delete override display-buffer-alist))))))
+
+    (advice-add #'org-fast-todo-selection :around #'tm/org-todo-window-advice))
+
   ;; Some modes seem to ignore `display-buffer-alist'; this stack
   ;; exchange answer provides a method for working around this problem:
   ;; https://stackoverflow.com/a/21764397
@@ -153,6 +154,7 @@ event of an error or nonlocal exit."
     (set-window-parameter nil 'satellite t)
     (message "Window: %s is now the satellite window."
              (selected-window)))
+
   (defun tm/get-satellite-window ()
     "Find and return the satellite window or nil if non exists."
     (find-if (lambda (win)
@@ -162,12 +164,13 @@ event of an error or nonlocal exit."
   (defun tm/display-buffer-in-satellite (buffer ignore)
     "Display the buffer in the satellite window, or the first window \
     it finds if there is no satellite."
-    (let ((satellite-window (or (get-satellite-window)
+    (let ((satellite-window (or (tm/get-satellite-window)
                                 (first (window-list)))))
       (select-window satellite-window)
       (display-buffer-same-window buffer nil)
       (display-buffer-record-window 'reuse satellite-window buffer)
       satellite-window))
+
   (setq display-buffer-alist
         ;; Help and stuff at the right
         `((,(rx string-start (or "*Apropos"
@@ -180,7 +183,8 @@ event of an error or nonlocal exit."
                                  "*WoMan"
                                  "*compilation"
                                  "*helpful"
-                                 "*Org Agenda*"
+				 "magit: "
+				 "*Org Select*"
                                  (and (0+ anything) ".pdf")
                                  (and (1+ not-newline) " output*"))) ; AUCTeX
            (display-buffer-reuse-window display-buffer-in-side-window)
@@ -215,7 +219,11 @@ event of an error or nonlocal exit."
                                  "magit-log: "
                                  "magit-refs: "
                                  "*Org Src"))
-           (display-buffer-reuse-window display-buffer-same-window)))))
+           (display-buffer-reuse-window display-buffer-same-window))
+	  (,(rx string-start (or "*Org Agenda*"))
+	   (display-buffer-reuse-window display-buffer-in-side-window)
+	   (direction . rightmost)
+	   (side . right)))))
 
 (provide 'init-nav)
 ;;; init-nav.el ends here
