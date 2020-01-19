@@ -37,5 +37,9 @@
 		   (value (car (cdr k-v))))
 	      (set (intern counsel-spotify-variable) value)))))))
 
+(use-package desktop-environment
+  :config
+  (setq desktop-environment-screenlock-command "xlock"))
+
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
