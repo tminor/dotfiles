@@ -80,7 +80,8 @@
                            '((vertical-scroll-bars . nil)
                              (horizontal-scroll-bars . nil))))
 
-;; (add-hook 'after-make-frame-functions 'tm/disable-scroll-bars)
+(add-hook 'after-make-frame-functions 'tm/disable-scroll-bars)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
