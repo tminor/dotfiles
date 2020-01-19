@@ -83,7 +83,30 @@
 (add-hook 'after-make-frame-functions 'tm/disable-scroll-bars)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(use-package taihaku-theme
+  :straight
+  (:host github :repo "tminor/taihaku-theme"))
+
+(use-package flyspell
+  :hook
+  (text-mode . flyspell-mode)
+  (prog-mode . flyspell-prog-mode))
+
+(use-package powerthesaurus
+  :general
+  (tm/leader-def
+    :infix "s"
+    :prefix-command 'tm/search-prefix-command
+    "" '(:which-key "search prefix" :ignore t)
+    "s" 'powerthesaurus-lookup-word-dwim))
+
+(use-package define-word
+  :general
+  (tm/leader-def
+    :infix "s"
+    :prefix-command 'tm/search-prefix-command
+    "" '(:which-key "search prefix" :ignore t)
+    "D" 'define-word-at-point))
 
 (provide 'init-settings)
 ;;; init-settings.el ends here
