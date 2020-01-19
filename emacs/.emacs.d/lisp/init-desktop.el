@@ -165,5 +165,46 @@ line flags and their corresponding values.")
   (emms-all)
   (setq emms-volume-change-function 'tm/volume-amixer-change))
 
+(defun tm/get-volume-status ()
+  "Use amixer to fetch system volume status.
+
+Return an alist containing mute status and volume level."
+  (with-temp-buffer
+    (call-process "amixer" nil (current-buffer) nil
+                  "get" (concat emms-volume-amixer-control ","
+				(format "%s" emms-volume-amixer-card)))
+    (goto-char (point-min))
+    (let ((volume-percent
+	   (progn
+	     (re-search-forward (rx "[" (group digit digit) "%" "]"))
+	     (match-string 1)))
+	  (volume-status
+	   (progn
+	     (re-search-forward (rx "[" (group (one-or-more alpha)) "]"))
+	     (match-string 1)))
+	  volume-state-alist)
+      (if (string= volume-status "on")
+	  `((muted-p nil)
+	    (level ,volume-percent))
+	`((muted-p t)
+	  (level ,volume-percent))))))
+
+(defun tm/volume-make-modeline-string ()
+  "Call `tm/get-volume-status' to derive `global-mode-string'."
+  (let ((level (cadr (assoc 'level (tm/get-volume-status))))
+	(muted-p (cadr (assoc 'muted-p (tm/get-volume-status))))
+	(make-string (lambda (direction value)
+		       (propertize
+			(format "%s %s%s"
+				(all-the-icons-material
+				 (format  "volume_%s" direction)
+				 :face 'font-lock-builtin-face)
+				value "%")
+			'font-lock-face font-lock-builtin-face))))
+    (if muted-p
+	(funcall make-string "off" level)
+	(if (< (string-to-number level) 50)
+	    (funcall make-string "down" level)
+	  (funcall make-string "up" level)))))
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
