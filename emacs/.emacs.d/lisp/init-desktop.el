@@ -206,5 +206,72 @@ Return an alist containing mute status and volume level."
 	(if (< (string-to-number level) 50)
 	    (funcall make-string "down" level)
 	  (funcall make-string "up" level)))))
+
+(use-package exwm
+  :preface
+  (defun tm/lock-screen ()
+    "Lock desktop."
+    (interactive)
+    (start-process-shell-command "xlock"
+				 nil
+				 desktop-environment-screenlock-command))
+  (defun tm/exwm-rename-buffer-to-title ()
+    "Names EXWM buffers after the application running in them."
+    (exwm-workspace-rename-buffer exwm-title))
+  :hook
+  (exwm-floating-setup . exwm-layout-hide-mode-line)
+  (exwm-floating-exit . exwm-layout-show-mode-line)
+  (exwm-update-title . tm/exwm-rename-buffer-to-title)
+  ((exwm-init exwm-randr-screen-change) . tm/exwm-change-screen-hook)
+  :init
+  (setq exwm-input-global-keys
+	`((,(kbd "s-R") . exwm-reset)
+	  (,(kbd "C-s-R") . exwm-restart)
+	  (,(kbd "s-x") . exwm-input-toggle-keyboard)
+	  (,(kbd "s-h") . windmove-left)
+	  (,(kbd "s-j") . windmove-down)
+	  (,(kbd "s-k") . windmove-up)
+	  (,(kbd "s-l") . windmove-right)
+	  (,(kbd "s-Q") . kill-this-buffer)
+	  (,(kbd "s-b") . ivy-switch-buffer)
+	  (,(kbd "s-f") . find-file)
+	  (,(kbd "s-d") . counsel-linux-app)
+	  (,(kbd "s-SPC") . tm/prefix-command)
+	  (,(kbd "C-s-L") . tm/lock-screen)
+	  ,@(mapcar (lambda (i)
+		      `(,(kbd (format "s-%d" i)) .
+			(lambda ()
+			  (interactive)
+			  (exwm-workspace-switch-create ,i))))
+		    (number-sequence 0 9))
+	  ,@(mapcar (lambda (i)
+		      `(,(kbd (format "M-s-%d" i)) .
+			(lambda ()
+			  (interactive)
+			  (exwm-workspace-move-window ,i))))
+		    (number-sequence 0 9))
+	  (,(kbd "s-<tab>") . windower-switch-to-last-buffer)
+	  (,(kbd "s-o") . windower-toggle-single)
+	  (,(kbd "s-\\") . windower-toggle-split)
+	  (,(kbd "s-H") . windower-swap-left)
+	  (,(kbd "s-J") . windower-swap-below)
+	  (,(kbd "s-K") . windower-swap-above)
+	  (,(kbd "s-L") . windower-swap-right)
+	  (,(kbd "s-F") . exwm-layout-toggle-fullscreen)
+	  (,(kbd "s-t") . window-toggle-side-windows)
+	  ([XF86AudioRaiseVolume] . emms-volume-raise)
+	  ([XF86AudioLowerVolume] . emms-volume-lower)
+	  ([XF86AudioMute] . tm/toggle-mute)))
+
+  (display-battery-mode 1)
+  (display-time-mode 1))
+
+(require 'exwm-systemtray)
+(exwm-systemtray-enable)
+(setq exwm-systemtray-height 24)
+
+(require 'exwm-randr)
+(exwm-randr-enable)
+
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
