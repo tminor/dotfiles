@@ -41,5 +41,6 @@
   :config
   (setq desktop-environment-screenlock-command "xlock"))
 
+(use-package windower)
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
