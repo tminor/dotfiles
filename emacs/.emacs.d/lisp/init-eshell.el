@@ -80,5 +80,14 @@
   :hook
   (eshell-mode . eshell-fringe-status-mode))
 
+;; Eshell aliases
+(setq eshell-aliases-file (no-littering-expand-etc-file-name "eshell/aliases"))
+
+(defun tm/buffer-to-string (buf-name)
+  "Call `buffer-string' against BUF-NAME."
+  (interactive)
+  (with-current-buffer buf-name
+    (buffer-string)))
+
 (provide 'init-eshell)
 ;;; init-eshell.el ends here
