@@ -110,5 +110,7 @@
     "" '(:which-key "search prefix" :ignore t)
     "D" 'define-word-at-point))
 
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
 (provide 'init-settings)
 ;;; init-settings.el ends here
