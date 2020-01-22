@@ -6,14 +6,15 @@
 ;;
 ;;; Code:
 
-(use-package enh-ruby-mode
+(use-package ruby-mode
+  :straight nil
   :requires
   (exec-path-from-shell)
   :config
   (eval-after-load "hideshow"
     '(add-to-list
       'hs-special-modes-alist
-      `(enh-ruby-mode
+      `(ruby-mode
         ,(rx (or "def" "class" "module" "do" "{" "[" "(")) ; Block start
         ,(rx (or "}" "]" ")" "end"))		           ; Block end
         ,(rx (or "#" "=begin"))		; Comment start
@@ -24,13 +25,13 @@
   :init
   (add-to-list 'auto-mode-alist
                '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'"
-                 . enh-ruby-mode))
-  (add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode))
+                 . ruby-mode))
+  (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
   (exec-path-from-shell-initialize)
   :hook
-  (enh-ruby-mode . eldoc-mode)
-  (enh-ruby-mode . yard-mode)
-  (enh-ruby-mode . robe-mode))
+  (ruby-mode . eldoc-mode)
+  (ruby-mode . yard-mode)
+  (ruby-mode . robe-mode))
 
 (use-package robe
   :hook
