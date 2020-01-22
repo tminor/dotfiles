@@ -83,5 +83,15 @@ Lisp function does not specify a special indentation."
    :states '(normal)
    "ze" 'macrostep-expand))
 
+(defun tm/edebug-remove-all-instrumentation ()
+  "Remove all `edebug' instrumentation."
+  (interactive)
+  (mapatoms
+   (lambda (symbol)
+     (when-let (pos (car-safe (get symbol 'edebug)))
+       (with-current-buffer (marker-buffer pos)
+         (goto-char (marker-position pos))
+         (eval-defun nil))))))
+
 (provide 'init-elisp)
 ;;; init-elisp.el ends here
