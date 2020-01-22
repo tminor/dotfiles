@@ -185,6 +185,8 @@ event of an error or nonlocal exit."
                                  "*helpful"
 				 "magit: "
 				 "*Org Select*"
+				 "*Faces*"
+				 "*Help*"
                                  (and (0+ anything) ".pdf")
                                  (and (1+ not-newline) " output*"))) ; AUCTeX
            (display-buffer-reuse-window display-buffer-in-side-window)
