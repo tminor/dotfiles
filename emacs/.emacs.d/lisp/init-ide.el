@@ -41,5 +41,14 @@
   :hook
   (prog-mode . aggressive-indent-mode))
 
+(use-package lsp-mode
+  :hook
+  (ruby-mode . lsp))
+(use-package lsp-ui
+  :hook
+  (ruby-mode . lsp-ui-mode))
+(use-package company-lsp)
+(use-package lsp-treemacs)
+
 (provide 'init-ide)
 ;;; init-ide.el ends here
