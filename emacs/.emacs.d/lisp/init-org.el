@@ -424,7 +424,8 @@ e equal return t."
 (general-define-key :keymaps 'org-mode-map
 		    :states '(normal)
 		    "<S-iso-lefttab>" 'org-global-cycle
-		    "+" 'org-add-note)
+		    "+" 'org-add-note
+		    "U" 'org-toggle-narrow-to-subtree)
 (general-define-key :keymaps '(org-agenda-mode-map)
 		    :states '(normal motion)
 		    "J" 'tm/org-agenda-next-header
