@@ -37,5 +37,9 @@
   :hook
   (company-mode . company-quickhelp-mode))
 
+(use-package aggressive-indent
+  :hook
+  (prog-mode . aggressive-indent-mode))
+
 (provide 'init-ide)
 ;;; init-ide.el ends here
