@@ -420,6 +420,47 @@ e equal return t."
                                              heading-point-alist)
                             heading-point-alist))))))))
 
+(defun tm/yank-org-link (text)
+  "Yank a link from TEXT.
+
+TEXT represents a formatted Org link."
+  (if (derived-mode-p 'org-mode)
+      (insert text)
+    (string-match org-bracket-link-regexp text)
+    (insert (substring text (match-beginning 1) (match-end 1)))))
+
+(defun tm/org-retrieve-url-from-point ()
+  "Retrieve a URL from an Org link's text properties."
+  (interactive)
+  (let* ((link-info (assoc :link (org-context)))
+         (text (when link-info
+                 ;; org-context seems to return nil if the current element
+                 ;; starts at buffer-start or ends at buffer-end
+                 (buffer-substring-no-properties (or (cadr link-info) (point-min))
+                                                 (or (caddr link-info) (point-max))))))
+    (if (not text)
+        (error "Not in org link")
+      (add-text-properties 0 (length text) '(yank-handler (tm/yank-org-link)) text)
+      (kill-new text))))
+
+;; TODO: The following three functions are (supposedly) meant to find
+;; and copy a URL from a formatted Org link. In practice, this doesn't
+;; seem to work and could use some debugging. Preferably, a DWIM
+;; version would work without an active region.
+(defun tm/smarter-kill-ring-save ()
+  "Kill text in region.
+
+If an Org link is detected in the region's text properties, this
+command will kill the referenced URL.
+
+Source:
+https://emacs.stackexchange.com/a/3990"
+  (interactive)
+  (if (region-active-p)
+      (call-interactively #'kill-ring-save)
+    (when (eq major-mode 'org-mode)
+      (call-interactively #'tm/org-retrieve-url-from-point))))
+
 ;; Configure keybindings:
 (general-define-key :keymaps 'org-mode-map
 		    :states '(normal)
