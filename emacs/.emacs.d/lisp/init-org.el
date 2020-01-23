@@ -12,7 +12,15 @@
 (require 'cl-extra)
 (require 'cl)
 
-(use-package pdf-tools)
+(use-package pdf-tools
+  :general
+  (:keymaps '(pdf-view-mode-map)
+   :states '(normal motion)
+   "gp" 'pdf-view-goto-page
+   "go" 'pdf-occur)
+  :hook
+  (pdf-view-mode . (lambda () pdf-tools-enable-minor-modes)))
+
 (pdf-tools-install)
 
 (straight-use-package 'org-plus-contrib)
