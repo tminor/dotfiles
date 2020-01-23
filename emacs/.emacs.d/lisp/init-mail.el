@@ -11,14 +11,6 @@
 (require 'smtpmail)
 (require 'smtpmail-async)
 
-;;; SMTP settings are necessary for sending mail from EXWM via
-;;; `async-smtpmail-send-it'.
-(setq smtpmail-smtp-server "solaire.sss.usg.edu"
-      smtpmail-smtp-service 1025
-      user-mail-address "thomas.minor@usg.edu"
-      message-send-mail-function 'async-smtpmail-send-it
-      smtpmail-smtp-user "thomas.minor@usg.edu")
-
 (defun tm/notmuch-refresh-feed-buffer ()
   "Invoke `notmuch-refresh-this-buffer' specified buffer.
 
@@ -214,6 +206,14 @@ range.  For example, an input of \"20mins\" translates to
           (:name "sent"
            :query "tag:sent"
            :key "t"))))
+
+;;; SMTP settings are necessary for sending mail from EXWM via
+;;; `async-smtpmail-send-it'.
+(setq smtpmail-smtp-server "solaire.sss.usg.edu"
+      smtpmail-smtp-service 1025
+      user-mail-address "thomas.minor@usg.edu"
+      message-send-mail-function 'async-smtpmail-send-it
+      smtpmail-smtp-user "thomas.minor@usg.edu")
 
 (provide 'init-mail)
 ;;; init-mail.el ends here
