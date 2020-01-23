@@ -24,13 +24,6 @@
 			   t
 			   "*tidy-errors*" t))
 
-(add-auto-mode 'nxml-mode
-	       (concat "\\."
-		       (regexp-opt
-			'("xml" "xsd" "sch" "rng" "xslt" "svg" "rss"
-			  "gpx" "tcx" "plist"))
-		       "\\'"))
-
 (add-to-list 'hs-special-modes-alist
              '(nxml-mode "<!--\\|<[^/>]*[^/]>"
 			 "-->\\|</[^/>]*[^/]>"
