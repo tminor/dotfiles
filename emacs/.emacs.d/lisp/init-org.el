@@ -609,8 +609,6 @@ https://emacs.stackexchange.com/a/3990"
       ;; calendar.org has gotten very large and I received an error
       ;; indicating this variable should be increased
       undo-outer-limit 25170000
-      ;; Enables journal files in agenda views.
-      org-journal-enable-agenda-integration t
       ;; Files that `org-agenda' uses to populate its commands/views
       org-agenda-files `(,(concat org-base-directory "mobile-capture.org")
                          ,(concat org-base-directory "capture.org")
