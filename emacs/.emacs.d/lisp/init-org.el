@@ -691,24 +691,33 @@ https://emacs.stackexchange.com/a/3990"
              (rx (zero-or-more anything)))
             (org-super-agenda-groups
              '((:name "Archive DONE tasks"
-                :todo ("DONE" "CANCELLED")
-                :order 2)
+		:order 3
+                :todo ("DONE" "CANCELLED"))
                (:name "Waiting tasks"
+		:order 7
                 :todo "WAIT"
-                :discard (:scheduled t)
-                :order 5)
+                :discard (:scheduled t))
 	       (:name "Things to read/watch"
-		:todo ("READ" "WATCH")
-		:order 1)
+		:order 4
+		:todo ("READ" "WATCH"))
                (:name "Attic: tasks for the Future™"
-                :tag "FUTURE"
-                :order 4)
+		:order 6
+                :tag "FUTURE")
                (:name "Projects"
-                :todo "PROJECT"
-                :order 3)
-               (:name "Unscheduled tasks"
-                :todo "TODO"
-                :order 0)))))))))
+		:order 5
+                :todo "PROJECT")
+	       (:name "Unscheduled tasks, high priority"
+		:order 0
+		:and (:todo "TODO"
+		      :priority "A"))
+	       (:name "Unscheduled tasks, medium priority"
+		:order 1
+		:and (:todo "TODO"
+		      :priority "B"))
+	       (:name "Unscheduled tasks, low priority"
+		:order 2
+		:and (:todo "TODO"
+		      :priority "C"))))))))))
 
 (with-eval-after-load 'f
   (dolist (file org-agenda-files nil)
