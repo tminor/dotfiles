@@ -19,7 +19,7 @@
    "gp" 'pdf-view-goto-page
    "go" 'pdf-occur)
   :hook
-  (pdf-view-mode . (lambda () pdf-tools-enable-minor-modes)))
+  (pdf-view-mode . (lambda () (pdf-tools-enable-minor-modes))))
 
 (pdf-tools-install)
 
@@ -636,6 +636,8 @@ https://emacs.stackexchange.com/a/3990"
       org-habit-completed-glyph 10004
       ;; × 𝚇
       org-habit-today-glyph 120455
+      ;; TODO: Define a function that changes the clock symbol based
+      ;; on the current time.
       org-agenda-current-time-string (format "⁕⁕⁕⁕  %s  ⁕⁕⁕⁕"
                                              (propertize "🕖"
                                                          :foreground "#F94FA0"
