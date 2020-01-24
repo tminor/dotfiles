@@ -7,7 +7,11 @@
 ;;
 ;;; Code:
 
-(use-package markdown-mode)
+(use-package markdown-mode
+  :general
+  (:keymaps 'markdown-mode-map
+   :states '(normal motion)
+   "TAB" 'markdown-cycle))
 
 (use-package pandoc-mode
   :general
