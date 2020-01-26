@@ -96,7 +96,6 @@ Use `notifications-notify' instead of `alert'."
   :custom
   (org-journal-dir "~/org/work/journal")
   (org-journal-file-type 'weekly)
-  (org-journal-enable-agenda-integration t)
   (org-journal-file-format "%Y%m%d.org")
   (org-journal-enable-encryption t)
   (org-journal-encrypt-journal t))
@@ -474,7 +473,9 @@ https://emacs.stackexchange.com/a/3990"
 		    :states '(normal)
 		    "<S-iso-lefttab>" 'org-global-cycle
 		    "+" 'org-add-note
-		    "U" 'org-toggle-narrow-to-subtree)
+		    "U" 'org-toggle-narrow-to-subtree
+		    "gj" 'outline-next-heading
+		    "gk" 'outline-previous-heading)
 (general-define-key :keymaps '(org-agenda-mode-map)
 		    :states '(normal motion)
 		    "J" 'tm/org-agenda-next-header
@@ -680,6 +681,12 @@ https://emacs.stackexchange.com/a/3990"
 	    (org-agenda-overriding-header "")
             (org-agenda-hide-tags-regexp
              (rx (zero-or-more anything)))
+	    (org-overriding-columns-format
+	     (concat "%40ITEM(Task) "
+		     "%TODO "
+		     "%3PRIORITY "
+		     "%17Effort(Estimated Effort){:} "
+		     "%CLOCKSUM"))
 	    (org-super-agenda-groups
 	     '((:name "Needs refiling"
 		:tag "REFILE"
@@ -697,6 +704,12 @@ https://emacs.stackexchange.com/a/3990"
 	    (org-agenda-overriding-header "")
             (org-agenda-hide-tags-regexp
              (rx (zero-or-more anything)))
+	    (org-overriding-columns-format
+	     (concat "%40ITEM(Task) "
+		     "%TODO "
+		     "%3PRIORITY "
+		     "%17Effort(Estimated Effort){:} "
+		     "%CLOCKSUM"))
             (org-super-agenda-groups
              '((:name "Archive DONE tasks"
 		:order 3
@@ -790,6 +803,9 @@ https://emacs.stackexchange.com/a/3990"
       (file+function "~/org/todo.org" tm/org-get-headings-todo)
       ;; Template
       ,(concat "* TODO %?\n"
+	       ":PROPERTIES:\n"
+	       ":NOTIFY: todo\n"
+	       ":END:\n"
                ":LOGBOOK:\n"
                "- State \"TODO\"    from \"\"        %U\n"
                ":END:\n")
@@ -851,6 +867,13 @@ https://emacs.stackexchange.com/a/3990"
 		  :actions (-notify/window -message))
 		'(:time "1m" :period "20s" :duration 10
 		  :actions (-notify/window -message -ding)))
+(org-notify-add 'event
+		'(:time "15m" :period "20s" :duration 10
+		  :actions (-notify/window -message))
+		'(:time "5m" :period "20s" :duration 10
+		  :actions (-notify/window -message))
+		'(:time "1m" :period "20s" :duration 10
+		  :actions (-notify/window -message -ding)))
 
 (org-notify-start)
 
@@ -887,8 +910,28 @@ https://emacs.stackexchange.com/a/3990"
   (setq cfw:org-face-agenda-item-foreground-color "#606A92"))
 
 (use-package calfw-org)
-
 (require 'calfw-org)
+
+(use-package org-download)
+(require 'org-download)
+
+(use-package ace-link
+  :general
+  (:keymaps 'org-mode-map
+   :states '(normal motion)
+   "RET" 'ace-link-org)
+  (:keymaps 'helpful-mode-map
+   :states '(normal motion)
+   "o" 'ace-link-help)
+  (:keymaps 'woman-mode-map
+   :states '(normal motion)
+   "o" 'ace-link-woman))
+
+(org-babel-do-load-languages 'org-babel-load-languages
+			     (append org-babel-load-languages
+				     '((python     . t)
+				       (ruby       . t)
+				       (shell      . t))))
 
 (provide 'init-org)
 ;;; init-org.el ends here
