@@ -66,5 +66,8 @@
   :config
   (setq dired-du-size-format t))
 
+(use-package dired-plus
+  :after 'dired)
+
 (provide 'init-dired)
 ;;; init-dired.el ends here
