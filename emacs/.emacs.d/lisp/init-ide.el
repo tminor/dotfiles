@@ -50,5 +50,12 @@
 (use-package company-lsp)
 (use-package lsp-treemacs)
 
+(use-package highlight-thing
+  :hook
+  (prog-mode . highlight-thing-mode)
+  :config
+  (setq highlight-thing-delay-seconds 0.1)
+  (setq highlight-thing-prefer-active-region t))
+
 (provide 'init-ide)
 ;;; init-ide.el ends here
