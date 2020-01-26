@@ -73,9 +73,9 @@
 
 (use-package smartparens
   :hook
-  (eval-expression-minibuffer-setup . smartparens-strict-mode)
+  (eval-expression-minibuffer-setup . smartparens-mode)
   :init
-  (smartparens-global-strict-mode 1)
+  (smartparens-global-mode 1)
   (show-smartparens-global-mode 1)
   :config
   (require 'smartparens-config)
@@ -86,10 +86,6 @@
                    :wrap "C-*" :skip-match 'sp--org-skip-asterisk)
     (sp-local-pair "_" "_" :unless '(sp-point-after-word-p)
                    :wrap "C-_")
-    (sp-local-pair "/" "/" :unless '(sp-point-after-word-p)
-                   :post-handlers '(("[d1]" "SPC")))
-    (sp-local-pair "~" "~" :unless '(sp-point-after-word-p)
-                   :post-handlers '(("[d1]" "SPC")))
     (sp-local-pair "=" "=" :unless '(sp-point-after-word-p)
                    :post-handlers '(("[d1]" "SPC")))))
 
