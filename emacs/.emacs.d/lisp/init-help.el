@@ -25,18 +25,14 @@
     "k" 'helpful-key
     "m" 'man))
 
-(use-package info+
-  :straight
-  (:host github :repo "emacsmirror/info-plus")
+(use-package info-plus
   :general
   (tm/leader-def
     :infix "h"
     :prefix-command 'tm/help-prefix-command
     :prefix-map 'tm/help-prefix-map
     "" '(:which-key "help prefix" :ignore t)
-    "i" 'info)
-  :init
-  (with-eval-after-load "info" '(require 'info+)))
+    "i" 'info))
 
 (provide 'init-help)
 ;;; init-help.el ends here
