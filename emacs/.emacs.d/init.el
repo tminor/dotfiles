@@ -37,6 +37,7 @@
 (require 'init-eshell)
 (require 'init-mail)
 (require 'init-projectile)
+(require 'init-log)
 
 (require 'init-prog-mode)
 (require 'init-clojure)
