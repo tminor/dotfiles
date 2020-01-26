@@ -49,19 +49,14 @@
   ;; Store history file in ~/.emacs.d/var/
   (setq savehist-file (no-littering-expand-var-file-name "history")))
 
-;; (use-package clipmon
-;;   :commands 'clipmon
-;;   :hook
-;;   (after-init . '(clipmon-mode-start clipmon-persist))
-;;   :config
-;;   (setq kill-ring-max 500)
-;;   (let ((file (no-littering-expand-etc-file-name "clipmon-ignore")))
-;;     (if (f-file-p file)
-;; 	(setq clipmon-transform-remove
-;;               (with-temp-buffer
-;; 		(insert-file-contents file)
-;; 		(buffer-string)))))
-;;   (add-to-list 'savehist-additional-variables 'kill-ring))
+(use-package clipmon
+  :defer 5
+  :hook
+  (after-init . (lambda () (clipmon-mode-start)))
+  (after-init . (lambda () (clipmon-persist)))
+  :config
+  (setq kill-ring-max 1000)
+  (add-to-list 'savehist-additional-variables 'kill-ring))
 
 (use-package rainbow-mode
   :hook
