@@ -57,5 +57,10 @@
   (setq highlight-thing-delay-seconds 0.1)
   (setq highlight-thing-prefer-active-region t))
 
+(general-define-key
+ :keymaps 'prog-mode-map
+ :states '(normal motion)
+ "g." 'xref-find-definitions)
+
 (provide 'init-ide)
 ;;; init-ide.el ends here
