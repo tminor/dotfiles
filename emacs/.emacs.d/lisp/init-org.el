@@ -862,18 +862,20 @@ https://emacs.stackexchange.com/a/3990"
 (require 'org-notify)
 (org-notify-add 'todo
 		'(:time "15m" :period "20s" :duration 10
-		  :actions (-notify/window -message))
+		  :actions (-notify -message))
 		'(:time "5m" :period "20s" :duration 10
-		  :actions (-notify/window -message))
+		  :actions (-notify -message))
 		'(:time "1m" :period "20s" :duration 10
-		  :actions (-notify/window -message -ding)))
+		  :actions (-notify -message -ding)))
 (org-notify-add 'event
+		'(:time "1h" :duration 10
+		  :actions (-notify -message))
 		'(:time "15m" :period "20s" :duration 10
-		  :actions (-notify/window -message))
+		  :actions (-notify -message))
 		'(:time "5m" :period "20s" :duration 10
-		  :actions (-notify/window -message))
+		  :actions (-notify -message))
 		'(:time "1m" :period "20s" :duration 10
-		  :actions (-notify/window -message -ding)))
+		  :actions (-notify -message -ding)))
 
 (org-notify-start)
 
