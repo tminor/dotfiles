@@ -145,7 +145,10 @@ line flags and their corresponding values.")
 				 (if (< amount 0) "-" "+"))))
       (if (re-search-backward "\\[\\([0-9]+%\\)\\]" nil t)
 	  (match-string 1)))
-    (setq global-mode-string (tm/volume-make-modeline-string))))
+    (setq tm/current-volume-state (tm/volume-make-modeline-string))
+    (or (memq 'tm/current-volume-state global-mode-string)
+	(setq global-mode-string
+	      (append global-mode-string '(tm/current-volume-state))))))
 
 (defun tm/toggle-mute ()
   "Toggle mute amixer master volume."
@@ -157,7 +160,10 @@ line flags and their corresponding values.")
 			 "sset" (concat emms-volume-amixer-control ","
 					(format "%d" emms-volume-amixer-card))
 			 "toggle")))
-    (setq global-mode-string (tm/volume-make-modeline-string))))
+    (setq tm/current-volume-state (tm/volume-make-modeline-string))
+    (or (memq 'tm/current-volume-state global-mode-string)
+	(setq global-mode-string
+	      (append global-mode-string '(tm/current-volume-state))))))
 
 (use-package emms
   :config
@@ -195,17 +201,20 @@ Return an alist containing mute status and volume level."
 	(muted-p (cadr (assoc 'muted-p (tm/get-volume-status))))
 	(make-string (lambda (direction value)
 		       (propertize
-			(format "%s %s%s"
-				(all-the-icons-material
-				 (format  "volume_%s" direction)
-				 :face 'font-lock-builtin-face)
+			(format "%s %s%s "
+				(cond ((string= direction "up")
+				       "🔊")
+				      ((string= direction "down")
+				       "🔉")
+				      ((string= direction "off")
+				       "🔇"))
 				value "%")
 			'font-lock-face font-lock-builtin-face))))
     (if muted-p
 	(funcall make-string "off" level)
-	(if (< (string-to-number level) 50)
-	    (funcall make-string "down" level)
-	  (funcall make-string "up" level)))))
+      (if (< (string-to-number level) 50)
+	  (funcall make-string "down" level)
+	(funcall make-string "up" level)))))
 
 (use-package exwm
   :preface
