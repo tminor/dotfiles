@@ -62,5 +62,14 @@
  :states '(normal motion)
  "g." 'xref-find-definitions)
 
+(use-package drag-stuff
+  :hook
+  (prog-mode . (lambda () (drag-stuff-mode t)))
+  :general
+  (:keymaps 'prog-mode-map
+   :states '(normal motion)
+   "J" 'drag-stuff-down
+   "K" 'drag-stuff-up))
+
 (provide 'init-ide)
 ;;; init-ide.el ends here
