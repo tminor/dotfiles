@@ -264,7 +264,9 @@ Return an alist containing mute status and volume level."
 	  ([XF86AudioMute] . tm/toggle-mute)))
 
   (display-battery-mode 1)
-  (display-time-mode 1))
+  (display-time-mode 1)
+  :config
+  (setq exwm-workspace-show-all-buffers t))
 
 (require 'exwm-systemtray)
 (exwm-systemtray-enable)
