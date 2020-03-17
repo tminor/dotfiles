@@ -43,10 +43,23 @@
 
 (use-package lsp-mode
   :hook
-  (ruby-mode . lsp))
+  (ruby-mode . lsp)
+  (sh-mode . lsp)
+  :config
+  (setq lsp-prefer-flymake nil))
+
 (use-package lsp-ui
+  :general
+  (tm/leader-def
+    :infix "t"
+    :prefix-command 'tm/toggle-prefix-command
+    :prefix-map 'tm/toggle-prefix-map
+    :major-modes 'prog-mode
+    "" '(:which-key "toggle prefix" :ignore t)
+    "d" 'lsp-ui-doc-mode)
   :hook
   (ruby-mode . lsp-ui-mode))
+
 (use-package company-lsp)
 (use-package lsp-treemacs)
 
@@ -70,6 +83,8 @@
    :states '(normal motion)
    "J" 'drag-stuff-down
    "K" 'drag-stuff-up))
+
+(use-package emr)
 
 (provide 'init-ide)
 ;;; init-ide.el ends here
