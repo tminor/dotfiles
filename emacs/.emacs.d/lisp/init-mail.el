@@ -150,8 +150,7 @@ range.  For example, an input of \"20mins\" translates to
   :config
   (autoload 'notmuch "notmuch" "notmuch mail" t)
   ;; Tell Emacs how to send mail
-  (setq message-send-mail-function 'message-send-mail-with-sendmail
-        sendmail-program "/usr/bin/msmtp")
+  (setq sendmail-program "/usr/bin/msmtp")
   ;; Configure Fcc
   (setq notmuch-fcc-dirs "work/Sent +sent -new"
         notmuch-maildir-use-notmuch-insert t)
