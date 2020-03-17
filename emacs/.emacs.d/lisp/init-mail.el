@@ -135,7 +135,7 @@ range.  For example, an input of \"20mins\" translates to
 (use-package htmlize)
 (use-package org-mime)
 (use-package w3m
-    :if (executable-find "w3m"))
+  :if (executable-find "w3m"))
 
 (use-package notmuch
   :if (executable-find "notmuch")
