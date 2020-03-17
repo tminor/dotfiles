@@ -27,7 +27,7 @@
 ;; Implies (use-package :straight t) by default.
 (setq straight-use-package-by-default t)
 
-(setq straight-vc-git-default-protocol 'ssh)
+(setq straight-vc-git-default-protocol 'https)
 
 (provide 'init-package)
 ;;; init-package.el ends here
