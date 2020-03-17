@@ -38,6 +38,7 @@
 (require 'init-mail)
 (require 'init-projectile)
 (require 'init-log)
+(require 'init-prose)
 
 (require 'init-prog-mode)
 (require 'init-clojure)

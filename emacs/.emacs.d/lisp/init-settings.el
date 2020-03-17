@@ -82,29 +82,6 @@
   :straight
   (:host github :repo "tminor/taihaku-theme"))
 
-(use-package flyspell
-  :hook
-  (text-mode . flyspell-mode)
-  (prog-mode . flyspell-prog-mode))
-
-(use-package powerthesaurus
-  :general
-  (tm/leader-def
-    :infix "s"
-    :prefix-command 'tm/search-prefix-command
-    :prefix-map 'tm/search-prefix-map
-    "" '(:which-key "search prefix" :ignore t)
-    "t" 'powerthesaurus-lookup-word-dwim))
-
-(use-package define-word
-  :general
-  (tm/leader-def
-    :infix "s"
-    :prefix-command 'tm/search-prefix-command
-    :prefix-map 'tm/search-prefix-map
-    "" '(:which-key "search prefix" :ignore t)
-    "D" 'define-word-at-point))
-
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 
 (provide 'init-settings)
