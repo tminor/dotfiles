@@ -271,6 +271,13 @@ Return an alist containing mute status and volume level."
 	  ([XF86AudioRaiseVolume] . emms-volume-raise)
 	  ([XF86AudioLowerVolume] . emms-volume-lower)
 	  ([XF86AudioMute] . tm/toggle-mute)))
+	  ([XF86AudioMute] . tm/toggle-mute)
+	  ([XF86MonBrightnessUp] . (lambda ()
+				     (interactive)
+				     (shell-command "light -A 5; light")))
+	  ([XF86MonBrightnessDown] . (lambda ()
+				       (interactive)
+				       (shell-command "light -U 5; light")))))
 
   (display-battery-mode 1)
   (display-time-mode 1)
