@@ -37,4 +37,6 @@
 		    "TAB" 'hs-toggle-hiding)
 
 (add-hook 'nxml-mode-hook 'hs-minor-mode)
+
+(provide 'init-xml)
 ;;; init-xml.el ends here
