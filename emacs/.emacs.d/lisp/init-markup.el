@@ -26,5 +26,14 @@
 
 (use-package csv-mode)
 
+(use-package grip-mode
+  :config
+  (setq grip-update-after-change nil)
+  (setq grip-preview-use-webkit nil))
+
+(use-package flycheck-mmark
+  :hook
+  (flycheck-mode . (lambda () (flycheck-mmark-setup))))
+
 (provide 'init-markup)
 ;;; init-markup.el ends here
