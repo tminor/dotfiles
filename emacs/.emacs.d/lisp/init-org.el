@@ -72,7 +72,8 @@
                           "Send a desktop notification with TITLE and MESSAGE.
 Use `notifications-notify' instead of `alert'."
                           (notifications-notify :title title
-                                                :body message))))
+                                                :body message)))
+  (setq org-pomodoro-play-sounds nil))
 
 (use-package org-variable-pitch
   :diminish org-variable-pitch-minor-mode
