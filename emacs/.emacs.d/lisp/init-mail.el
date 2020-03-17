@@ -80,8 +80,8 @@ range.  For example, an input of \"20mins\" translates to
                                     :app-name "notmuchmail"))
             latest-messages)))
 
-(defun tm/notmuch-unread ()
-  "Show unread message count in mode-line."
+(defun tm/notmuch-make-unread-string ()
+  "Calculate number of unread inbox messages."
   (let* ((unread-mail (apply
                        #'notmuch-call-notmuch-sexp
                        '("search"
@@ -91,20 +91,18 @@ range.  For example, an input of \"20mins\" translates to
                          "--output=messages"
                          "tag:inbox"
                          "and tag:unread"))))
-    (setq unread-string (propertize
-                         (format "%s %s"
-                                 (all-the-icons-material
-                                  "mail"
-                                  :face 'all-the-icons-cyan-alt)
-                                 (length unread-mail))
-                         'font-lock-face '(:foreground "#61dafb")))
-    (if (> (length unread-mail) 0)
-        (progn
-          (unless global-mode-string (setq global-mode-string '("")))
-          (unless (memq unread-string global-mode-string)
-            (setq global-mode-string (append global-mode-string
-                                             '(unread-string)))))
-      (setq global-mode-string nil))))
+    (propertize
+     (format "%s %s"
+	     " ✉"
+	     (length unread-mail))
+     'font-lock-face '(:foreground "#61dafb"))))
+
+(defun tm/notmuch-unread ()
+  "Show unread message count in mode-line."
+  (setq tm/notmuch-inbox-state (tm/notmuch-make-unread-string))
+  (or (memq 'tm/notmuch-inbox-state global-mode-string)
+      (setq global-mode-string
+	    (append global-mode-string '(tm/notmuch-inbox-state)))))
 
 ;; TODO: Add defgroup for notmuchfeed faces
 (defface notmuch-feed-gluu
