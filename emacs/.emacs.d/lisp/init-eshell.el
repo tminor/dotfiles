@@ -46,6 +46,9 @@
              (require 'fish-completion nil t))
     (global-fish-completion-mode)))
 
+(setq tramp-default-proxies-alist
+      `((,(rx ".bor.usg.edu") nil "/ssh:tminor@solaire.sss.usg.edu:")))
+
 (use-package esh-autosuggest
   :hook
   (eshell-mode . esh-autosuggest-mode)
