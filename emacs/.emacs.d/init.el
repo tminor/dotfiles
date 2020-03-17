@@ -52,5 +52,6 @@
 (require 'init-python)
 (require 'init-regex)
 (require 'init-ruby)
+(require 'init-xml)
 (require 'init-shell)
 (require 'init-yasnippet)
