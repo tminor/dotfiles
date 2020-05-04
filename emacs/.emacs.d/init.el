@@ -46,6 +46,7 @@
 (require 'init-dired)
 (require 'init-elisp)
 (require 'init-golang)
+(require 'init-jsonnet)
 (require 'init-lisp)
 (require 'init-markup)
 (require 'init-php)
@@ -56,3 +57,7 @@
 (require 'init-xml)
 (require 'init-shell)
 (require 'init-yasnippet)
+(require 'init-web)
+(require 'init-guile)
+
+(put 'narrow-to-region 'disabled nil)
