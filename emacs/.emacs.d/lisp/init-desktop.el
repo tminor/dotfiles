@@ -58,6 +58,11 @@
      (("--primary" . nil)
       ("--mode" . "2560x1440")
       ("--pos" . "0x0")
+      ("--rotate" . "normal")))
+    ("DP-1-3"
+     (("--primary" . nil)
+      ("--mode" . "1920x1080")
+      ("--pos" . "0x0")
       ("--rotate" . "normal"))))
   "A list representing display configuration as predetermined by ARandR.
 This list is a list of cons cells, the car of which represents the name
@@ -270,7 +275,6 @@ Return an alist containing mute status and volume level."
 	  (,(kbd "s-t") . window-toggle-side-windows)
 	  ([XF86AudioRaiseVolume] . emms-volume-raise)
 	  ([XF86AudioLowerVolume] . emms-volume-lower)
-	  ([XF86AudioMute] . tm/toggle-mute)))
 	  ([XF86AudioMute] . tm/toggle-mute)
 	  ([XF86MonBrightnessUp] . (lambda ()
 				     (interactive)
