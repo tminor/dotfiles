@@ -656,9 +656,7 @@ https://emacs.stackexchange.com/a/3990"
       ;; indicating this variable should be increased
       undo-outer-limit 25170000
       ;; Files that `org-agenda' uses to populate its commands/views
-      org-agenda-files `(,(concat org-base-directory "mobile-capture.org")
-                         ,(concat org-base-directory "capture.org")
-                         ,(concat org-base-directory "notes.org")
+      org-agenda-files `(,(concat org-base-directory "capture.org")
                          ,(concat org-base-directory "todo.org")
 			 ,(concat org-base-directory "calendar/"))
       ;; Don't show scheduled TODOs in `org-agenda'
@@ -688,6 +686,7 @@ https://emacs.stackexchange.com/a/3990"
          ((agenda
            ""
            ((org-agenda-todo-ignore-scheduled 'past)
+	    (org-agenda-files '("~/org/todo.org" "~/org/calendar"))
             (org-agenda-time-grid (quote
                                    ((daily today remove-match)
                                     (300 600 900 1200 1500 1800 2100)
@@ -708,7 +707,7 @@ https://emacs.stackexchange.com/a/3990"
                           (not (in "K"))))))))
           (tags
            "+REFILE"
-           ((org-agenda-files '("~/org/mobile-capture.org"))
+           ((org-agenda-files '("~/org/capture.org"))
             (org-agenda-prefix-format
              ,(concat "    %5(org-entry-get nil \"MODIFIED\") "))
             (org-agenda-sorting-strategy '(effort-down))
@@ -791,9 +790,7 @@ https://emacs.stackexchange.com/a/3990"
 
 ;; `org-capture' settings
 (with-eval-after-load 'org
-  (tm/org-get-headings-command todo "todo.org")
-  (tm/org-get-headings-command notes "notes.org")
-  (tm/org-get-headings-command config "main.org"))
+  (tm/org-get-headings-command todo "todo.org"))
 
 (setq org-default-notes-file "~/org/capture.org")
 
