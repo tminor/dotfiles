@@ -237,6 +237,7 @@ Return an alist containing mute status and volume level."
   (exwm-floating-exit . exwm-layout-show-mode-line)
   (exwm-update-title . tm/exwm-rename-buffer-to-title)
   ((exwm-init exwm-randr-screen-change) . tm/exwm-change-screen-hook)
+  (exwm-workspace-switch . exwm-input-release-keyboard)
   :init
   (setq exwm-input-global-keys
 	`((,(kbd "s-R") . exwm-reset)
@@ -287,7 +288,9 @@ Return an alist containing mute status and volume level."
   (display-time-mode 1)
   (setq display-time-format " 📆 %b %e 🕐 %H:%M 🖳")
   :config
-  (setq exwm-workspace-show-all-buffers t))
+  (setq exwm-workspace-show-all-buffers t
+	exwm-input-line-mode-passthrough t)
+  (add-to-list 'exwm-input-prefix-keys ?\ ))
 
 (require 'exwm-systemtray)
 (exwm-systemtray-enable)
