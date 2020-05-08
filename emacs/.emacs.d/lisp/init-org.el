@@ -576,15 +576,15 @@ https://emacs.stackexchange.com/a/3990"
 (setq org-n-level-faces 15)
 (setq org-startup-indented t
       org-src-fontify-natively t
-      org-todo-keywords '((sequence "TODO(t)"
-				    "WAIT(w)"
-				    "PROJECT(p)"
-				    "READ(r)"
-				    "WATCH(W)"
+      org-todo-keywords '((sequence "TODO(t!)"
+				    "WAIT(w!)"
+				    "PROJECT(p!)"
+				    "READ(r!)"
+				    "WATCH(W!)"
 				    "|"
-				    "DONE(d)"
-				    "CANCELLED(c)"
-				    "NOTE(n)"))
+				    "DONE(d!)"
+				    "CANCELLED(c!)"
+				    "NOTE(n!)"))
       org-log-into-drawer t
       org-use-fast-todo-selection 'expert
       org-fontify-done-headline t
