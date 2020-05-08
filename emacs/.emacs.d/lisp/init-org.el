@@ -361,7 +361,14 @@ e equal return t."
 
 ;; Autofold agenda sections via `origami-mode'.
 (defvar tm/org-super-agenda-auto-show-groups
-  '("Unscheduled Tasks" "Archive DONE tasks" "Other items" "Schedule"))
+  '("Unscheduled tasks" "Archive DONE tasks" "Other items" "Schedule"))
+
+(setq tm/org-super-agenda-auto-show-groups '("Unscheduled tasks, high priority"
+					     "Unscheduled tasks, medium priority"
+					     "Archive DONE tasks"
+					     "Projects"
+					     "Other items"
+					     "Schedule"))
 
 (defun tm/org-super-agenda-origami-fold-default ()
   "Fold certain groups by default in `org-super-agenda' buffer."
