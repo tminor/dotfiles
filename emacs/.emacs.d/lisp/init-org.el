@@ -564,6 +564,8 @@ https://emacs.stackexchange.com/a/3990"
 			       nil
 			       'file
 			       #'tm/skip-nonmodified))))
+(add-hook 'org-mode-hook #'prettify-symbols-mode)
+
 
 ;; General Org settings:
 (add-to-list 'org-file-apps
