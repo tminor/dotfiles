@@ -39,9 +39,9 @@
   (:host github :repo "weirdNox/org-noter")
   :config
   (setq org-noter-always-create-frame nil
-	org-noter-doc-property-in-notes t
-	org-noter-always-create-frame nil
-	org-noter-kill-frame-at-session-end nil))
+        org-noter-doc-property-in-notes t
+        org-noter-always-create-frame nil
+        org-noter-kill-frame-at-session-end nil))
 
 (use-package org-noter-pdftools
   :straight
@@ -50,15 +50,14 @@
   :config
   (with-eval-after-load 'pdf-annot
     (add-hook 'pdf-annot-activate-handler-functions
-	      #'org-noter-pdftools-jump-to-note)))
+              #'org-noter-pdftools-jump-to-note)))
 
 (use-package org-bullets
   :hook (org-mode . (lambda ()
-		      (org-bullets-mode
-			   1)))
+                      (org-bullets-mode 1)))
   :config (setq org-bullets-bullet-list
-		'("⑴" "⑵" "⑶" "⑷" "⑸" "⑹" "⑺" "⑻" "⑼" "⑽" "⑾"
-		  "⑿" "⒀" "⒁" "⒂" "⒃")))
+                '("⑴" "⑵" "⑶" "⑷" "⑸" "⑹" "⑺" "⑻" "⑼" "⑽" "⑾"
+                  "⑿" "⒀" "⒁" "⒂" "⒃")))
 
 (use-package origami
   :hook
@@ -121,9 +120,9 @@ Use `notifications-notify' instead of `alert'."
 
 (mapc 'load
       '("org-sync"
-	"org-sync-bb"
-	"org-sync-github"
-	"org-sync-gitlab"))
+        "org-sync-bb"
+        "org-sync-github"
+        "org-sync-gitlab"))
 
 ;;; Function defs:
 (defun tm/org-remove-inherited-local-tags ()
@@ -364,11 +363,11 @@ e equal return t."
   '("Unscheduled tasks" "Archive DONE tasks" "Other items" "Schedule"))
 
 (setq tm/org-super-agenda-auto-show-groups '("Unscheduled tasks, high priority"
-					     "Unscheduled tasks, medium priority"
-					     "Archive DONE tasks"
-					     "Projects"
-					     "Other items"
-					     "Schedule"))
+                                             "Unscheduled tasks, medium priority"
+                                             "Archive DONE tasks"
+                                             "Projects"
+                                             "Other items"
+                                             "Schedule"))
 
 (defun tm/org-super-agenda-origami-fold-default ()
   "Fold certain groups by default in `org-super-agenda' buffer."
@@ -461,18 +460,18 @@ TEXT represents a formatted Org link."
 (defun tm/archive-in-subtree (orig-fun &rest args)
   "Called by `advice-add' with ORIG-FUN/ARGS to archive in subheadings of archive.org."
   (let* ((heading (save-excursion
-		    (while (not (= 1 (org-up-heading-safe))))
-		    (org-heading-components)))
-	 (title (nth 4 heading))
-	 (heading-stars (let ((i (nth 0 heading))
-			      (num 0)
-			      (stars ()))
-			  (while (< num (nth 0 heading))
-			    (setq stars (cons "*" stars))
-			    (setq num (1+ num)))
-			  (apply #'concat stars)))
-	 (org-archive-location
-	  (format "%s/archive.org::%s %s" org-directory heading-stars title)))
+                    (while (not (= 1 (org-up-heading-safe))))
+                    (org-heading-components)))
+         (title (nth 4 heading))
+         (heading-stars (let ((i (nth 0 heading))
+                              (num 0)
+                              (stars ()))
+                          (while (< num (nth 0 heading))
+                            (setq stars (cons "*" stars))
+                            (setq num (1+ num)))
+                          (apply #'concat stars)))
+         (org-archive-location
+          (format "%s/archive.org::%s %s" org-directory heading-stars title)))
     (funcall-interactively orig-fun)))
 
 (advice-add 'org-archive-subtree :around #'tm/archive-in-subtree)
@@ -511,18 +510,18 @@ https://emacs.stackexchange.com/a/3990"
 
 ;; Configure keybindings:
 (general-define-key :keymaps 'org-mode-map
-		    :states '(normal)
-		    "<S-iso-lefttab>" 'org-global-cycle
-		    "+" 'org-add-note
-		    "U" 'org-toggle-narrow-to-subtree
-		    "gj" 'outline-next-heading
-		    "gk" 'outline-previous-heading)
+                    :states '(normal)
+                    "<S-iso-lefttab>" 'org-global-cycle
+                    "+" 'org-add-note
+                    "U" 'org-toggle-narrow-to-subtree
+                    "gj" 'outline-next-heading
+                    "gk" 'outline-previous-heading)
 (general-define-key :keymaps '(org-agenda-mode-map)
-		    :states '(normal motion)
-		    "J" 'tm/org-agenda-next-header
-		    "K" 'tm/org-agenda-previous-header
-		    "gH" 'org-habit-toggle-display-in-agenda
-		    "<backtab>" 'origami-toggle-node)
+                    :states '(normal motion)
+                    "J" 'tm/org-agenda-next-header
+                    "K" 'tm/org-agenda-previous-header
+                    "gH" 'org-habit-toggle-display-in-agenda
+                    "<backtab>" 'origami-toggle-node)
 (tm/leader-def
   :infix "o"
   :prefix-command 'tm/org-prefix-command
@@ -547,13 +546,13 @@ https://emacs.stackexchange.com/a/3990"
 
 ;; `org-mode' hooks:
 (add-hook 'evil-insert-state-exit-hook
-	  #'(lambda ()
-	      (if (string= major-mode
-			   "org-mode")
-		  (save-buffer))))
+          #'(lambda ()
+              (if (string= major-mode
+                           "org-mode")
+                  (save-buffer))))
 (add-hook 'org-mode-hook #'visual-line-mode)
 (add-hook 'org-mode-hook
-	  #'(lambda () (dolist (symbol '(("#+TITLE:" . ?\u22ee)
+          #'(lambda () (dolist (symbol '(("#+TITLE:" . ?\u22ee)
                                     ("#+begin_src" . ?\u03bb)
                                     ("#+BEGIN_SRC" . ?\u03bb)
                                     ("#+end_src" . ?\u224b)
@@ -565,62 +564,62 @@ https://emacs.stackexchange.com/a/3990"
                     (cl-pushnew symbol prettify-symbols-alist
                                 :test #'equal))))
 (add-hook 'before-save-hook
-	  (lambda ()
-	    (when (eq major-mode 'org-mode)
-	      (org-map-entries #'tm/update-modification-time
-			       nil
-			       'file
-			       #'tm/skip-nonmodified))))
+          (lambda ()
+            (when (eq major-mode 'org-mode)
+              (org-map-entries #'tm/update-modification-time
+                               nil
+                               'file
+                               #'tm/skip-nonmodified))))
 (add-hook 'org-mode-hook #'prettify-symbols-mode)
 
 
 ;; General Org settings:
 (add-to-list 'org-file-apps
-	     '("\\.pdf\\'" . (lambda (file link)
-			       (org-pdftools-open link))))
+             '("\\.pdf\\'" . (lambda (file link)
+                               (org-pdftools-open link))))
 (tm/org-make-level-faces "16")
 ;; Makes more outline path faces available.
 (setq org-n-level-faces 15)
 (setq org-startup-indented t
       org-src-fontify-natively t
       org-todo-keywords '((sequence "TODO(t!)"
-				    "WAIT(w!)"
-				    "PROJECT(p!)"
-				    "READ(r!)"
-				    "WATCH(W!)"
-				    "|"
-				    "DONE(d!)"
-				    "CANCELLED(c!)"
-				    "NOTE(n!)"))
+                                    "WAIT(w!)"
+                                    "PROJECT(p!)"
+                                    "READ(r!)"
+                                    "WATCH(W!)"
+                                    "|"
+                                    "DONE(d!)"
+                                    "CANCELLED(c!)"
+                                    "NOTE(n!)"))
       org-log-into-drawer t
       org-use-fast-todo-selection 'expert
       org-fontify-done-headline t
       org-fontify-quote-and-verse-blocks t
       org-fontify-whole-heading-line t
       org-modules '(org-bbdb org-bibtex org-docview org-gnus org-habit org-info
-			     org-irc org-mhe org-rmail org-w3m org-habit-plus
-			     org-id org-drill org-protocol)
+                             org-irc org-mhe org-rmail org-w3m org-habit-plus
+                             org-id org-drill org-protocol)
       org-todo-keyword-faces '(("TODO" :background "#DD0B53" :foreground "#EAEAEA"
-				:weight bold :box (:line-width -1
-						   :style released-button))
-			       ("DONE" :background "#0F0" :foreground "#000"
-				:weight bold :box (:line-width -1
-						   :style released-button))
-			       ("WAIT" :background "#FEDA98" :foreground "#000"
-				:weight bold :box (:line-width -1
-						   :style released-button))
-			       ("PROJECT" :background "#742FD1" :foreground "#EAEAEA"
-				:weight bold :box (:line-width -1
-						   :style released-button))
-			       ("CANCELLED" :background "#F94FA0"
-				:foreground "#EAEAEA" :weight bold
-				:box (:line-width -1
-				      :style released-button))
-			       ("MEETING" :background "#3EDAD4" :foreground "#000"
-				:weight bold :box (:line-width -1
-						   :style released-button)))
+                                :weight bold :box (:line-width -1
+                                                   :style released-button))
+                               ("DONE" :background "#0F0" :foreground "#000"
+                                :weight bold :box (:line-width -1
+                                                   :style released-button))
+                               ("WAIT" :background "#FEDA98" :foreground "#000"
+                                :weight bold :box (:line-width -1
+                                                   :style released-button))
+                               ("PROJECT" :background "#742FD1" :foreground "#EAEAEA"
+                                :weight bold :box (:line-width -1
+                                                   :style released-button))
+                               ("CANCELLED" :background "#F94FA0"
+                                :foreground "#EAEAEA" :weight bold
+                                :box (:line-width -1
+                                      :style released-button))
+                               ("MEETING" :background "#3EDAD4" :foreground "#000"
+                                :weight bold :box (:line-width -1
+                                                   :style released-button)))
       org-priority-faces '((?A . (:foreground "#DD0B53" :weight bold))
-			   (?B . (:foreground "#FEDA98"))
+                           (?B . (:foreground "#FEDA98"))
                            (?C . (:foreground "#0F0")))
       org-log-done 'time)
 
@@ -635,10 +634,10 @@ https://emacs.stackexchange.com/a/3990"
 
 ;; https://zzamboni.org/post/beautifying-org-mode-in-emacs/
 (font-lock-add-keywords 'org-mode
-			'(("^ *\\([-]\\) "
-			   (0 (prog1 ()
-				(compose-region (match-beginning 1)
-						(match-end 1) "\u2022"))))))
+                        '(("^ *\\([-]\\) "
+                           (0 (prog1 ()
+                                (compose-region (match-beginning 1)
+                                                (match-end 1) "\u2022"))))))
 
 ;; `org-agenda' settings:
 (setq org-work-directory (concat org-base-directory "work/"))
@@ -649,10 +648,10 @@ https://emacs.stackexchange.com/a/3990"
 (add-hook 'org-agenda-finalize-hook #'tm/org-super-agenda-origami-fold-default)
 
 (setq tm/org-super-agenda-auto-show-groups '("Other items"
-					     "Needs refiling"
-					     "Unscheduled Tasks"
-					     "Things to read"
-					     "Archive DONE tasks"))
+                                             "Needs refiling"
+                                             "Unscheduled Tasks"
+                                             "Things to read"
+                                             "Archive DONE tasks"))
 
 (with-eval-after-load 'org
   (require 'evil-org-agenda)
@@ -665,7 +664,7 @@ https://emacs.stackexchange.com/a/3990"
       ;; Files that `org-agenda' uses to populate its commands/views
       org-agenda-files `(,(concat org-base-directory "capture.org")
                          ,(concat org-base-directory "todo.org")
-			 ,(concat org-base-directory "calendar/"))
+                         ,(concat org-base-directory "calendar/"))
       ;; Don't show scheduled TODOs in `org-agenda'
       org-agenda-todo-ignore-scheduled t
       ;; Tell `org-agenda' to use `current-buffer' to avoid destroying
@@ -693,13 +692,13 @@ https://emacs.stackexchange.com/a/3990"
          ((agenda
            ""
            ((org-agenda-todo-ignore-scheduled 'past)
-	    (org-agenda-files '("~/org/todo.org" "~/org/calendar"))
+            (org-agenda-files '("~/org/todo.org" "~/org/calendar"))
             (org-agenda-time-grid (quote
                                    ((daily today remove-match)
                                     (300 600 900 1200 1500 1800 2100)
                                     "......" "----------------")))
             (org-agenda-span 'day)
-	    (org-agenda-overriding-header "")
+            (org-agenda-overriding-header "")
             (org-super-agenda-groups
              '((:name "Trash"
                 :discard (:tag "HABIT"))))
@@ -721,19 +720,19 @@ https://emacs.stackexchange.com/a/3990"
             (org-agenda-cmp-user-defined (tm/org-cmp-date-property
                                           "MODIFIED"))
             (org-agenda-sorting-strategy '(user-defined-down))
-	    (org-agenda-overriding-header "")
+            (org-agenda-overriding-header "")
             (org-agenda-hide-tags-regexp
              (rx (zero-or-more anything)))
-	    (org-overriding-columns-format
-	     (concat "%40ITEM(Task) "
-		     "%TODO "
-		     "%3PRIORITY "
-		     "%17Effort(Estimated Effort){:} "
-		     "%CLOCKSUM"))
-	    (org-super-agenda-groups
-	     '((:name "Needs refiling"
-		:tag "REFILE"
-		:order 0)))))
+            (org-overriding-columns-format
+             (concat "%40ITEM(Task) "
+                     "%TODO "
+                     "%3PRIORITY "
+                     "%17Effort(Estimated Effort){:} "
+                     "%CLOCKSUM"))
+            (org-super-agenda-groups
+             '((:name "Needs refiling"
+                :tag "REFILE"
+                :order 0)))))
           (tags
            "/DONE|TODO|WAIT|CANCELLED|PROJECT|READ|WATCH"
            ((org-agenda-files '("~/org/todo.org"))
@@ -744,56 +743,56 @@ https://emacs.stackexchange.com/a/3990"
             (org-agenda-cmp-user-defined (tm/org-cmp-date-property
                                           "MODIFIED"))
             (org-agenda-sorting-strategy '(user-defined-down))
-	    (org-agenda-overriding-header "")
+            (org-agenda-overriding-header "")
             (org-agenda-hide-tags-regexp
              (rx (zero-or-more anything)))
-	    (org-overriding-columns-format
-	     (concat "%40ITEM(Task) "
-		     "%TODO "
-		     "%3PRIORITY "
-		     "%17Effort(Estimated Effort){:} "
-		     "%CLOCKSUM"))
+            (org-overriding-columns-format
+             (concat "%40ITEM(Task) "
+                     "%TODO "
+                     "%3PRIORITY "
+                     "%17Effort(Estimated Effort){:} "
+                     "%CLOCKSUM"))
             (org-super-agenda-groups
              '((:name "Archive DONE tasks"
-		:order 3
+                :order 3
                 :todo ("DONE" "CANCELLED"))
                (:name "Waiting tasks"
-		:order 7
+                :order 7
                 :todo "WAIT"
                 :discard (:scheduled t))
-	       (:name "Things to read/watch"
-		:order 4
-		:todo ("READ" "WATCH"))
+               (:name "Things to read/watch"
+                :order 4
+                :todo ("READ" "WATCH"))
                (:name "Attic: tasks for the Future™"
-		:order 6
+                :order 6
                 :tag "FUTURE")
                (:name "Projects"
-		:order 5
+                :order 5
                 :todo "PROJECT")
-	       (:name "Unscheduled tasks, high priority"
-		:order 0
-		:and (:todo "TODO"
-		      :priority "A"))
-	       (:name "Unscheduled tasks, medium priority"
-		:order 1
-		:and (:todo "TODO"
-		      :priority "B"))
-	       (:name "Unscheduled tasks, low priority"
-		:order 2
-		:and (:todo "TODO"
-		      :priority "C"))))))))))
+               (:name "Unscheduled tasks, high priority"
+                :order 0
+                :and (:todo "TODO"
+                      :priority "A"))
+               (:name "Unscheduled tasks, medium priority"
+                :order 1
+                :and (:todo "TODO"
+                      :priority "B"))
+               (:name "Unscheduled tasks, low priority"
+                :order 2
+                :and (:todo "TODO"
+                      :priority "C"))))))))))
 
 (with-eval-after-load 'f
   (dolist (file org-agenda-files nil)
     (if (f-file-p file)
-	(add-to-list 'tm/auto-minor-mode-alist
-		     `(,file . auto-revert-mode))
+        (add-to-list 'tm/auto-minor-mode-alist
+                     `(,file . auto-revert-mode))
       (if (f-dir-p file)
-	  (let ((files (f-files file
-				(lambda (path) (f-ext? path "org")))))
-	    (dolist (file files nil)
-	      (add-to-list 'tm/auto-minor-mode-alist
-			   `(,file . auto-revert-mode))))))))
+          (let ((files (f-files file
+                                (lambda (path) (f-ext? path "org")))))
+            (dolist (file files nil)
+              (add-to-list 'tm/auto-minor-mode-alist
+                           `(,file . auto-revert-mode))))))))
 
 ;; `org-capture' settings
 (with-eval-after-load 'org
@@ -844,9 +843,9 @@ https://emacs.stackexchange.com/a/3990"
       (file+function "~/org/todo.org" tm/org-get-headings-todo)
       ;; Template
       ,(concat "* TODO %?\n"
-	       ":PROPERTIES:\n"
-	       ":NOTIFY: todo\n"
-	       ":END:\n"
+               ":PROPERTIES:\n"
+               ":NOTIFY: todo\n"
+               ":END:\n"
                ":LOGBOOK:\n"
                "- State \"TODO\"    from \"\"        %U\n"
                ":END:\n")
@@ -857,21 +856,21 @@ https://emacs.stackexchange.com/a/3990"
 ;; `org-notify' settings:
 (require 'org-notify)
 (org-notify-add 'todo
-		'(:time "15m" :period "20s" :duration 10
-		  :actions (-notify -message))
-		'(:time "5m" :period "20s" :duration 10
-		  :actions (-notify -message))
-		'(:time "1m" :period "20s" :duration 10
-		  :actions (-notify -message -ding)))
+                '(:time "15m" :period "20s" :duration 10
+                  :actions (-notify -message))
+                '(:time "5m" :period "20s" :duration 10
+                  :actions (-notify -message))
+                '(:time "1m" :period "20s" :duration 10
+                  :actions (-notify -message -ding)))
 (org-notify-add 'event
-		'(:time "1h" :duration 10
-		  :actions (-notify -message))
-		'(:time "15m" :period "20s" :duration 10
-		  :actions (-notify -message))
-		'(:time "5m" :period "20s" :duration 10
-		  :actions (-notify -message))
-		'(:time "1m" :period "20s" :duration 10
-		  :actions (-notify -message -ding)))
+                '(:time "1h" :duration 10
+                  :actions (-notify -message))
+                '(:time "15m" :period "20s" :duration 10
+                  :actions (-notify -message))
+                '(:time "5m" :period "20s" :duration 10
+                  :actions (-notify -message))
+                '(:time "1m" :period "20s" :duration 10
+                  :actions (-notify -message -ding)))
 
 (org-notify-start)
 
@@ -926,10 +925,10 @@ https://emacs.stackexchange.com/a/3990"
    "o" 'ace-link-woman))
 
 (org-babel-do-load-languages 'org-babel-load-languages
-			     (append org-babel-load-languages
-				     '((python     . t)
-				       (ruby       . t)
-				       (shell      . t))))
+                             (append org-babel-load-languages
+                                     '((python     . t)
+                                       (ruby       . t)
+                                       (shell      . t))))
 
 (use-package org-roam
   :straight
@@ -946,21 +945,21 @@ https://emacs.stackexchange.com/a/3990"
     "i" 'org-roam-insert)
   :config
   (setq org-roam-directory "~/org/notes/"
-	org-roam-capture-templates
-	'(("d" "default" plain
-	   #'org-roam-capture--get-point "%?"
-	   :file-name "${slug}"
-	   :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
-	   :unnarrowed t)))
+        org-roam-capture-templates
+        '(("d" "default" plain
+           #'org-roam-capture--get-point "%?"
+           :file-name "${slug}"
+           :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
+           :unnarrowed t)))
   (add-to-list 'org-roam-capture-ref-templates
-	       `("s" "source" plain
-		 #'org-roam-capture--get-point
-		 ,(concat
-		   "%(org-web-tools--url-as-readable-org \"${ref}\")"
-		   "%?")
-		 :file-name "%<%Y%m%d%H%M%S>-${slug}"
-		 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}"
-		 :unnarrowed t))
+               `("s" "source" plain
+                 #'org-roam-capture--get-point
+                 ,(concat
+                   "%(org-web-tools--url-as-readable-org \"${ref}\")"
+                   "%?")
+                 :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}"
+                 :unnarrowed t))
   (require 'org-roam-protocol)
   :hook
   (after-init . org-roam-mode))
@@ -976,7 +975,7 @@ https://emacs.stackexchange.com/a/3990"
   (defun tm/notdeft-bury-or-clear ()
     (interactive)
     (if notdeft-filter-string
-	(notdeft-filter-clear)
+        (notdeft-filter-clear)
       (bury-buffer)))
   :general
   (tm/leader-def
@@ -988,7 +987,7 @@ https://emacs.stackexchange.com/a/3990"
    "S" 'notdeft-filter)
   :config
   (setq notdeft-directory (concat org-directory "/notes")
-	notdeft-xapian-program (executable-find "notdeft-xapian")))
+        notdeft-xapian-program (executable-find "notdeft-xapian")))
 
 (provide 'init-org)
 ;;; init-org.el ends here
