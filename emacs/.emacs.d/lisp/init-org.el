@@ -614,7 +614,8 @@ https://emacs.stackexchange.com/a/3990"
 						   :style released-button)))
       org-priority-faces '((?A . (:foreground "#DD0B53" :weight bold))
 			   (?B . (:foreground "#FEDA98"))
-                           (?C . (:foreground "#0F0"))))
+                           (?C . (:foreground "#0F0")))
+      org-log-done 'time)
 
 ;; `org-capture' settings:
 (setq org-refile-targets
