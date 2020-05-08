@@ -451,6 +451,25 @@ TEXT represents a formatted Org link."
     (string-match org-bracket-link-regexp text)
     (insert (substring text (match-beginning 1) (match-end 1)))))
 
+(defun tm/archive-in-subtree (orig-fun &rest args)
+  "Called by `advice-add' with ORIG-FUN/ARGS to archive in subheadings of archive.org."
+  (let* ((heading (save-excursion
+		    (while (not (= 1 (org-up-heading-safe))))
+		    (org-heading-components)))
+	 (title (nth 4 heading))
+	 (heading-stars (let ((i (nth 0 heading))
+			      (num 0)
+			      (stars ()))
+			  (while (< num (nth 0 heading))
+			    (setq stars (cons "*" stars))
+			    (setq num (1+ num)))
+			  (apply #'concat stars)))
+	 (org-archive-location
+	  (format "%s/archive.org::%s %s" org-directory heading-stars title)))
+    (funcall-interactively orig-fun)))
+
+(advice-add 'org-archive-subtree :around #'tm/archive-in-subtree)
+
 (defun tm/org-retrieve-url-from-point ()
   "Retrieve a URL from an Org link's text properties."
   (interactive)
