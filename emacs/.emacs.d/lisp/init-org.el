@@ -969,5 +969,64 @@ https://emacs.stackexchange.com/a/3990"
 				       (ruby       . t)
 				       (shell      . t))))
 
+(use-package org-roam
+  :straight
+  (:host github :repo "jethrokuan/org-roam")
+  :general
+  (tm/leader-def
+    :infix "or"
+    :prefix-command 'tm/org-roam-prefix-command
+    :prefix-map 'tm/org-roam-prefix-map
+    "" '(:which-key "org-roam prefix" :ignore t)
+    "o" 'org-roam
+    "f" 'org-roam-find-file
+    "g" 'org-roam-show-graph
+    "i" 'org-roam-insert)
+  :config
+  (setq org-roam-directory "~/org/notes/"
+	org-roam-capture-templates
+	'(("d" "default" plain
+	   #'org-roam-capture--get-point "%?"
+	   :file-name "${slug}"
+	   :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
+	   :unnarrowed t)))
+  (add-to-list 'org-roam-capture-ref-templates
+	       `("s" "source" plain
+		 #'org-roam-capture--get-point
+		 ,(concat
+		   "%(org-web-tools--url-as-readable-org \"${ref}\")"
+		   "%?")
+		 :file-name "%<%Y%m%d%H%M%S>-${slug}"
+		 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}"
+		 :unnarrowed t))
+  (require 'org-roam-protocol)
+  :hook
+  (after-init . org-roam-mode))
+
+;; (use-package org-fc
+;;   :straight
+;;   (:host github :repo "l3kn/org-fc"))
+
+(use-package notdeft
+  :straight
+  (:host github :repo "hasu/notdeft" :branch "xapian")
+  :preface
+  (defun tm/notdeft-bury-or-clear ()
+    (interactive)
+    (if notdeft-filter-string
+	(notdeft-filter-clear)
+      (bury-buffer)))
+  :general
+  (tm/leader-def
+    "i" 'notdeft)
+  (:keymaps 'notdeft-mode-map
+   :states '(normal motion)
+   "q" 'tm/notdeft-bury-or-clear
+   "gr" 'notdeft-refresh
+   "S" 'notdeft-filter)
+  :config
+  (setq notdeft-directory (concat org-directory "/notes")
+	notdeft-xapian-program (executable-find "notdeft-xapian")))
+
 (provide 'init-org)
 ;;; init-org.el ends here
