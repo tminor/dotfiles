@@ -843,51 +843,6 @@ https://emacs.stackexchange.com/a/3990"
                ":LOGBOOK:\n"
                "- State \"TODO\"    from \"\"        %U\n"
                ":END:\n")
-      :empty-lines 1)
-
-     ("n" "Note" entry
-      ;; Target
-      (file+function "~/org/notes.org" tm/org-get-headings-notes)
-      ;; Template
-      ,(concat "* %?\n"
-               ":LOGBOOK:\n"
-               "- State \"\"        from \"\"        %U\n"
-               ":END:\n")
-      :empty-lines 1)
-
-     ("l" "Link" entry
-      ;; Target
-      (file+function "~/org/notes.org" tm/org-get-headings-notes)
-      ;; Template
-      ,(concat "* %(format-time-string org-journal-time-format) "
-               "%(org-web-tools--org-link-for-url) :link:\n\n"
-               ":LOGBOOK:\n"
-               "- State \"\"        from \"\"        %U\n"
-               ":END:\n\n"
-               "%?")
-      :empty-lines 1)
-
-     ;; `org-capture' browser extension templates
-     ("p" "Link with quote for org-protocol" entry
-      ;; Target
-      (file+function "/home/tminor/org/notes.org" tm/org-get-headings-notes)
-      ;; Template
-      ,(concat
-	"* %^{Title}\n"
-	":LOGBOOK:\n"
-	"- State \"\"        from \"\"        %U\n"
-	":END:\n\n"
-	"Source: %u, %c\n #+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n%?"
-	"%(progn (setq tm/delete-frame-after-capture 2)")
-      :empty-lines 1)
-
-     ("L" "Link for org-protocol" entry
-      ;; Target
-      (file+function "/home/tminor/org/notes.org" tm/org-get-headings-notes)
-      ;; Template
-      ,(concat
-	"%(org-web-tools--url-as-readable-org \"%:link\")"
-	"%?")
       :empty-lines 1))))
 
 (use-package org-ql)
