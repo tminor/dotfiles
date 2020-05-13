@@ -7,6 +7,10 @@
 ;;; Code:
 
 (use-package lispy
+  :general
+  (:keymaps 'lispy-mode-map
+   :states '(normal motion)
+   "Q" 'lispy-ace-paren)
   :hook
   ((lisp-mode emacs-lisp-mode scheme-mode) . lispy-mode)
   :config
