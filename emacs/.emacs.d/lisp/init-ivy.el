@@ -34,7 +34,8 @@
             (ivy-rich-switch-buffer-project
              (:width 15 :face font-lock-variable-name-face)))
            :predicate
-           (lambda (cand) (get-buffer cand)))))
+           (lambda (cand) (get-buffer cand))))
+	ivy-rich-parse-remote-buffer nil)
   :hook
   (after-init . ivy-rich-mode))
 
