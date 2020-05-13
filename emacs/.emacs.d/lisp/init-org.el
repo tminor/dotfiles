@@ -358,12 +358,9 @@ e equal return t."
     (while (outline-previous-heading)
       (org-id-get-create))))
 
-;; Autofold agenda sections via `origami-mode'.
-(defvar tm/org-super-agenda-auto-show-groups
-  '("Unscheduled tasks" "Archive DONE tasks" "Other items" "Schedule"))
-
 (setq tm/org-super-agenda-auto-show-groups '("Unscheduled tasks, high priority"
                                              "Unscheduled tasks, medium priority"
+					     "Stuck projects"
                                              "Archive DONE tasks"
                                              "Projects"
                                              "Other items"
@@ -621,7 +618,10 @@ https://emacs.stackexchange.com/a/3990"
       org-priority-faces '((?A . (:foreground "#DD0B53" :weight bold))
                            (?B . (:foreground "#FEDA98"))
                            (?C . (:foreground "#0F0")))
-      org-log-done 'time)
+      org-log-done 'time
+      org-stuck-projects '("-FUTURE/PROJECT"
+			   ("TODO")
+			   nil))
 
 ;; `org-capture' settings:
 (setq org-refile-targets
@@ -711,6 +711,12 @@ https://emacs.stackexchange.com/a/3990"
                           (not (in "O"))
                           (not (in "R"))
                           (not (in "K"))))))))
+	  (stuck
+	   ""
+	   ((org-agenda-overriding-header "")
+	    (org-super-agenda-groups
+	     '((:name "Stuck projects"
+		:todo "PROJECT")))))
           (tags
            "+REFILE"
            ((org-agenda-files '("~/org/capture.org"))
