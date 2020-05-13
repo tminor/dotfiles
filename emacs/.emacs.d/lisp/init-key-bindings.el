@@ -76,5 +76,13 @@
                                                todo
                                                heading)))))
 
+(use-package free-keys
+  :general
+  (tm/leader-def
+    :infix "h"
+    :prefix-command 'tm/help-prefix-command
+    :prefix-map 'tm/help-prefix-map
+    "K" 'free-keys))
+
 (provide 'init-key-bindings)
 ;;; init-key-bindings.el ends here
