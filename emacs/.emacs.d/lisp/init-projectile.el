@@ -16,6 +16,7 @@
   (setq projectile-completion-system 'ivy)
   ;; https://github.com/bbatsov/projectile/issues/1323
   (setq projectile-git-submodule-command nil)
+  (setq projectile-ignored-project-function #'(not (file-remote-p)))
   :general
   (tm/leader-def
     "p" '(:keymap projectile-command-map
