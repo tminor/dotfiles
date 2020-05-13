@@ -964,7 +964,16 @@ https://emacs.stackexchange.com/a/3990"
                    "%(org-web-tools--url-as-readable-org \"${ref}\")"
                    "%?")
                  :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}"
+                 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
+                 :unnarrowed t))
+  (add-to-list 'org-roam-capture-ref-templates
+               `("p" "pdf" plain
+                 #'org-roam-capture--get-point
+                 ,(concat
+                   "%(w3m-download \"${ref}\")"
+                   "%?")
+                 :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
                  :unnarrowed t))
   (require 'org-roam-protocol)
   :hook
