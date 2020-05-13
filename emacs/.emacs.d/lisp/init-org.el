@@ -595,7 +595,7 @@ https://emacs.stackexchange.com/a/3990"
       org-fontify-whole-heading-line t
       org-modules '(org-bbdb org-bibtex org-docview org-gnus org-habit org-info
                              org-irc org-mhe org-rmail org-w3m org-habit-plus
-                             org-id org-drill org-protocol)
+                             org-id org-drill org-protocol org-man org-tempo)
       org-todo-keyword-faces '(("TODO" :background "#DD0B53" :foreground "#EAEAEA"
                                 :weight bold :box (:line-width -1
                                                    :style released-button))
