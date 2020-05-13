@@ -253,6 +253,10 @@ Return an alist containing mute status and volume level."
 	  (,(kbd "s-d") . counsel-linux-app)
 	  (,(kbd "s-SPC") . tm/prefix-command)
 	  (,(kbd "C-s-L") . tm/lock-screen)
+	  (,(kbd "s-a") . tm/org-agenda-both-today)
+	  (,(kbd "s-z") . zoom-mode)
+	  (,(kbd "s-r") . helm-org-rifle)
+	  (,(kbd "s-c") . org-capture)
 	  ,@(mapcar (lambda (i)
 		      `(,(kbd (format "s-%d" i)) .
 			(lambda ()
