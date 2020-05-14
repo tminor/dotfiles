@@ -293,7 +293,8 @@ Return an alist containing mute status and volume level."
   (setq display-time-format " 📆 %b %e 🕐 %H:%M 🖳")
   :config
   (setq exwm-workspace-show-all-buffers t
-	exwm-input-line-mode-passthrough t)
+	exwm-input-line-mode-passthrough t
+	exwm-manage-configurations '((t char-mode t)))
   (add-to-list 'exwm-input-prefix-keys ?\ ))
 
 (require 'exwm-systemtray)
