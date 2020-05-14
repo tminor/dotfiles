@@ -582,6 +582,7 @@ https://emacs.stackexchange.com/a/3990"
       org-todo-keywords '((sequence "TODO(t!)"
                                     "WAIT(w!)"
                                     "PROJECT(p!)"
+				    "DOING(D!)"
                                     "READ(r!)"
                                     "WATCH(W!)"
                                     "|"
@@ -606,6 +607,9 @@ https://emacs.stackexchange.com/a/3990"
                                 :weight bold :box (:line-width -1
                                                    :style released-button))
                                ("PROJECT" :background "#742FD1" :foreground "#EAEAEA"
+                                :weight bold :box (:line-width -1
+                                                   :style released-button))
+			       ("DOING" :background "#3EDAD4" :foreground "#000"
                                 :weight bold :box (:line-width -1
                                                    :style released-button))
                                ("CANCELLED" :background "#F94FA0"
@@ -648,6 +652,8 @@ https://emacs.stackexchange.com/a/3990"
 (add-hook 'org-agenda-finalize-hook #'tm/org-super-agenda-origami-fold-default)
 
 (setq tm/org-super-agenda-auto-show-groups '("Other items"
+					     "Stuck projects"
+					     "Tasks in progress"
                                              "Needs refiling"
                                              "Unscheduled Tasks"
                                              "Things to read"
@@ -717,6 +723,23 @@ https://emacs.stackexchange.com/a/3990"
 	    (org-super-agenda-groups
 	     '((:name "Stuck projects"
 		:todo "PROJECT")))))
+	  (tags
+	   "/DOING"
+	   ((org-agenda-files '("~/org/todo.org"))
+	    (org-agenda-prefix-format
+	     ,(concat "    %5(org-entry-get nil \"MODIFIED\") "))
+	    (org-agenda-todo-ignore-scheduled t)
+	    (org-agenda-sorting-strategy '(effort-down))
+	    (org-agenda-cmp-user-defined (tm/org-cmp-date-property
+					  "MODIFIED"))
+	    (org-agenda-sorting-strategy '(user-defined-down))
+	    (org-agenda-overriding-header "")
+	    (org-agenda-hide-tags-regexp
+	     (rx (zero-or-more anything)))
+	    (org-super-agenda-groups
+	     '((:name "Tasks in progress"
+		:todo "DOING")
+	       (:discard :anything)))))
           (tags
            "+REFILE"
            ((org-agenda-files '("~/org/capture.org"))
