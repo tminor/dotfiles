@@ -1025,6 +1025,7 @@ https://emacs.stackexchange.com/a/3990"
    "S" 'notdeft-filter)
   :config
   (setq notdeft-directory (concat org-directory "/notes")
+	notdeft-directories `(,(concat org-directory "/notes/"))
         notdeft-xapian-program (executable-find "notdeft-xapian")))
 
 (provide 'init-org)
