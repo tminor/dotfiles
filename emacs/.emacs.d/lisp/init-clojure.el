@@ -16,17 +16,8 @@
   (setq cider-repl-history-file (no-littering-expand-var-file-name
 				 ".cider-repl-history")
         nrepl-log-messages t)
-  (flycheck-clojure-setup)
   :hook
   (clojure-interaction-mode . cider-turn-on-eldoc-mode))
-
-(use-package flycheck-clojure
-  :defer t
-  :commands (flycheck-clojure-setup)
-  :config
-  (eval-after-load 'flycheck
-    '(setq flycheck-display-errors-function
-	   #'flycheck-pos-tip-error-messages)))
 
 (use-package flycheck-clj-kondo
   :config
@@ -37,6 +28,7 @@
 
 (use-package clojure-mode
   :hook
+  (clojure-mode . lispy-mode)
   (clojure-mode . lispyville-mode)
   (clojure-mode . cider-mode)
   :config
@@ -45,8 +37,7 @@
   (dolist (checkers '((clj-kondo-clj . clojure-joker)
 		      (clj-kondo-cljs . clojurescript-joker)
 		      (clj-kondo-cljc . clojure-joker)
-		      (clj-kondo-edn . edn-joker)
-		      (clojure-joker . clojure-cider-eastwood)))
+		      (clj-kondo-edn . edn-joker)))
     (flycheck-add-next-checker (car checkers) (cons 'error (cdr checkers)))))
 
 (provide 'init-clojure)
