@@ -295,7 +295,36 @@ Return an alist containing mute status and volume level."
   (setq exwm-workspace-show-all-buffers t
 	exwm-input-line-mode-passthrough t
 	exwm-manage-configurations '((t char-mode t)))
-  (add-to-list 'exwm-input-prefix-keys ?\ ))
+  (add-to-list 'exwm-input-prefix-keys ?\ )
+  (defun tm/ivy--switch-buffer-action (buffer)
+    "Switch to BUFFER.
+
+BUFFER may be a string or nil. Conditionally calls
+`exwm-workspace-switch-to-buffer' if BUFFER is an EXWM buffer."
+    (let ((buffer-mode (save-excursion
+			 (with-current-buffer (get-buffer buffer)
+			   major-mode))))
+      (if (eq buffer-mode 'exwm-mode)
+	  (exwm-workspace-switch-to-buffer buffer)
+	(if (zerop (length buffer))
+	    (switch-to-buffer
+	     ivy-text nil 'force-same-window)
+	  (let ((virtual (assoc buffer ivy--virtual-buffers))
+		(view (assoc buffer ivy-views)))
+	    (cond ((and virtual
+			(not (get-buffer buffer)))
+		   (find-file (cdr virtual)))
+		  (view
+		   (delete-other-windows)
+		   (let (
+			 ;; silence "Directory has changed on disk"
+			 (inhibit-message t))
+		     (ivy-set-view-recur (cadr view))))
+		  (t
+		   (switch-to-buffer
+		    buffer nil 'force-same-window))))))))
+  (advice-add 'ivy--switch-buffer-action
+	      :override #'tm/ivy--switch-buffer-action))
 
 (require 'exwm-systemtray)
 (exwm-systemtray-enable)
