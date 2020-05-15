@@ -178,8 +178,8 @@ range.  For example, an input of \"20mins\" translates to
           (:name "feed"
            :query "date:\"1hours..now\"")
           (:name "nagios-gluu"
-           :query "subject:\"/idp-demo-prod/\" and tag:nagios-gluu and date:30days..today"
-           :count-query "subject:\"/idp-demo-prod/\" and tag:nagios-gluu and date:30days..today and tag:unread")
+           :query "tag:idp-demo-prod and tag:nagios and date:14days..today"
+           :count-query "tag:idp-demo-prod and tag:nagios and date:30days..today and tag:unread")
           (:name "nagios"
            :query "tag:nagios not 'subject:\"/Project: gluu/\"' and date:3days..today"
            :count-query "tag:nagios not 'subject:\"/Project: gluu/\"' and date:3days..today and tag:unread")
