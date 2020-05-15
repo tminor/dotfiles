@@ -328,7 +328,7 @@ BUFFER may be a string or nil. Conditionally calls
 
 (require 'exwm-systemtray)
 (exwm-systemtray-enable)
-(setq exwm-systemtray-height 24)
+(setq exwm-systemtray-height 18)
 
 (require 'exwm-randr)
 (exwm-randr-enable)
