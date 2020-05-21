@@ -226,7 +226,8 @@ event of an error or nonlocal exit."
 	  (,(rx string-start (or "*Org Agenda*"))
 	   (display-buffer-reuse-window display-buffer-in-side-window)
 	   (direction . rightmost)
-	   (side . right)))))
+	   (side . right)
+	   (window-width . 100)))))
 
 (provide 'init-nav)
 ;;; init-nav.el ends here
