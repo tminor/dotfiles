@@ -305,9 +305,10 @@ Return an alist containing mute status and volume level."
 
 BUFFER may be a string or nil. Conditionally calls
 `exwm-workspace-switch-to-buffer' if BUFFER is an EXWM buffer."
-    (let ((buffer-mode (save-excursion
-			 (with-current-buffer (get-buffer buffer)
-			   major-mode))))
+    (let ((buffer-mode (unless (assoc buffer ivy--virtual-buffers)
+			 (save-excursion
+			   (with-current-buffer (get-buffer buffer)
+			     major-mode)))))
       (if (eq buffer-mode 'exwm-mode)
 	  (exwm-workspace-switch-to-buffer buffer)
 	(if (zerop (length buffer))
