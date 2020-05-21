@@ -86,6 +86,21 @@
   ;; Use `notifications-notify' instead of `alert'."
   ;;                           (notifications-notify :title title
   ;;                                                 :body message)))
+  (setq org-pomodoro-play-sounds t
+	org-pomodoro-format "🍅 %s"
+	org-pomodoro-overtime-format "+%s"
+	org-pomodoro-short-break-format "🍅 %s"
+	org-pomodoro-long-break-format "🎉 %s")
+  (defun org-pomodoro-start (&optional state)
+    "Start the `org-pomodoro` timer.
+The argument STATE is optional.  The default state is `:pomodoro`."
+    (when org-pomodoro-timer (cancel-timer org-pomodoro-timer))
+    (org-pomodoro-set (or state :pomodoro))
+    (when (eq org-pomodoro-state :pomodoro)
+      (org-pomodoro-maybe-play-sound :start)
+      (run-hooks 'org-pomodoro-started-hook))
+    (org-agenda-maybe-redo))
+  (setq org-clock-clocked-in-display nil))
 
 (use-package org-variable-pitch
   :diminish org-variable-pitch-minor-mode
