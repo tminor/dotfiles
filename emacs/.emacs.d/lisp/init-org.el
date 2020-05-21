@@ -998,6 +998,19 @@ https://emacs.stackexchange.com/a/3990"
                  :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
                  :unnarrowed t))
   (require 'org-roam-protocol)
+  (defun tm/org-roam-find-unlinked-files ()
+    (interactive)
+    (save-excursion
+      (let* ((org-roam-files (org-roam--get-title-path-completions))
+	     (files (mapcar #'cdr org-roam-files))
+	     (lonely-notes '()))
+	(dolist (file files)
+	  (let ((backlinks (org-roam--get-backlinks file)))
+	    (unless backlinks
+	      (setq lonely-notes (cons file lonely-notes)))))
+	(dolist (lonely-note lonely-notes)
+	  (org-insert-link nil (concat "file:" lonely-note) nil)
+	  (newline)))))
   :hook
   (after-init . org-roam-mode))
 
