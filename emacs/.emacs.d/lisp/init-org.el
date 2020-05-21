@@ -985,7 +985,8 @@ https://emacs.stackexchange.com/a/3990"
     "o" 'org-roam
     "f" 'org-roam-find-file
     "g" 'org-roam-show-graph
-    "i" 'org-roam-insert)
+    "i" 'org-roam-insert
+    "d" 'org-roam-dailies-today)
   :config
   (setq org-roam-directory "~/org/notes/"
         org-roam-capture-templates
