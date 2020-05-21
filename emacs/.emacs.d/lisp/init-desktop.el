@@ -242,7 +242,7 @@ Return an alist containing mute status and volume level."
   (setq exwm-input-global-keys
 	`((,(kbd "s-R") . exwm-reset)
 	  (,(kbd "C-s-R") . exwm-restart)
-	  (,(kbd "s-x") . exwm-input-toggle-keyboard)
+	  (,(kbd "s-i") . exwm-input-toggle-keyboard)
 	  (,(kbd "s-h") . windmove-left)
 	  (,(kbd "s-j") . windmove-down)
 	  (,(kbd "s-k") . windmove-up)
@@ -257,6 +257,9 @@ Return an alist containing mute status and volume level."
 	  (,(kbd "s-z") . zoom-mode)
 	  (,(kbd "s-r") . helm-org-rifle)
 	  (,(kbd "s-c") . org-capture)
+	  (,(kbd "s-D") . dired-sidebar-toggle-with-current-directory)
+	  (,(kbd "s-x") . counsel-M-x)
+	  (,(kbd "s-<return>") . multi-vterm)
 	  ,@(mapcar (lambda (i)
 		      `(,(kbd (format "s-%d" i)) .
 			(lambda ()
