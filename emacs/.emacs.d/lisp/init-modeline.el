@@ -20,31 +20,37 @@
   (doom-modeline-def-segment org-pomodoro
     "Displays `org-pomodoro` timer."
     (if (doom-modeline--active)
-	(let ((task (if org-clock-current-task
-	      		(truncate-string-to-width org-clock-current-task
-	      					  30)))
-	      (face (cl-case org-pomodoro-state
-		      (:pomodoro 'org-pomodoro-mode-line)
-		      (:overtime 'org-pomodoro-mode-line-overtime)
-		      (:short-break 'org-pomodoro-mode-line-break)
-		      (:long-break 'org-pomodoro-mode-line-break)))
-	      (s (cl-case org-pomodoro-state
-		   (:pomodoro
-		    (propertize org-pomodoro-format 'face 'org-pomodoro-mode-line))
-		   (:overtime
-		    (propertize org-pomodoro-overtime-format
-				'face 'org-pomodoro-mode-line-overtime))
-		   (:short-break
-		    (propertize org-pomodoro-short-break-format
-				'face 'org-pomodoro-mode-line-break))
-		   (:long-break
-		    (propertize org-pomodoro-long-break-format
-				'face 'org-pomodoro-mode-line-break)))))
-	  (when (and (org-pomodoro-active-p) (> (length s) 0))
-	    (format s (string-join `(,(propertize
-				       (org-pomodoro-format-seconds)
-				       'face face)
-				     ,task) " "))))))
+	(let ((task (if (and (boundp 'org-clock-current-task)
+			     org-clock-current-task)
+			(truncate-string-to-width org-clock-current-task
+						  30)))
+	      (face (if (boundp 'org-pomodoro-state)
+			(cl-case org-pomodoro-state
+			  (:pomodoro 'org-pomodoro-mode-line)
+			  (:overtime 'org-pomodoro-mode-line-overtime)
+			  (:short-break 'org-pomodoro-mode-line-break)
+			  (:long-break 'org-pomodoro-mode-line-break))))
+	      (s (if (boundp 'org-pomodoro-state)
+		     (cl-case org-pomodoro-state
+		       (:pomodoro
+			(propertize org-pomodoro-format 'face 'org-pomodoro-mode-line))
+		       (:overtime
+			(propertize org-pomodoro-overtime-format
+				    'face 'org-pomodoro-mode-line-overtime))
+		       (:short-break
+			(propertize org-pomodoro-short-break-format
+				    'face 'org-pomodoro-mode-line-break))
+		       (:long-break
+			(propertize org-pomodoro-long-break-format
+				    'face 'org-pomodoro-mode-line-break))))))
+	  (if (and (fboundp 'org-pomodoro-active-p)
+		   (org-pomodoro-active-p)
+		   (> (length s) 0))
+	      (format s (string-join `(,(propertize
+					 (org-pomodoro-format-seconds)
+					 'face face)
+				       ,task) " "))
+	    (format "")))))
   (doom-modeline-def-modeline 'main
     '(bar workspace-name window-number modals matches buffer-info remote-host
 	  parrot selection-info)
