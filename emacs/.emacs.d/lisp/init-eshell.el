@@ -44,7 +44,8 @@
   :config
   (when (and (executable-find "fish")
              (require 'fish-completion nil t))
-    (global-fish-completion-mode)))
+    (global-fish-completion-mode))
+  (setup-esh-help-eldoc))
 
 (setq tramp-default-proxies-alist
       `((,(rx ".bor.usg.edu") nil "/ssh:tminor@solaire.sss.usg.edu:")))
@@ -59,6 +60,9 @@
 
 (use-package eshell-up
   :straight (:type git :host github :repo "peterwvj/eshell-up"))
+
+(use-package eshell-prompt-extras)
+(use-package eshell-did-you-mean)
 
 (use-package aweshell
   :after (eshell-up)
@@ -84,13 +88,18 @@
   (eshell-mode . eshell-fringe-status-mode))
 
 ;; Eshell aliases
-(setq eshell-aliases-file (no-littering-expand-etc-file-name "eshell/aliases"))
+(setq eshell-aliases-file (no-littering-expand-etc-file-name "eshell/aliases")
+      eshell-prompt-function #'tm/eshell-prompt)
 
 (defun tm/buffer-to-string (buf-name)
   "Call `buffer-string' against BUF-NAME."
   (interactive)
   (with-current-buffer buf-name
     (buffer-string)))
+
+(use-package esh-help
+  :straight
+  (:host github :repo "tom-tan/esh-help"))
 
 (provide 'init-eshell)
 ;;; init-eshell.el ends here
