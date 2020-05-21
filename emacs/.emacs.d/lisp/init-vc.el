@@ -35,7 +35,12 @@
 (use-package forge
   :straight
   (:host github :repo "magit/forge")
-  :after magit)
+  :after magit
+  :config
+  (add-to-list 'forge-alist '("gitlab.usg.edu"
+			      "gitlab.usg.edu/api/v4"
+			      "gitlab.usg.edu"
+			      forge-gitlab-repository)))
 
 (use-package vc-hooks
   :straight nil
@@ -53,6 +58,10 @@
    "[p" 'smerge-prev
    "gc" 'smerge-keep-current
    "gr" 'smerge-resolve))
+
+(use-package ghub
+  :config
+  (setq ghub-use-workaround-for-emacs-bug 'force))
 
 (provide 'init-vc)
 ;;; init-vc.el ends here
