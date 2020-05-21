@@ -26,7 +26,8 @@
 (use-package evil
   :init
   (setq evil-want-keybinding nil
-	evil-want-integration t)
+	evil-want-integration t
+	evil-want-fine-undo t)
   :general
   ;; Override `evil-search-forward' binding in favor of `swiper'.
   (:states '(normal motion)
