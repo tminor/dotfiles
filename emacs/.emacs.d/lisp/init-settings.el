@@ -55,8 +55,9 @@
   (after-init . (lambda () (clipmon-mode-start)))
   (after-init . (lambda () (clipmon-persist)))
   :config
-  (setq kill-ring-max 1000)
-  (add-to-list 'savehist-additional-variables 'kill-ring))
+  (setq kill-ring-max 10000)
+  (add-to-list 'savehist-additional-variables 'kill-ring)
+  (setq savehist-autosave-interval (* 5 60)))
 
 (use-package rainbow-mode
   :hook
