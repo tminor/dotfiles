@@ -43,14 +43,14 @@
         org-noter-always-create-frame nil
         org-noter-kill-frame-at-session-end nil))
 
-(use-package org-noter-pdftools
-  :straight
-  (:host github :repo "fuxialexander/org-pdftools")
-  :after org-noter
-  :config
-  (with-eval-after-load 'pdf-annot
-    (add-hook 'pdf-annot-activate-handler-functions
-              #'org-noter-pdftools-jump-to-note)))
+;; (use-package org-noter-pdftools
+;;   :straight
+;;   (:host github :repo "fuxialexander/org-pdftools")
+;;   :after org-noter
+;;   :config
+;;   (with-eval-after-load 'pdf-annot
+;;     (add-hook 'pdf-annot-activate-handler-functions
+;;               #'org-noter-pdftools-jump-to-note)))
 
 (use-package org-bullets
   :hook (org-mode . (lambda ()
@@ -80,13 +80,12 @@
    :states '(normal motion)
    "gp" 'org-pomodoro)
   :config
-  (advice-add 'org-pomodoro-notify
-              :override (lambda (title message)
-                          "Send a desktop notification with TITLE and MESSAGE.
-Use `notifications-notify' instead of `alert'."
-                          (notifications-notify :title title
-                                                :body message)))
-  (setq org-pomodoro-play-sounds nil))
+  ;; (advice-add 'org-pomodoro-notify
+  ;;               :override (lambda (title message)
+  ;;                           "Send a desktop notification with TITLE and MESSAGE.
+  ;; Use `notifications-notify' instead of `alert'."
+  ;;                           (notifications-notify :title title
+  ;;                                                 :body message)))
 
 (use-package org-variable-pitch
   :diminish org-variable-pitch-minor-mode
@@ -537,9 +536,9 @@ https://emacs.stackexchange.com/a/3990"
   "3" 'tm/org-agenda-work-week)
 
 ;; Setup EPA/GPG encryption.
-(setq epa-pinentry-mode 'loopback)
-(epa-file-enable)
-(setq org-crypt-key nil)
+;; (setq epa-pinentry-mode 'loopback)
+;; (epa-file-enable)
+;; (setq org-crypt-key nil)
 
 ;; `org-mode' hooks:
 (add-hook 'evil-insert-state-exit-hook
@@ -883,25 +882,25 @@ https://emacs.stackexchange.com/a/3990"
 (use-package org-ql)
 
 ;; `org-notify' settings:
-(require 'org-notify)
-(org-notify-add 'todo
-                '(:time "15m" :period "20s" :duration 10
-                  :actions (-notify -message))
-                '(:time "5m" :period "20s" :duration 10
-                  :actions (-notify -message))
-                '(:time "1m" :period "20s" :duration 10
-                  :actions (-notify -message -ding)))
-(org-notify-add 'event
-                '(:time "1h" :duration 10
-                  :actions (-notify -message))
-                '(:time "15m" :period "20s" :duration 10
-                  :actions (-notify -message))
-                '(:time "5m" :period "20s" :duration 10
-                  :actions (-notify -message))
-                '(:time "1m" :period "20s" :duration 10
-                  :actions (-notify -message -ding)))
+;; (require 'org-notify)
+;; (org-notify-add 'todo
+;;                 '(:time "15m" :period "20s" :duration 10
+;;                   :actions (-notify -message))
+;;                 '(:time "5m" :period "20s" :duration 10
+;;                   :actions (-notify -message))
+;;                 '(:time "1m" :period "20s" :duration 10
+;;                   :actions (-notify -message -ding)))
+;; (org-notify-add 'event
+;;                 '(:time "1h" :duration 10
+;;                   :actions (-notify -message))
+;;                 '(:time "15m" :period "20s" :duration 10
+;;                   :actions (-notify -message))
+;;                 '(:time "5m" :period "20s" :duration 10
+;;                   :actions (-notify -message))
+;;                 '(:time "1m" :period "20s" :duration 10
+;;                   :actions (-notify -message -ding)))
 
-(org-notify-start)
+;; (org-notify-start)
 
 (use-package calfw
   :general
