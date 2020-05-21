@@ -137,11 +137,13 @@
   :config
   (all-the-icons-ivy-setup))
 
-(use-package prescient)
+(use-package prescient
+  :hook
+  (after-init . prescient-persist-mode))
 
 (use-package ivy-prescient
   :hook
-  (ivy-mode . ivy-prescient-mode))
+  (after-init . ivy-prescient-mode))
 
 (use-package company-prescient
   :hook
