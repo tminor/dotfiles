@@ -22,8 +22,10 @@
   ;; https://dev.to/thiagoa/ruby-and-emacs-tip-advanced-pry-integration-33bk
   (setenv "VISUAL" "emacsclient")
   (setenv "EDITOR" (getenv "VISUAL"))
+  (setq ruby-align-chained-calls t)
   :init
   (add-to-list 'auto-mode-alist
+               ;; TODO: Refactor this with `rx'.
                '("\\(?:\\.rb\\|ru\\|rake\\|thor\\|jbuilder\\|gemspec\\|podspec\\|/\\(?:Gem\\|Rake\\|Cap\\|Thor\\|Vagrant\\|Guard\\|Pod\\)file\\)\\'"
                  . ruby-mode))
   (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))
@@ -41,6 +43,14 @@
    "gr" 'emr-show-refactor-menu)
   :hook
   (ruby-mode . (lambda () (ruby-refactor-mode-launch))))
+
+(use-package inf-ruby)
+
+(use-package evil-ruby-text-objects
+  :straight
+  (:host github :repo "porras/evil-ruby-text-objects")
+  :hook
+  (ruby-mode . evil-ruby-text-objects-mode))
 
 (provide 'init-ruby)
 ;;; init-ruby.el ends here
