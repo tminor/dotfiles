@@ -29,6 +29,8 @@
 (add-hook 'minibuffer-setup-hook #'tm/minibuffer-increase-gc-cons-threshold)
 (add-hook 'minibuffer-exit-hook #'tm/miniguffer-decrease-gc-cons-threshold)
 
+(setq default-directory "/home/tminor")
+
 (require 'init-package)
 (require 'init-key-bindings)
 (require 'init-settings)
