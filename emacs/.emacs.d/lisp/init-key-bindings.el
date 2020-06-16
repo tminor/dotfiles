@@ -77,6 +77,12 @@
                                                todo
                                                heading)))))
 
+(use-package evil-surround
+  :straight
+  (:host github :repo "emacs-evil/evil-surround")
+  :hook
+  (evil-mode . global-evil-surround-mode))
+
 (use-package free-keys
   :general
   (tm/leader-def
