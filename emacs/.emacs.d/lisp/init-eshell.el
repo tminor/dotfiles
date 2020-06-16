@@ -33,10 +33,38 @@
 (use-package egp
   :straight
   (dotfiles :host github :repo "dieggsy/dotfiles"
-       :files (("emacs/.emacs.d/lisp/egp.el" . "egp.el")))
+	    :files (("emacs/.emacs.d/lisp/egp.el" . "egp.el")))
   :commands egp-theme)
 
+(defun tm/eshell-prompt ()
+  "My Eshell prompt."
+  (setq eshell-prompt-regexp "^[^#\nλ]* λ[#]* ")
+  (propertize
+   (concat
+    (let* ((host (file-remote-p default-directory 'host)))
+      (when host
+	(concat
+	 (propertize
+	  (cond ((and default-directory (string= host (system-name)))
+		 (concat "@" (file-remote-p default-directory 'user)))
+		(default-directory (concat (file-remote-p default-directory
+							  'user)
+					   "@" (first (split-string host
+								    (rx "."))))))
+	  'face 'egp-remote-face)
+	 " ")))
+    (egp-get-git-status)
+    (propertize (egp-fish-path (eshell/pwd) 10) 'face 'egp-dir-face)
+    " "
+    (propertize egp-prompt-symbol 'face 'egp-symbol-face)
+    (propertize (if (= (user-uid) 0) "#" "") 'face 'egp-root-face)
+    " ")
+   'read-only t
+   'front-sticky '(:font-lock-face read-only)
+   'rear-nonsticky '(:font-lock-face read-only)))
+
 (use-package eshell
+  :commands (setup-esh-help-eldoc)
   :init
   (require 'egp)
   :custom
