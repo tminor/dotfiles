@@ -29,7 +29,9 @@
                                          "\\`\\*deadgrep"
                                          "\\`\\*Calendar"
                                          "\\`\\*Proced"
-                                         "\\`\\*WoMan")))
+                                         "\\`\\*WoMan"
+                                         "\\`\\*forge"
+                                         "\\`\\*Free keys")))
 
 (midnight-mode)
 
