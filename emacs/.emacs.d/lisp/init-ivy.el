@@ -129,7 +129,8 @@
                                                 (group ".import.scm" string-end)
                                                 (group ".so" string-end))))
   (counsel-mode 1)
-  (defalias 'locate #'counsel-locate))
+  (defalias 'locate #'counsel-locate)
+  (setq counsel-yank-pop-after-point t))
 
 (use-package swiper)
 
