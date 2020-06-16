@@ -40,7 +40,15 @@
   (add-to-list 'forge-alist '("gitlab.usg.edu"
 			      "gitlab.usg.edu/api/v4"
 			      "gitlab.usg.edu"
-			      forge-gitlab-repository)))
+			      forge-gitlab-repository))
+  (setq forge-topic-list-columns
+	'(("#" 4
+	   (lambda (a b)
+	     (> (car a) (car b)))
+	   (:right-align t) number nil)
+	  ("Title" 35 t nil title  nil)
+	  ("State" 6 t nil state nil)
+	  ("Updated" 10 t nill updated nil))))
 
 (use-package vc-hooks
   :straight nil
