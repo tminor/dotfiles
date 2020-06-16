@@ -14,6 +14,7 @@
   (let ((symbol (intern var-name)))
     `(setq ,var-name ,value)))
 
+;; TODO: Fix dbus error when playing a spotify track.
 (use-package counsel-spotify
   :init
   (let ((file (no-littering-expand-etc-file-name "spotify/api-config"))
@@ -37,12 +38,11 @@
 		   (value (car (cdr k-v))))
 	      (set (intern counsel-spotify-variable) value)))))))
 
-(use-package desktop-environment
-  :config
-  (setq desktop-environment-screenlock-command "xlock"))
-
 (use-package windower)
 
+;; FIXME: I need to take a closer look at the below
+;; functions. Debugging is needed.
+;; TODO: Use a plist instead?
 (defvar tm/displays-alist
   '(("eDP-1"
      (("--primary" . t)
