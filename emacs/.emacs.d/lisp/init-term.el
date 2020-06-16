@@ -8,6 +8,14 @@
 ;;; Code:
 
 (use-package vterm
+  :general
+  (:keymaps 'vterm-mode-map
+   :states '(insert)
+   "<C-backspace>" (lambda ()
+		     (interactive)
+		     (vterm-send-key (kbd "C-w")))
+   "<C-left>" 'vterm-send-M-b
+   "<C-right>" 'vterm-send-M-f)
   :config
   (setq vterm-shell "fish"
 	tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"
