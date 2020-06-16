@@ -1039,7 +1039,14 @@ The default definition fails in a side window due to a call to
            #'org-roam-capture--get-point "%?"
            :file-name "${slug}"
            :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
-           :unnarrowed t)))
+           :unnarrowed t))
+	org-roam-dailies-capture-templates `(("d" "daily" plain
+					      #'org-roam-capture--get-point ""
+					      :immediate-finish t
+					      :file-name "%<%Y-%m-%d>"
+					      :head ,(concat
+						      "#+TITLE: %<%Y-%m-%d>\n"
+						      "#+FILETAGS: daily"))))
   (add-to-list 'org-roam-capture-ref-templates
                `("s" "source" plain
                  #'org-roam-capture--get-point
@@ -1072,6 +1079,20 @@ The default definition fails in a side window due to a call to
 	(dolist (lonely-note lonely-notes)
 	  (org-insert-link nil (concat "file:" lonely-note) nil)
 	  (newline)))))
+  (defun tm/toggle-org-roam-today ()
+    "Foo bar baz."
+    (interactive)
+    (let ((buffer (save-window-excursion
+		    (org-roam-dailies-today)
+		    (current-buffer))))
+      (if buffer
+	  (if (not (get-buffer-window-list buffer))
+	      (display-buffer-in-side-window buffer
+					     '((display-buffer-reuse-window display-buffer-in-side-window)
+					       (direction . rightmost)
+					       (side . right)
+					       (window-width . 100)))
+	    (window-toggle-side-windows)))))
   :hook
   (after-init . org-roam-mode))
 
