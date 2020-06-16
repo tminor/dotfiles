@@ -1122,5 +1122,7 @@ The default definition fails in a side window due to a call to
 	notdeft-directories `(,(concat org-directory "/notes/"))
         notdeft-xapian-program (executable-find "notdeft-xapian")))
 
+(use-package helm-org-rifle)
+
 (provide 'init-org)
 ;;; init-org.el ends here
