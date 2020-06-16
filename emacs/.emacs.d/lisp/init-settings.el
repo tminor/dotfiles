@@ -69,6 +69,9 @@
   :general
   (tm/leader-def
     "=" 'er/expand-region)
+  (:keymaps '(local override)
+   :states '(normal motion)
+   "g=" 'er/expand-region)
   :straight
   (:host github :repo "magnars/expand-region.el"))
 
