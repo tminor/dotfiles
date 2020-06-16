@@ -43,15 +43,6 @@
         org-noter-always-create-frame nil
         org-noter-kill-frame-at-session-end nil))
 
-;; (use-package org-noter-pdftools
-;;   :straight
-;;   (:host github :repo "fuxialexander/org-pdftools")
-;;   :after org-noter
-;;   :config
-;;   (with-eval-after-load 'pdf-annot
-;;     (add-hook 'pdf-annot-activate-handler-functions
-;;               #'org-noter-pdftools-jump-to-note)))
-
 (use-package org-bullets
   :hook (org-mode . (lambda ()
                       (org-bullets-mode 1)))
