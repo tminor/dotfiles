@@ -363,9 +363,7 @@ e equal return t."
     (while (outline-previous-heading)
       (org-id-get-create))))
 
-(setq tm/org-super-agenda-auto-show-groups '("Unscheduled tasks, high priority"
-                                             "Unscheduled tasks, medium priority"
-					     "Stuck projects"
+(setq tm/org-super-agenda-auto-show-groups '("Stuck projects"
                                              "Archive DONE tasks"
                                              "Projects"
                                              "Other items"
@@ -450,6 +448,20 @@ e equal return t."
                                              heading-point-alist)
                             heading-point-alist))))))))
 
+(defun tm/toggle-agenda ()
+  "Toggle `org-agenda' in side window."
+  (interactive)
+  (let ((buffer (get-buffer "*Org Agenda*")))
+    (if buffer
+	(if (not (get-buffer-window-list buffer))
+	    (display-buffer-in-side-window buffer
+					   '((display-buffer-reuse-window display-buffer-in-side-window)
+					     (direction . rightmost)
+					     (side . right)
+					     (window-width . 100)))
+	  (window-toggle-side-windows))
+      (tm/org-agenda-both-today))))
+
 (defun tm/yank-org-link (text)
   "Yank a link from TEXT.
 
@@ -510,6 +522,45 @@ https://emacs.stackexchange.com/a/3990"
     (when (eq major-mode 'org-mode)
       (call-interactively #'tm/org-retrieve-url-from-point))))
 
+(defun tm/org-add-log-note (&optional _purpose)
+  "Pop up a window for taking a note, and add this note later.
+The default definition fails in a side window due to a call to
+`delete-other-windows'."
+  (remove-hook 'post-command-hook 'org-add-log-note)
+  (setq org-log-note-window-configuration (current-window-configuration))
+  (move-marker org-log-note-return-to (point))
+  (pop-to-buffer-same-window (marker-buffer org-log-note-marker))
+  (goto-char org-log-note-marker)
+  (let* ((buf (get-buffer-create "*Org Note*")))
+    (with-current-buffer buf
+      (erase-buffer))
+    (switch-to-buffer-other-window buf))
+  (if (memq org-log-note-how '(time state))
+      (org-store-log-note)
+    (let ((org-inhibit-startup t)) (org-mode))
+    (insert (format "# Insert note for %s.
+# Finish with C-c C-c, or cancel with C-c C-k.\n\n"
+		    (cl-case org-log-note-purpose
+                      (clock-out "stopped clock")
+                      (done  "closed todo item")
+                      (reschedule "rescheduling")
+                      (delschedule "no longer scheduled")
+                      (redeadline "changing deadline")
+                      (deldeadline "removing deadline")
+                      (refile "refiling")
+                      (note "this entry")
+                      (state
+                       (format "state change from \"%s\" to \"%s\""
+                               (or org-log-note-previous-state "")
+                               (or org-log-note-state "")))
+                      (t (error "This should not happen")))))
+    (when org-log-note-extra (insert org-log-note-extra))
+    (setq-local org-finish-function 'org-store-log-note)
+    (run-hooks 'org-log-buffer-setup-hook)))
+
+(advice-add 'org-add-log-note
+            :override #'tm/org-add-log-note)
+
 ;; Configure keybindings:
 (general-define-key :keymaps 'org-mode-map
                     :states '(normal)
@@ -520,9 +571,11 @@ https://emacs.stackexchange.com/a/3990"
                     "gk" 'outline-previous-heading)
 (general-define-key :keymaps '(org-agenda-mode-map)
                     :states '(normal motion)
-                    "J" 'tm/org-agenda-next-header
-                    "K" 'tm/org-agenda-previous-header
+                    "gJ" 'tm/org-agenda-next-header
+                    "gK" 'tm/org-agenda-previous-header
                     "gH" 'org-habit-toggle-display-in-agenda
+                    "gT" 'org-agenda-entry-text-mode
+                    "ct" 'counsel-org-tag
                     "<backtab>" 'origami-toggle-node)
 (tm/leader-def
   :infix "o"
@@ -549,8 +602,9 @@ https://emacs.stackexchange.com/a/3990"
 ;; `org-mode' hooks:
 (add-hook 'evil-insert-state-exit-hook
           #'(lambda ()
-              (if (string= major-mode
-                           "org-mode")
+              (if (and (string= major-mode
+                                "org-mode")
+                       (not (string= (buffer-name) "*Org Note*")))
                   (save-buffer))))
 (add-hook 'org-mode-hook #'visual-line-mode)
 (add-hook 'org-mode-hook
@@ -696,7 +750,8 @@ https://emacs.stackexchange.com/a/3990"
                                                          :foreground "#F94FA0"
                                                          :weight 'bold))
       org-habit-graph-column 45
-      org-habit-show-habits-only-for-today nil)
+      org-habit-show-habits-only-for-today nil
+      org-agenda-skip-unavailable-files t)
 
 (setq org-agenda-custom-commands
       `(("b" "Daily agenda for both work and home"
@@ -778,8 +833,6 @@ https://emacs.stackexchange.com/a/3990"
                                           "MODIFIED"))
             (org-agenda-sorting-strategy '(user-defined-down))
             (org-agenda-overriding-header "")
-            (org-agenda-hide-tags-regexp
-             (rx (zero-or-more anything)))
             (org-overriding-columns-format
              (concat "%40ITEM(Task) "
                      "%TODO "
@@ -789,10 +842,11 @@ https://emacs.stackexchange.com/a/3990"
             (org-super-agenda-groups
              '((:name "Archive DONE tasks"
                 :order 3
-                :todo ("DONE" "CANCELLED"))
+                :and (:todo ("DONE" "CANCELLED")
+                      :not (:tag "PROJECT")))
                (:name "Waiting tasks"
                 :order 7
-                :todo "WAIT"
+                :and (:todo "WAIT" :not (:tag "FUTURE"))
                 :discard (:scheduled t))
                (:name "Things to read/watch"
                 :order 4
@@ -803,15 +857,15 @@ https://emacs.stackexchange.com/a/3990"
                (:name "Projects"
                 :order 5
                 :todo "PROJECT")
-               (:name "Unscheduled tasks, high priority"
+               (:name "High priority"
                 :order 0
                 :and (:todo "TODO"
                       :priority "A"))
-               (:name "Unscheduled tasks, medium priority"
+               (:name "Medium priority"
                 :order 1
                 :and (:todo "TODO"
                       :priority "B"))
-               (:name "Unscheduled tasks, low priority"
+               (:name "Low priority"
                 :order 2
                 :and (:todo "TODO"
                       :priority "C"))))))))))
@@ -832,7 +886,7 @@ https://emacs.stackexchange.com/a/3990"
 (with-eval-after-load 'org
   (tm/org-get-headings-command todo "todo.org"))
 
-(setq org-default-notes-file "~/org/capture.org")
+(setq org-default-notes-file "/home/tminor/org/capture.org")
 
 (with-eval-after-load 'org
   (setq
