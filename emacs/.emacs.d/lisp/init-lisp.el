@@ -29,5 +29,6 @@
      (setq-local lisp-indent-function
 		 #'tm/lisp-indent-function))))
 
+(use-package slime)
 (provide 'init-lisp)
 ;;; init-lisp.el ends here
