@@ -6,7 +6,20 @@
 ;;
 ;;; Code:
 
-(use-package jsonnet-mode)
+(use-package jsonnet-mode
+  :config
+  (eval-after-load "hideshow"
+    '(add-to-list
+      'hs-special-modes-alist
+      `(jsonnet-mode
+        ,(rx (or "{" "[" "("))          ; Block start
+        ,(rx (or "}" "]" ")"))          ; Block end
+        ,(rx (or "#" "//"))		; Comment start
+        nil nil)))
+  :hook
+  (jsonnet-mode . (lambda ()
+                    (setq-local comment-start "//")
+                    (setq-local comment-end ""))))
 
 (provide 'init-jsonnet)
 ;;; init-jsonnet.el ends here
