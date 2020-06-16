@@ -27,6 +27,10 @@
 (use-package csv-mode)
 
 (use-package grip-mode
+  :general
+  (:keymaps '(markdown-mode-map)
+   :states '(motion normal)
+   "gp" 'grip-start-preview)
   :config
   (setq grip-update-after-change nil)
   (setq grip-preview-use-webkit nil))
