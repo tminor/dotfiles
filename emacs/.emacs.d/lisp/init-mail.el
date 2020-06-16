@@ -169,18 +169,21 @@ range.  For example, an input of \"20mins\" translates to
   ;; Saved searches for notmuch-hello
   (setq notmuch-saved-searches
         '((:name "inbox"
-           :query "tag:inbox"
            :key "i"
+           :query "tag:inbox"
            :count-query "tag:inbox and tag:unread")
           (:name "git issues"
+	   :key "g"
            :query "tag:lists/854 and not tag:archive and date:1week..now"
            :count-query "tag:lists/854 and not tag:archive and date:1week..now and tag:unread")
           (:name "feed"
+	   :key "f"
            :query "date:\"1hours..now\"")
           (:name "nagios-gluu"
            :query "tag:idp-demo-prod and tag:nagios and date:14days..today"
            :count-query "tag:idp-demo-prod and tag:nagios and date:30days..today and tag:unread")
           (:name "nagios"
+	   :key "n"
            :query "tag:nagios not 'subject:\"/Project: gluu/\"' and date:3days..today"
            :count-query "tag:nagios not 'subject:\"/Project: gluu/\"' and date:3days..today and tag:unread")
           (:name "flappy vs capy"
@@ -192,17 +195,20 @@ range.  For example, an input of \"20mins\" translates to
            :query "tag:servicenow and date:3days..today and not subject:\"/(Resolved|Closed)/\""
            :count-query "tag:servicenow and date:3days..today and not subject:\"/(Resolved|Closed)/\" and tag:unread")
           (:name "ssl"
+	   :key "s"
            :query "tag:ssladmin and date:6days..today"
            :count-query "tag:ssladmin and date:6days..today and tag:unread")
           (:name "cron daemon"
+	   :key "c"
            :query "date:4days..today and from:\"(Cron Daemon)\""
            :count-query "date:4days..today and from:\"(Cron Daemon)\" and tag:unread")
           (:name "tenshi"
-           :query "date:2days..today and tag:tenshi-db300 or tag:tenshi-uga"
-           :count-query "date:2days..today and tag:tenshi-db300 or tag:tenshi-uga and tag:unread")
+	   :key "t"
+           :query "date:2days..today and tag:tenshi"
+           :count-query "date:2days..today and tag:tenshi and tag:unread")
           (:name "sent"
            :query "tag:sent"
-           :key "t"))))
+           :key "s"))))
 
 ;;; SMTP settings are necessary for sending mail from EXWM via
 ;;; `async-smtpmail-send-it'.
