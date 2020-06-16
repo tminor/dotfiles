@@ -79,10 +79,18 @@
   :hook
   (prog-mode . (lambda () (drag-stuff-mode t)))
   :general
-  (:keymaps 'prog-mode-map
+  (:keymaps '(prog-mode-map)
    :states '(normal motion)
    "J" 'drag-stuff-down
-   "K" 'drag-stuff-up))
+   "K" 'drag-stuff-up
+   "H" 'drag-stuff-left
+   "L" 'drag-stuff-right)
+  (:keymaps '(text-mode-map)
+   :states '(motion normal visual)
+   "gDh" 'drag-stuff-left
+   "gDl" 'drag-stuff-right
+   "gDj" 'drag-stuff-down
+   "gDk" 'drag-stuff-up))
 
 (use-package emr)
 
