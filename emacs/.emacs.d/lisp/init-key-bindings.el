@@ -89,7 +89,9 @@
     :infix "h"
     :prefix-command 'tm/help-prefix-command
     :prefix-map 'tm/help-prefix-map
-    "K" 'free-keys))
+    "K" 'free-keys)
+  :config
+  (setq free-keys-modifiers '("" "C" "M" "C-M" "s")))
 
 (provide 'init-key-bindings)
 ;;; init-key-bindings.el ends here
