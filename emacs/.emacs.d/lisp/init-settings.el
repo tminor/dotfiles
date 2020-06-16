@@ -95,5 +95,9 @@
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 
+;; https://github.com/bbatsov/emacs.d/blob/965d39c245bdbe79e88dd228756a9cf621670ac0/init.el#L99-L104
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 8)
+
 (provide 'init-settings)
 ;;; init-settings.el ends here
