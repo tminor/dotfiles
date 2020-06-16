@@ -70,13 +70,23 @@
   (:keymaps 'org-agenda-mode-map
    :states '(normal motion)
    "gp" 'org-pomodoro)
+  (tm/leader-def
+    :infix "t"
+    :prefix-command 'tm/toggle-prefix-command
+    :prefix-map 'tm/toggle-prefix-map
+    "p" (lambda () (if org-pomodoro-play-sounds
+		  (setq org-pomodoro-play-sounds nil)
+		(setq org-pomodoro-play-sounds t))))
   :config
   ;; (advice-add 'org-pomodoro-notify
-  ;;               :override (lambda (title message)
-  ;;                           "Send a desktop notification with TITLE and MESSAGE.
+  ;;             :override (lambda ()
+  ;;       		  (async-start
+  ;;       		   (lambda (title message)
+  ;;       		     "Send a desktop notification with TITLE and MESSAGE.
   ;; Use `notifications-notify' instead of `alert'."
-  ;;                           (notifications-notify :title title
-  ;;                                                 :body message)))
+  ;;       		     (notifications-notify :title title
+  ;;       					   :body message))
+  ;;       		   'ignore)))
   (setq org-pomodoro-play-sounds t
 	org-pomodoro-format "🍅 %s"
 	org-pomodoro-overtime-format "+%s"
