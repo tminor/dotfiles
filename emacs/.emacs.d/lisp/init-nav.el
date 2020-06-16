@@ -18,6 +18,15 @@
   (tm/leader-def
     "B" 'ibuffer))
 
+(use-package ibuffer-sidebar
+  :commands (ibuffer-sidebar-toggle-sidebar)
+  :straight
+  (:host github :repo "jojojames/ibuffer-sidebar"))
+
+(use-package ibuffer-vc
+  :hook
+  (ibuffer . ibuffer-vc-set-filter-groups-by-vc-root))
+
 (use-package avy
   :general
   (:states 'motion
@@ -221,8 +230,10 @@ event of an error or nonlocal exit."
                                  "*edit-indirect"
                                  "magit-log: "
                                  "magit-refs: "
-                                 "*Org Src"))
+                                 "*Org Src"
+                                 "*Org Note"))
            (display-buffer-reuse-window display-buffer-same-window))
+          ;; Use a wider side window
 	  (,(rx string-start (or "*Org Agenda*"))
 	   (display-buffer-reuse-window display-buffer-in-side-window)
 	   (direction . rightmost)
