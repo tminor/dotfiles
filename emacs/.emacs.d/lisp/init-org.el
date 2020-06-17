@@ -836,7 +836,7 @@ The default definition fails in a side window due to a call to
            "/DONE|TODO|WAIT|CANCELLED|PROJECT|READ|WATCH"
            ((org-agenda-files '("~/org/todo.org"))
             (org-agenda-prefix-format
-             ,(concat "    %5(org-entry-get nil \"MODIFIED\") "))
+             ,(concat "    %5(org-entry-get nil \"MODIFIED\") %e "))
             (org-agenda-todo-ignore-scheduled t)
             (org-agenda-sorting-strategy '(effort-down))
             (org-agenda-cmp-user-defined (tm/org-cmp-date-property
