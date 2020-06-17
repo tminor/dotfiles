@@ -352,5 +352,7 @@ BUFFER may be a string or nil. Conditionally calls
 (require 'exwm-randr)
 (exwm-randr-enable)
 
+(use-package exwm-edit)
+
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
