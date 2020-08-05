@@ -238,6 +238,7 @@ Return an alist containing mute status and volume level."
   (exwm-update-title . tm/exwm-rename-buffer-to-title)
   ((exwm-init exwm-randr-screen-change) . tm/exwm-change-screen-hook)
   (exwm-workspace-switch . exwm-input-release-keyboard)
+  (exwm-init . (lambda () (start-process-shell-command "Dunst" nil "dunst")))
   :init
   (setq exwm-input-global-keys
 	`((,(kbd "s-R") . exwm-reset)
