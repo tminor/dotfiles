@@ -187,7 +187,7 @@ Return an alist containing mute status and volume level."
     (goto-char (point-min))
     (let ((volume-percent
 	   (progn
-	     (re-search-forward (rx "[" (group digit digit) "%" "]"))
+	     (re-search-forward (rx "[" (group (one-or-more digit)) "%" "]"))
 	     (match-string 1)))
 	  (volume-status
 	   (progn
@@ -206,7 +206,7 @@ Return an alist containing mute status and volume level."
 	(muted-p (cadr (assoc 'muted-p (tm/get-volume-status))))
 	(make-string (lambda (direction value)
 		       (propertize
-			(format "%s %s%s "
+			(format " %s %s%s "
 				(cond ((string= direction "up")
 				       "🔊")
 				      ((string= direction "down")
