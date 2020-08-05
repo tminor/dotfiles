@@ -171,6 +171,10 @@ range.  For example, an input of \"20mins\" translates to
   ;; Shows saved searches in `notmuch-hello' even if they're empty.
   (setq notmuch-show-empty-saved-searches t)
   ;; Saved searches for notmuch-hello
+  (setq notmuch-show-insert-text/plain-hook '(notmuch-wash-convert-inline-patch-to-part
+                                              notmuch-wash-wrap-long-lines
+                                              notmuch-wash-tidy-citations
+                                              notmuch-wash-elide-blank-lines))
   (setq notmuch-saved-searches
         '((:name "inbox"
            :key "i"
