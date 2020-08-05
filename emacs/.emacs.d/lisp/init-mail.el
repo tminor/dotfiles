@@ -361,7 +361,7 @@ range.  For example, an input of \"20mins\" translates to
                                     (font-size . "9pt")
                                     (font-family . "monospace")))
                               (div org-src-container
-                                   ((max-width . "80ch")
+                                   ((max-width . "500px")
                                     (border . "10px solid black")
                                     (margin . "10px")))
                               (nil figure-number
@@ -457,8 +457,7 @@ range.  For example, an input of \"20mins\" translates to
                                   (margin-top . "10px")
                                   (line-height . "11pt")
                                   (font-size . "10pt")
-                                  (font-family . "\"Arial\"")
-                                  (max-width . "100ch")))
+                                  (font-family . "\"Arial\"")))
                               (div nil
                                    ((font-family . "\"Arial\"")
                                     (font-size . "10pt")
