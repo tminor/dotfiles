@@ -75,9 +75,13 @@ range.  For example, an input of \"20mins\" translates to
                           (plist-get mail-message :authors)))
               (setq what (plist-get mail-message :subject))
               (setq body (format "<b>%s</b>\n<b>%s</b>\n\n%s" when who what))
-              (notifications-notify :title "New message(s)!\n"
-                                    :body body
-                                    :app-name "notmuchmail"))
+              (async-start
+               `(lambda ()
+                  (require 'notifications)
+                  (notifications-notify :title "New message(s)!\n"
+                                        :body ,body
+                                        :app-name "notmuchmail"))
+               'ignore))
             latest-messages)))
 
 (defun tm/notmuch-make-unread-string ()
