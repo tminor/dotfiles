@@ -309,7 +309,7 @@ Return an alist containing mute status and volume level."
 
   (display-battery-mode 1)
   (display-time-mode 1)
-  (setq display-time-format " 📆 %b %e 🕐 %H:%M 🖳")
+  (setq display-time-format " 📆 %b%e 🕐 %H:%M")
   :config
   (setq exwm-workspace-show-all-buffers t
 	exwm-input-line-mode-passthrough t
