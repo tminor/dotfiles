@@ -81,7 +81,7 @@
   :straight
   (:host github :repo "emacs-evil/evil-surround")
   :hook
-  (evil-mode . global-evil-surround-mode))
+  (after-init . global-evil-surround-mode))
 
 (use-package free-keys
   :general
@@ -92,6 +92,18 @@
     "K" 'free-keys)
   :config
   (setq free-keys-modifiers '("" "C" "M" "C-M" "s")))
+
+(use-package evil-multiedit
+  :general
+  (:keymaps '(override local)
+   :states '(visual)
+   "R" 'evil-multiedit-match-all))
+
+(use-package evil-mc
+  :hook
+  (after-init . global-evil-mc-mode)
+  :config
+  (setq evil-mc-enable-bar-cursor t))
 
 (provide 'init-key-bindings)
 ;;; init-key-bindings.el ends here
