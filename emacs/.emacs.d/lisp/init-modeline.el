@@ -52,13 +52,13 @@
 				       ,task) " "))
 	    (format "")))))
   (doom-modeline-def-modeline 'main
-    '(bar workspace-name window-number modals matches buffer-info remote-host
+    '(bar workspace-name window-number modals misc-info matches buffer-info remote-host
 	  parrot selection-info)
-    '(objed-state misc-info org-pomodoro persp-name battery grip irc mu4e gnus
-		  github debug lsp minor-modes input-method indent-info
-		  buffer-encoding major-mode process vcs checker))
+    '(objed-state org-pomodoro persp-name battery grip irc mu4e gnus
+                  github debug lsp minor-modes input-method indent-info
+                  buffer-encoding major-mode process vcs checker))
   (doom-modeline-def-modeline 'tm/doom-modeline-exwm
-    '(bar modals misc-info) '(org-pomodoro battery major-mode process))
+    '(bar window-number modals misc-info) '(org-pomodoro battery major-mode process))
   (defun tm/set-exwm-modeline ()
     "Set a minimal modeline if exwm-mode is enabled."
     (if (eq major-mode 'exwm-mode)
