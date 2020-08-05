@@ -1135,5 +1135,14 @@ The default definition fails in a side window due to a call to
 
 (use-package helm-org-rifle)
 
+(use-package counsel-org-clock
+  :general
+  (tm/leader-def
+    :infix "C"
+    :prefix-command 'tm/counsel-prefix-command
+    :prefix-map 'tm/counsel-prefix-map
+    "g" 'counsel-org-clock-goto
+    "h" 'counsel-org-clock-history))
+
 (provide 'init-org)
 ;;; init-org.el ends here
