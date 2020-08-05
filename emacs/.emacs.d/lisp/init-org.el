@@ -484,6 +484,7 @@ TEXT represents a formatted Org link."
 (defun tm/archive-in-subtree (orig-fun &rest args)
   "Called by `advice-add' with ORIG-FUN/ARGS to archive in subheadings of archive.org."
   (let* ((heading (save-excursion
+                    (widen)
                     (while (not (= 1 (org-up-heading-safe))))
                     (org-heading-components)))
          (title (nth 4 heading))
