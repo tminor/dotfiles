@@ -21,7 +21,7 @@
   :hook
   (pdf-view-mode . (lambda () (pdf-tools-enable-minor-modes))))
 
-(pdf-tools-install)
+;; (pdf-tools-install)
 
 (straight-use-package 'org-plus-contrib)
 (straight-use-package 'org)
@@ -43,12 +43,9 @@
         org-noter-always-create-frame nil
         org-noter-kill-frame-at-session-end nil))
 
-(use-package org-bullets
-  :hook (org-mode . (lambda ()
-                      (org-bullets-mode 1)))
-  :config (setq org-bullets-bullet-list
-                '("⑴" "⑵" "⑶" "⑷" "⑸" "⑹" "⑺" "⑻" "⑼" "⑽" "⑾"
-                  "⑿" "⒀" "⒁" "⒂" "⒃")))
+(use-package org-superstar
+  :hook
+  (org-mode . org-superstar-mode))
 
 (use-package origami
   :hook
@@ -91,7 +88,8 @@
 	org-pomodoro-format "🍅 %s"
 	org-pomodoro-overtime-format "+%s"
 	org-pomodoro-short-break-format "🍅 %s"
-	org-pomodoro-long-break-format "🎉 %s")
+	org-pomodoro-long-break-format "🎉 %s"
+        org-pomodoro-play-sounds nil)
   (defun org-pomodoro-start (&optional state)
     "Start the `org-pomodoro` timer.
 The argument STATE is optional.  The default state is `:pomodoro`."
@@ -373,12 +371,6 @@ e equal return t."
     (while (outline-previous-heading)
       (org-id-get-create))))
 
-(setq tm/org-super-agenda-auto-show-groups '("Stuck projects"
-                                             "Archive DONE tasks"
-                                             "Projects"
-                                             "Other items"
-                                             "Schedule"))
-
 (defun tm/org-super-agenda-origami-fold-default ()
   "Fold certain groups by default in `org-super-agenda' buffer."
   (forward-line 2)
@@ -389,6 +381,15 @@ e equal return t."
       (goto-char (point-min))
       (when (re-search-forward (rx-to-string `(seq bol " " ,it)) nil t)
         (origami-show-node (current-buffer) (point))))))
+
+(setq tm/org-super-agenda-auto-show-groups '("Stuck projects"
+                                             "Archive DONE tasks"
+                                             "Projects"
+                                             "Other items"
+                                             "Schedule"
+                                             "High priority"
+                                             "Medium priority"
+                                             "Waiting tasks"))
 
 ;; Found here: https://emacs.stackexchange.com/a/30449
 (defun tm/last-weekday-of-month-p (date)
@@ -472,6 +473,20 @@ e equal return t."
 	  (window-toggle-side-windows))
       (tm/org-agenda-both-today))))
 
+(org-link-set-parameters "helpful"
+                         :follow #'helpful-symbol
+                         :store #'tm/org-helpful-store-link)
+
+(defun tm/org-helpful-store-link ()
+  "Store a link to a helpful buffer."
+  (when (memq major-mode '(helpful-mode))
+    (let* (desc link)
+      (org-store-link-props :type "helpful")
+      (setq desc (buffer-name))
+      (setq link (concat "helpful:" (symbol-name helpful--sym)))
+      (org-add-link-props :link link :description desc)
+      link)))
+
 (defun tm/yank-org-link (text)
   "Yank a link from TEXT.
 
@@ -483,23 +498,62 @@ TEXT represents a formatted Org link."
 
 (defun tm/archive-in-subtree (orig-fun &rest args)
   "Called by `advice-add' with ORIG-FUN/ARGS to archive in subheadings of archive.org."
-  (let* ((heading (save-excursion
-                    (widen)
-                    (while (not (= 1 (org-up-heading-safe))))
-                    (org-heading-components)))
-         (title (nth 4 heading))
-         (heading-stars (let ((i (nth 0 heading))
-                              (num 0)
-                              (stars ()))
-                          (while (< num (nth 0 heading))
-                            (setq stars (cons "*" stars))
-                            (setq num (1+ num)))
-                          (apply #'concat stars)))
-         (org-archive-location
-          (format "%s/archive.org::%s %s" org-directory heading-stars title)))
+  (interactive)
+  (letf* ((heading (save-excursion
+                     (widen)
+                     (while (not (= 1 (org-up-heading-safe))))
+                     (org-heading-components)))
+          (title (nth 4 heading))
+          (heading-stars (let ((i (nth 0 heading))
+                               (num 0)
+                               (stars ()))
+                           (while (< num (nth 0 heading))
+                             (setq stars (cons "*" stars))
+                             (setq num (1+ num)))
+                           (apply #'concat stars)))
+          (org-archive-location
+           (format "%s/archive.org::%s %s" org-directory heading-stars title))
+          (org-archive--compute-location
+           (lambda (location) (unless (string-match "::" location)
+                           (error "Invalid archive location: %S" location))
+             (let ((current-file (buffer-file-name (buffer-base-buffer)))
+	           (file-fmt (substring location 0 (match-beginning 0)))
+	           (heading-fmt (substring location (match-end 0))))
+               (cons
+                ;; File part.
+                (if (org-string-nw-p file-fmt)
+	            (expand-file-name
+	             (format file-fmt (file-name-nondirectory current-file)))
+                  current-file)
+                ;; Heading part.
+                (format heading-fmt (file-name-nondirectory current-file)))))))
     (funcall-interactively orig-fun)))
 
 (advice-add 'org-archive-subtree :around #'tm/archive-in-subtree)
+
+(defun tm/todo-to-int (todo)
+  "Convert TODO to an integer representation."
+  (first (-non-nil
+          (mapcar (lambda (keywords)
+                    (let ((todo-seq
+                           (-map (lambda (x) (first (split-string  x "(")))
+                                 (rest keywords))))
+                      (cl-position-if (lambda (x) (string= x todo)) todo-seq)))
+                  org-todo-keywords))))
+
+(defun tm/org-sort-key ()
+  "Produce a string representing priotity."
+  (let* ((todo-max (apply #'max (mapcar #'length org-todo-keywords)))
+         (todo (org-entry-get (point) "TODO"))
+         (todo-int (if todo (tm/todo-to-int todo) todo-max))
+         (priority (org-entry-get (point) "PRIORITY"))
+         (priority-int (if priority (string-to-char priority) org-default-priority)))
+    (format "%03d %03d" todo-int priority-int)))
+
+(defun tm/org-sort-entries ()
+  "Sort org entries by TODO keyword and priority."
+  (interactive)
+  (org-sort-entries nil ?f #'tm/org-sort-key))
 
 (defun tm/org-retrieve-url-from-point ()
   "Retrieve a URL from an Org link's text properties."
@@ -579,14 +633,22 @@ The default definition fails in a side window due to a call to
                     "+" 'org-add-note
                     "U" 'org-toggle-narrow-to-subtree
                     "gj" 'outline-next-heading
-                    "gk" 'outline-previous-heading)
+                    "gk" 'outline-previous-heading
+                    "gK" 'outline-up-heading
+                    "gJ" 'outline-forward-same-level
+                    "gI" 'org-clock-in
+                    "gO" 'org-clock-out
+                    "gp" 'org-pomodoro
+                    "J" 'org-clock-timestamps-down
+                    "K" 'org-clock-timestamps-up)
 (general-define-key :keymaps '(org-agenda-mode-map)
                     :states '(normal motion)
                     "gJ" 'tm/org-agenda-next-header
                     "gK" 'tm/org-agenda-previous-header
                     "gH" 'org-habit-toggle-display-in-agenda
                     "gT" 'org-agenda-entry-text-mode
-                    "ct" 'counsel-org-tag
+                    "ct" 'counsel-org-tag-agenda
+                    "st" 'org-agenda-filter-by-tag
                     "<backtab>" 'origami-toggle-node)
 (tm/leader-def
   :infix "o"
@@ -651,13 +713,10 @@ The default definition fails in a side window due to a call to
       org-src-fontify-natively t
       org-todo-keywords '((sequence "TODO(t!)"
                                     "WAIT(w!)"
-                                    "PROJECT(p!)"
-				    "DOING(D!)"
-                                    "READ(r!)"
-                                    "WATCH(W!)"
+                                    "PROJ(p!)"
                                     "|"
                                     "DONE(d!)"
-                                    "CANCELLED(c!)"
+                                    "CANC(c!)"
                                     "NOTE(n!)"))
       org-log-into-drawer t
       org-use-fast-todo-selection 'expert
@@ -676,13 +735,10 @@ The default definition fails in a side window due to a call to
                                ("WAIT" :background "#FEDA98" :foreground "#000"
                                 :weight bold :box (:line-width -1
                                                    :style released-button))
-                               ("PROJECT" :background "#742FD1" :foreground "#EAEAEA"
+                               ("PROJ" :background "#742FD1" :foreground "#EAEAEA"
                                 :weight bold :box (:line-width -1
                                                    :style released-button))
-			       ("DOING" :background "#3EDAD4" :foreground "#000"
-                                :weight bold :box (:line-width -1
-                                                   :style released-button))
-                               ("CANCELLED" :background "#F94FA0"
+                               ("CANC" :background "#F94FA0"
                                 :foreground "#EAEAEA" :weight bold
                                 :box (:line-width -1
                                       :style released-button))
@@ -693,7 +749,7 @@ The default definition fails in a side window due to a call to
                            (?B . (:foreground "#FEDA98"))
                            (?C . (:foreground "#0F0")))
       org-log-done 'time
-      org-stuck-projects '("-FUTURE/PROJECT"
+      org-stuck-projects '("-FUTURE/PROJ"
 			   ("TODO")
 			   nil))
 
@@ -720,14 +776,6 @@ The default definition fails in a side window due to a call to
 (add-hook 'find-file-hook #'tm/enable-minor-mode-based-on-extension)
 (add-hook 'org-agenda-mode-hook #'org-super-agenda-mode)
 (add-hook 'org-agenda-finalize-hook #'tm/org-super-agenda-origami-fold-default)
-
-(setq tm/org-super-agenda-auto-show-groups '("Other items"
-					     "Stuck projects"
-					     "Tasks in progress"
-                                             "Needs refiling"
-                                             "Unscheduled Tasks"
-                                             "Things to read"
-                                             "Archive DONE tasks"))
 
 (with-eval-after-load 'org
   (require 'evil-org-agenda)
@@ -768,7 +816,8 @@ The default definition fails in a side window due to a call to
       `(("b" "Daily agenda for both work and home"
          ((agenda
            ""
-           ((org-agenda-todo-ignore-scheduled 'past)
+           ((org-agenda-use-tag-inheritance nil)
+            (org-agenda-todo-ignore-scheduled 'past)
             (org-agenda-files '("~/org/todo.org" "~/org/calendar"))
             (org-agenda-time-grid (quote
                                    ((daily today remove-match)
@@ -790,30 +839,15 @@ The default definition fails in a side window due to a call to
                           (not (in "K"))))))))
 	  (stuck
 	   ""
-	   ((org-agenda-overriding-header "")
+	   ((org-agenda-use-tag-inheritance nil)
+            (org-agenda-overriding-header "")
 	    (org-super-agenda-groups
 	     '((:name "Stuck projects"
-		:todo "PROJECT")))))
-	  (tags
-	   "/DOING"
-	   ((org-agenda-files '("~/org/todo.org"))
-	    (org-agenda-prefix-format
-	     ,(concat "    %5(org-entry-get nil \"MODIFIED\") "))
-	    (org-agenda-todo-ignore-scheduled t)
-	    (org-agenda-sorting-strategy '(effort-down))
-	    (org-agenda-cmp-user-defined (tm/org-cmp-date-property
-					  "MODIFIED"))
-	    (org-agenda-sorting-strategy '(user-defined-down))
-	    (org-agenda-overriding-header "")
-	    (org-agenda-hide-tags-regexp
-	     (rx (zero-or-more anything)))
-	    (org-super-agenda-groups
-	     '((:name "Tasks in progress"
-		:todo "DOING")
-	       (:discard :anything)))))
+		:todo "PROJ")))))
           (tags
            "+REFILE"
-           ((org-agenda-files '("~/org/capture.org"))
+           ((org-agenda-use-tag-inheritance nil)
+            (org-agenda-files '("~/org/capture.org"))
             (org-agenda-prefix-format
              ,(concat "    %5(org-entry-get nil \"MODIFIED\") "))
             (org-agenda-sorting-strategy '(effort-down))
@@ -834,7 +868,7 @@ The default definition fails in a side window due to a call to
                 :tag "REFILE"
                 :order 0)))))
           (tags
-           "/DONE|TODO|WAIT|CANCELLED|PROJECT|READ|WATCH"
+           "/DONE|TODO|WAIT|CANC|PROJ"
            ((org-agenda-files '("~/org/todo.org"))
             (org-agenda-prefix-format
              ,(concat "    %5(org-entry-get nil \"MODIFIED\") %e "))
@@ -851,35 +885,31 @@ The default definition fails in a side window due to a call to
                      "%17Effort(Estimated Effort){:} "
                      "%CLOCKSUM"))
             (org-super-agenda-groups
-             '((:name "Archive DONE tasks"
+             '((:name "Waiting tasks"
+                :order 0
+                :and (:todo "WAIT" :not (:tag "FUTURE")))
+               (:name "High priority"
+                :order 1
+                :and (:todo "TODO" :priority "A" :tag "TASKS"
+                      :not (:scheduled t)))
+               (:name "Medium priority"
+                :order 2
+                :and (:todo "TODO" :priority "B" :tag "TASKS"
+                      :not (:scheduled t)))
+               (:name "Low priority"
                 :order 3
-                :and (:todo ("DONE" "CANCELLED")
-                      :not (:tag "PROJECT")))
-               (:name "Waiting tasks"
-                :order 7
-                :and (:todo "WAIT" :not (:tag "FUTURE"))
-                :discard (:scheduled t))
-               (:name "Things to read/watch"
+                :and (:todo "TODO" :priority "C" :tag "TASKS"
+                      :not (:scheduled t)))
+               (:name "Archive DONE tasks"
                 :order 4
-                :todo ("READ" "WATCH"))
-               (:name "Attic: tasks for the Future™"
-                :order 6
-                :tag "FUTURE")
+                :and (:todo ("DONE" "CANC") :not (:tag "PROJECTS"
+                                                  :tag "FUTURE")))
                (:name "Projects"
                 :order 5
-                :todo "PROJECT")
-               (:name "High priority"
-                :order 0
-                :and (:todo "TODO"
-                      :priority "A"))
-               (:name "Medium priority"
-                :order 1
-                :and (:todo "TODO"
-                      :priority "B"))
-               (:name "Low priority"
-                :order 2
-                :and (:todo "TODO"
-                      :priority "C"))))))))))
+                :and (:todo "PROJ" :not (:tag "FUTURE")))
+               (:name "Attic: tasks for the Future™"
+                :order 6
+                :tag "FUTURE")))))))))
 
 (with-eval-after-load 'f
   (dolist (file org-agenda-files nil)
@@ -952,27 +982,6 @@ The default definition fails in a side window due to a call to
 
 (use-package org-ql)
 
-;; `org-notify' settings:
-;; (require 'org-notify)
-;; (org-notify-add 'todo
-;;                 '(:time "15m" :period "20s" :duration 10
-;;                   :actions (-notify -message))
-;;                 '(:time "5m" :period "20s" :duration 10
-;;                   :actions (-notify -message))
-;;                 '(:time "1m" :period "20s" :duration 10
-;;                   :actions (-notify -message -ding)))
-;; (org-notify-add 'event
-;;                 '(:time "1h" :duration 10
-;;                   :actions (-notify -message))
-;;                 '(:time "15m" :period "20s" :duration 10
-;;                   :actions (-notify -message))
-;;                 '(:time "5m" :period "20s" :duration 10
-;;                   :actions (-notify -message))
-;;                 '(:time "1m" :period "20s" :duration 10
-;;                   :actions (-notify -message -ding)))
-
-;; (org-notify-start)
-
 (use-package calfw
   :general
   (:keymaps 'cfw:calendar-mode-map
@@ -1044,105 +1053,137 @@ The default definition fails in a side window due to a call to
     "i" 'org-roam-insert
     "d" 'org-roam-dailies-today)
   :config
-  (setq org-roam-directory "~/org/notes/"
-        org-roam-capture-templates
-        '(("d" "default" plain
-           #'org-roam-capture--get-point "%?"
-           :file-name "${slug}"
-           :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
-           :unnarrowed t))
-	org-roam-dailies-capture-templates `(("d" "daily" plain
-					      #'org-roam-capture--get-point ""
-					      :immediate-finish t
-					      :file-name "%<%Y-%m-%d>"
-					      :head ,(concat
-						      "#+TITLE: %<%Y-%m-%d>\n"
-						      "#+FILETAGS: daily"))))
-  (add-to-list 'org-roam-capture-ref-templates
-               `("s" "source" plain
-                 #'org-roam-capture--get-point
-                 ,(concat
-                   "%(org-web-tools--url-as-readable-org \"${ref}\")"
-                   "%?")
-                 :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
-                 :unnarrowed t))
-  (add-to-list 'org-roam-capture-ref-templates
-               `("p" "pdf" plain
-                 #'org-roam-capture--get-point
-                 ,(concat
-                   "%(w3m-download \"${ref}\")"
-                   "%?")
-                 :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                 :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
-                 :unnarrowed t))
-  (require 'org-roam-protocol)
-  (defun tm/org-roam-find-unlinked-files ()
-    (interactive)
-    (save-excursion
-      (let* ((org-roam-files (org-roam--get-title-path-completions))
-	     (files (mapcar #'cdr org-roam-files))
-	     (lonely-notes '()))
-	(dolist (file files)
-	  (let ((backlinks (org-roam--get-backlinks file)))
-	    (unless backlinks
-	      (setq lonely-notes (cons file lonely-notes)))))
-	(dolist (lonely-note lonely-notes)
-	  (org-insert-link nil (concat "file:" lonely-note) nil)
-	  (newline)))))
-  (defun tm/toggle-org-roam-today ()
-    "Foo bar baz."
-    (interactive)
-    (let ((buffer (save-window-excursion
-		    (org-roam-dailies-today)
-		    (current-buffer))))
-      (if buffer
-	  (if (not (get-buffer-window-list buffer))
-	      (display-buffer-in-side-window buffer
-					     '((display-buffer-reuse-window display-buffer-in-side-window)
-					       (direction . rightmost)
-					       (side . right)
-					       (window-width . 100)))
-	    (window-toggle-side-windows)))))
+  (setq org-roam-directory "~/src/blog/content/wiki")
+  ;; org-roam-capture-templates
+  ;; `(("d" "default" plain
+  ;;    #'org-roam-capture--get-point "%s"
+  ;;    :file-name ,((let* ((dir-choice (completing-read
+  ;;                                     "Directory: "
+  ;;                                     (completing-read
+  ;;                                      "Directory: "
+  ;;                                      (directory-files-recursively
+  ;;                                       (expand-file-name org-roam-directory)
+  ;;                                       (rx (zero-or-more any))
+  ;;                                       t))))
+  ;;                        (f-name (if (file-exists-p dir-choice)
+  ;;                                    dir-choice))))
+  ;;                 )))
+  ;;   org-roam-capture-templates
+  ;;   '(("d" "default" plain
+  ;;      #'org-roam-capture--get-point "%?"
+  ;;      :file-name "${slug}"
+  ;;      :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
+  ;;      :unnarrowed t))
+  ;;   org-roam-completion-everywhere t
+  ;;   org-roam-completion-system 'ivy
+  ;;   org-roam-dailies-capture-templates `(("d" "daily" plain
+  ;;         				#'org-roam-capture--get-point ""
+  ;;         				:immediate-finish t
+  ;;         				:file-name "%<%Y-%m-%d>"
+  ;;         				:head ,(concat
+  ;;         					"#+TITLE: %<%Y-%m-%d>\n"
+  ;;         					"#+FILETAGS: daily")))
+  ;;   (add-to-list 'org-roam-capture-ref-templates
+  ;;                `("s" "source" plain
+  ;;                  #'org-roam-capture--get-point
+  ;;                  ,(concat
+  ;;                    "%(org-web-tools--url-as-readable-org \"${ref}\")"
+  ;;                    "%?")
+  ;;                  :file-name "%<%Y%m%d%H%M%S>-${slug}"
+  ;;                  :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
+  ;;                  :unnarrowed t))
+  ;;   (add-to-list 'org-roam-capture-ref-templates
+  ;;                `("p" "pdf" plain
+  ;;                  #'org-roam-capture--get-point
+  ;;                  ,(concat
+  ;;                    "%(w3m-download \"${ref}\")"
+  ;;                    "%?")
+  ;;                  :file-name "%<%Y%m%d%H%M%S>-${slug}"
+  ;;                  :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
+  ;;                  :unnarrowed t))
+  ;;   (require 'org-roam-protocol)
+  ;;   (defun tm/org-roam-find-unlinked-files ()
+  ;;     (interactive)
+  ;;     (save-excursion
+  ;;       (let* ((org-roam-files (org-roam--get-title-path-completions))
+  ;; 	     (files (mapcar #'cdr org-roam-files))
+  ;; 	     (lonely-notes '()))
+  ;; 	(dolist (file files)
+  ;; 	  (let ((backlinks (org-roam--get-backlinks file)))
+  ;; 	    (unless backlinks
+  ;; 	      (setq lonely-notes (cons file lonely-notes)))))
+  ;; 	(dolist (lonely-note lonely-notes)
+  ;; 	  (org-insert-link nil (concat "file:" lonely-note) nil)
+  ;; 	  (newline)))))
+  ;;   (defun tm/toggle-org-roam-today ()
+  ;;     "Foo bar baz."
+  ;;     (interactive)
+  ;;     (let ((buffer (save-window-excursion
+  ;; 		    (org-roam-dailies-today)
+  ;; 		    (current-buffer))))
+  ;;       (if buffer
+  ;; 	  (if (not (get-buffer-window-list buffer))
+  ;; 	      (display-buffer-in-side-window buffer
+  ;; 					     '((display-buffer-reuse-window display-buffer-in-side-window)
+  ;; 					       (direction . rightmost)
+  ;; 					       (side . right)
+  ;; 					       (window-width . 100)))
+  ;; 	    (window-toggle-side-windows)))))
   :hook
-  (after-init . org-roam-mode))
+  (after-init . org-roam-mode)
+  (org-mode . company-mode))
 
 ;; (use-package org-fc
 ;;   :straight
 ;;   (:host github :repo "l3kn/org-fc"))
 
-(use-package notdeft
-  :straight
-  (:host github :repo "hasu/notdeft" :branch "xapian")
-  :preface
-  (defun tm/notdeft-bury-or-clear ()
-    (interactive)
-    (if notdeft-filter-string
-        (notdeft-filter-clear)
-      (bury-buffer)))
-  :general
-  (tm/leader-def
-    "i" 'notdeft)
-  (:keymaps 'notdeft-mode-map
-   :states '(normal motion)
-   "q" 'tm/notdeft-bury-or-clear
-   "gr" 'notdeft-refresh
-   "S" 'notdeft-filter)
-  :config
-  (setq notdeft-directory (concat org-directory "/notes")
-	notdeft-directories `(,(concat org-directory "/notes/"))
-        notdeft-xapian-program (executable-find "notdeft-xapian")))
+;; (use-package notdeft
+;;   :straight
+;;   (:host github :repo "hasu/notdeft" :branch "xapian")
+;;   :preface
+;;   (defun tm/notdeft-bury-or-clear ()
+;;     (interactive)
+;;     (if notdeft-filter-string
+;;         (notdeft-filter-clear)
+;;       (bury-buffer)))
+;;   :general
+;;   (tm/leader-def
+;;     "i" 'notdeft)
+;;   (:keymaps 'notdeft-mode-map
+;;    :states '(normal motion)
+;;    "q" 'tm/notdeft-bury-or-clear
+;;    "gr" 'notdeft-refresh
+;;    "S" 'notdeft-filter)
+;;   :config
+;;   (setq notdeft-directory (concat org-directory "/notes")
+;; 	notdeft-directories `(,(concat org-directory "/notes/"))
+;;         notdeft-xapian-program (executable-find "notdeft-xapian")))
 
 (use-package helm-org-rifle)
 
 (use-package counsel-org-clock
   :general
   (tm/leader-def
-    :infix "C"
+    :infix "oC"
     :prefix-command 'tm/counsel-prefix-command
     :prefix-map 'tm/counsel-prefix-map
     "g" 'counsel-org-clock-goto
     "h" 'counsel-org-clock-history))
+
+(use-package org-wild-notifier
+  :config
+  (setq alert-default-style 'libnotify
+        org-wild-notifier-keyword-whitelist '()
+        org-wild-notifier-tags-whitelist '()
+        org-wild-notifier-alert-time '(60 30 20 15 10 5 3 2 1))
+  :hook
+  (after-init . org-wild-notifier-mode))
+
+(use-package ox-reveal
+  :config
+  (setq org-reveal-root "file:///home/tminor/src/reveal.js"))
+
+;; (use-package ox-hugo)
 
 (provide 'init-org)
 ;;; init-org.el ends here
