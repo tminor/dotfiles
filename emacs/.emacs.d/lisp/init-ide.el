@@ -42,6 +42,10 @@
   (prog-mode . aggressive-indent-mode))
 
 (use-package lsp-mode
+  :general
+  (tm/leader-def
+    :major-modes 'prog-mode
+    "l" 'lsp-command-map)
   :hook
   (ruby-mode . lsp)
   (sh-mode . lsp)
@@ -53,6 +57,8 @@
   (js-mode . lsp)
   (css-mode . lsp)
   (rust-mode . lsp)
+  :init
+  (setq lsp-keymap-prefix nil)
   :config
   (setq lsp-prefer-flymake nil))
 
