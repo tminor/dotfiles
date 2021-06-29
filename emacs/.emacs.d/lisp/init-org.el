@@ -882,9 +882,12 @@ The default definition fails in a side window due to a call to
                      "%17Effort(Estimated Effort){:} "
                      "%CLOCKSUM"))
             (org-super-agenda-groups
-             '((:name "Waiting tasks"
-                :order 0
-                :and (:todo "WAIT" :not (:tag "FUTURE")))
+             '((:order-multi (0 (:name "Sprint (DOING)"
+                                 :and (:property ("SPRINT" "t") :not (:scheduled t)
+                                       :todo "DOIN"))
+                                (:name "Sprint (TODO)"
+                                 :and (:property ("SPRINT" "t") :not (:scheduled t)
+                                       :todo "TODO"))))
                (:name "High priority"
                 :order 1
                 :and (:todo "TODO" :priority "A" :tag "TASKS"
