@@ -1039,8 +1039,10 @@ The default definition fails in a side window due to a call to
                                        (shell      . t))))
 
 (use-package org-roam
+  :defer t
   :straight
-  (:host github :repo "jethrokuan/org-roam")
+  (:host github :repo "jethrokuan/org-roam"
+   :branch "v2")
   :general
   (tm/leader-def
     :infix "or"
@@ -1053,84 +1055,16 @@ The default definition fails in a side window due to a call to
     "i" 'org-roam-insert
     "d" 'org-roam-dailies-today)
   :config
-  (setq org-roam-directory "~/src/blog/content/wiki")
-  ;; org-roam-capture-templates
-  ;; `(("d" "default" plain
-  ;;    #'org-roam-capture--get-point "%s"
-  ;;    :file-name ,((let* ((dir-choice (completing-read
-  ;;                                     "Directory: "
-  ;;                                     (completing-read
-  ;;                                      "Directory: "
-  ;;                                      (directory-files-recursively
-  ;;                                       (expand-file-name org-roam-directory)
-  ;;                                       (rx (zero-or-more any))
-  ;;                                       t))))
-  ;;                        (f-name (if (file-exists-p dir-choice)
-  ;;                                    dir-choice))))
-  ;;                 )))
-  ;;   org-roam-capture-templates
-  ;;   '(("d" "default" plain
-  ;;      #'org-roam-capture--get-point "%?"
-  ;;      :file-name "${slug}"
-  ;;      :head "#+TITLE: ${title}\n#+FILETAGS: ${tags}"
-  ;;      :unnarrowed t))
-  ;;   org-roam-completion-everywhere t
-  ;;   org-roam-completion-system 'ivy
-  ;;   org-roam-dailies-capture-templates `(("d" "daily" plain
-  ;;         				#'org-roam-capture--get-point ""
-  ;;         				:immediate-finish t
-  ;;         				:file-name "%<%Y-%m-%d>"
-  ;;         				:head ,(concat
-  ;;         					"#+TITLE: %<%Y-%m-%d>\n"
-  ;;         					"#+FILETAGS: daily")))
-  ;;   (add-to-list 'org-roam-capture-ref-templates
-  ;;                `("s" "source" plain
-  ;;                  #'org-roam-capture--get-point
-  ;;                  ,(concat
-  ;;                    "%(org-web-tools--url-as-readable-org \"${ref}\")"
-  ;;                    "%?")
-  ;;                  :file-name "%<%Y%m%d%H%M%S>-${slug}"
-  ;;                  :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
-  ;;                  :unnarrowed t))
-  ;;   (add-to-list 'org-roam-capture-ref-templates
-  ;;                `("p" "pdf" plain
-  ;;                  #'org-roam-capture--get-point
-  ;;                  ,(concat
-  ;;                    "%(w3m-download \"${ref}\")"
-  ;;                    "%?")
-  ;;                  :file-name "%<%Y%m%d%H%M%S>-${slug}"
-  ;;                  :head "#+TITLE: ${title}\n#+ROAM_KEY: ${ref}\n#+FILETAGS: ${tags}\n"
-  ;;                  :unnarrowed t))
-  ;;   (require 'org-roam-protocol)
-  ;;   (defun tm/org-roam-find-unlinked-files ()
-  ;;     (interactive)
-  ;;     (save-excursion
-  ;;       (let* ((org-roam-files (org-roam--get-title-path-completions))
-  ;; 	     (files (mapcar #'cdr org-roam-files))
-  ;; 	     (lonely-notes '()))
-  ;; 	(dolist (file files)
-  ;; 	  (let ((backlinks (org-roam--get-backlinks file)))
-  ;; 	    (unless backlinks
-  ;; 	      (setq lonely-notes (cons file lonely-notes)))))
-  ;; 	(dolist (lonely-note lonely-notes)
-  ;; 	  (org-insert-link nil (concat "file:" lonely-note) nil)
-  ;; 	  (newline)))))
-  ;;   (defun tm/toggle-org-roam-today ()
-  ;;     "Foo bar baz."
-  ;;     (interactive)
-  ;;     (let ((buffer (save-window-excursion
-  ;; 		    (org-roam-dailies-today)
-  ;; 		    (current-buffer))))
-  ;;       (if buffer
-  ;; 	  (if (not (get-buffer-window-list buffer))
-  ;; 	      (display-buffer-in-side-window buffer
-  ;; 					     '((display-buffer-reuse-window display-buffer-in-side-window)
-  ;; 					       (direction . rightmost)
-  ;; 					       (side . right)
-  ;; 					       (window-width . 100)))
-  ;; 	    (window-toggle-side-windows)))))
+  (setq org-roam-directory "~/src/blog/org-src/"
+        org-roam-dailies-directory (concat org-roam-directory "dailies")
+        org-roam-tag-sources '(prop all-directories)
+        org-roam-capture-templates
+        '(("d" "default" plain "%?"
+           :if-new (file+head "%(completing-read \"Choose note directory: \" (cons org-roam-directory (-filter #'f-directory-p (directory-files-recursively org-roam-directory (rx (zero-or-more any)) t))))/${slug}"
+                              "#+title: ${title}\n")
+           :unnarrowed t)))
+  (org-roam-setup)
   :hook
-  (after-init . org-roam-mode)
   (org-mode . company-mode))
 
 ;; (use-package org-fc
