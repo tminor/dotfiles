@@ -174,6 +174,27 @@
   (python-mode . (lambda ()
                    (require 'lsp-python-ms))))
 
+(use-package yasnippet-snippets)
+
+(use-package yasnippet
+  :init
+  (setq tm/enable-company-yas t)
+  (defun tm/backend-with-yas (backend)
+    (if (or (not tm/enable-company-yas) (and (listp backend) (member 'company-yasnippet backend)))
+        backend
+      (append (if (consp backend) backend (list backend))
+              '(:with company-yasnippet))))
+  :hook
+  (lsp-after-open . (lambda ()
+                      (setq company-backends
+                            (mapcar #'tm/backend-with-yas company-backends))
+                      ;; (company-box--set-mode)
+                      ))
+  :config
+  (add-to-list 'yasnippet-snippets-dir
+               (concat no-littering-etc-directory
+                       "yasnippet/snippets/ruby-mode")))
+
 (use-package polymode)
 (provide 'init-ide)
 ;;; init-ide.el ends here
