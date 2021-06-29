@@ -155,6 +155,17 @@
    :states '(motion  normal iedit)
    "U" 'tm/string-inflection-cycle-auto))
 
+;; TODO: The recipe for this package needs to be tweaked; it fails to
+;; load files in its "languages" directory.
+;; (use-package lsp-sonarlint
+;;   :straight
+;;   (:host github :repo "emacs-lsp/lsp-sonarlint"
+;;    :files (:defaults "languages/*/*" "server/*"))
+;;   :init
+;;   (require 'lsp-sonarlint-ruby)
+;;   :config
+;;   (setq lsp-sonarlint-ruby-enabled t
+;;         lsp-sonarlint-server-path "/home/tminor/.emacs.d/straight/build/lsp-sonarlint/sonarlint-language-server.jar"))
 (use-package polymode)
 (provide 'init-ide)
 ;;; init-ide.el ends here
