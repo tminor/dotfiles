@@ -27,7 +27,8 @@
   :init
   (setq evil-want-keybinding nil
 	evil-want-integration t
-	evil-want-fine-undo t)
+	evil-want-fine-undo t
+        evil-cross-lines t)
   :general
   ;; Override `evil-search-forward' binding in favor of `swiper'.
   (:states '(normal motion)
@@ -78,10 +79,19 @@
                                                heading)))))
 
 (use-package evil-surround
+  :general
+  (:keymaps '(ruby-mode-map)
+   :states '(visual operator))
   :straight
   (:host github :repo "emacs-evil/evil-surround")
   :hook
-  (after-init . global-evil-surround-mode))
+  (after-init . global-evil-surround-mode)
+  (markdown-mode . (lambda ()
+                     (push '(?~ . ("```\n" . "\n```"))
+                           evil-surround-pairs-alist)))
+  (ruby-mode . (lambda ()
+                 (push '(?b . ("do\n" . "\nend"))
+                       evil-surround-pairs-alist))))
 
 (use-package free-keys
   :general
@@ -100,10 +110,31 @@
    "R" 'evil-multiedit-match-all))
 
 (use-package evil-mc
+  :general
+  (:keymaps '(override local)
+   :states '(normal)
+   "zp" 'evil-mc-pause-cursors
+   "zC" 'evil-mc-make-cursor-here
+   "zu" 'evil-mc-undo-last-added-cursor
+   "zU" 'evil-mc-undo-all-cursors
+   "zR" 'evil-mc-resume-cursors)
   :hook
   (after-init . global-evil-mc-mode)
   :config
-  (setq evil-mc-enable-bar-cursor t))
+  (setq evil-mc-enable-bar-cursor t)
+  (defun tm/evil-mc-make-cursor-here ()
+    (interactive)
+    (if evil-mc-frozen
+        (evil-mc-make-cursor-at-pos (point))
+      (evil-mc-pause-cursors)
+      (evil-mc-make-cursor-at-pos (point))))
+  (add-to-list
+   'evil-mc-known-commands
+   '(puppet-interpolate . ((:default . evil-mc-execute-default-call-with-count)))))
+
+(use-package evil-matchit
+  :hook
+  (prog-mode . global-evil-matchit-mode))
 
 (provide 'init-key-bindings)
 ;;; init-key-bindings.el ends here
