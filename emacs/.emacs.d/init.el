@@ -83,4 +83,7 @@
 (require 'init-web)
 (require 'init-guile)
 
+(enable-theme 'taihaku)
+(enable-theme 'local)
+
 (put 'narrow-to-region 'disabled nil)
