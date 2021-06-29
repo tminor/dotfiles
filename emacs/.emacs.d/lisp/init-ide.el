@@ -155,5 +155,6 @@
    :states '(motion  normal iedit)
    "U" 'tm/string-inflection-cycle-auto))
 
+(use-package polymode)
 (provide 'init-ide)
 ;;; init-ide.el ends here
