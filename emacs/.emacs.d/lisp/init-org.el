@@ -12,6 +12,10 @@
 (require 'cl-extra)
 (require 'cl)
 
+(use-package org)
+(use-package org-contrib
+  :straight (:host github :repo "emacsmirror/org-contrib"))
+
 (use-package pdf-tools
   :general
   (:keymaps '(pdf-view-mode-map)
@@ -22,9 +26,6 @@
   (pdf-view-mode . (lambda () (pdf-tools-enable-minor-modes))))
 
 ;; (pdf-tools-install)
-
-(straight-use-package 'org-plus-contrib)
-(straight-use-package 'org)
 
 (use-package org-mime)
 
