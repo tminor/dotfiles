@@ -7,6 +7,8 @@
 ;;; Code:
 
 (use-package jsonnet-mode
+  :straight
+  (:host github :repo "tminor/jsonnet-mode" :branch "main")
   :config
   (eval-after-load "hideshow"
     '(add-to-list
