@@ -31,11 +31,11 @@
   :init
   (setq company-idle-delay 0.02)
   :hook
-  (prog-mode . company-mode))
-
-(use-package company-quickhelp
-  :hook
-  (company-mode . company-quickhelp-mode))
+  (prog-mode . company-mode)
+  :custom-face
+  (company-tooltip ((t (:family "Fira Mono"))))
+  :config
+  (setq company-tooltip-align-annotations t))
 
 (use-package aggressive-indent
   :hook
