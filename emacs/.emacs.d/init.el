@@ -6,6 +6,14 @@
 
 ;;; Code:
 
+;; for native-comp branch
+(when (fboundp 'native-compile-async)
+  (if (yes-or-no-p "async compile?")
+      (setq comp-async-jobs-number 4 ;; not using all cores
+            comp-deferred-compilation t
+            comp-deferred-compilation-black-list '())
+    (setq comp-deferred-compilation nil)))
+
 ;; Produce backtraces when errors occur: can be helpful to diagnose
 ;; startup issues
 (setq debug-on-error nil)
