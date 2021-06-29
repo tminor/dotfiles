@@ -196,5 +196,12 @@
                        "yasnippet/snippets/ruby-mode")))
 
 (use-package polymode)
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
+
 (provide 'init-ide)
 ;;; init-ide.el ends here
