@@ -806,7 +806,8 @@ The default definition fails in a side window due to a call to
                                                          :weight 'bold))
       org-habit-graph-column 45
       org-habit-show-habits-only-for-today nil
-      org-agenda-skip-unavailable-files t)
+      org-agenda-skip-unavailable-files t
+      org-id-link-to-org-use-id t)
 
 (setq org-agenda-custom-commands
       `(("b" "Daily agenda for both work and home"
