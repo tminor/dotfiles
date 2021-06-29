@@ -93,5 +93,15 @@ Lisp function does not specify a special indentation."
          (goto-char (marker-position pos))
          (eval-defun nil))))))
 
+(use-package cask-mode)
+
+(use-package buttercup)
+
+(use-package undercover)
+
+(use-package font-lock-studio)
+
+(use-package highlight-refontification)
+
 (provide 'init-elisp)
 ;;; init-elisp.el ends here
