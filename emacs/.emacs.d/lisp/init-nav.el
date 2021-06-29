@@ -29,11 +29,9 @@
 
 (use-package avy
   :general
-  (:states 'motion
-   :keymaps 'override
-   "zg" 'avy-goto-char
-   "z2" 'avy-goto-char-2
-   "z1" 'avy-goto-char-timer))
+  (:states '(motion normal)
+   :keymaps '(override)
+   "gS" 'avy-goto-char-timer))
 
 (use-package winner
   :general
