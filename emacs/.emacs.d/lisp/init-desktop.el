@@ -6,6 +6,8 @@
 ;;
 ;;; Code:
 
+(use-package f)
+
 (require 'f)
 (require 'cl-lib)
 
@@ -238,7 +240,13 @@ Return an alist containing mute status and volume level."
   (exwm-update-title . tm/exwm-rename-buffer-to-title)
   ((exwm-init exwm-randr-screen-change) . tm/exwm-change-screen-hook)
   (exwm-workspace-switch . exwm-input-release-keyboard)
-  (exwm-init . (lambda () (start-process-shell-command "Dunst" nil "dunst")))
+  (exwm-init . (lambda ()
+                 (when (executable-find "dunst")
+                   (start-process-shell-command "Dunst" nil "dunst"))
+                 (when (executable-find "nm-applet")
+                   (start-process-shell-command "nm-applet" nil "nm-applet"))
+                 (when (executable-find "shutter")
+                   (start-process-shell-command "shutter" nil "shutter"))))
   :init
   (setq exwm-input-global-keys
 	`((,(kbd "s-R") . exwm-reset)
@@ -258,7 +266,7 @@ Return an alist containing mute status and volume level."
 	  (,(kbd "s-z") . zoom-mode)
 	  (,(kbd "s-r") . helm-org-rifle)
 	  (,(kbd "s-c") . org-capture)
-	  (,(kbd "s-D") . dired-sidebar-toggle-sidebar)
+	  (,(kbd "s-D") . treemacs)
 	  (,(kbd "s-x") . counsel-M-x)
 	  (,(kbd "s-B") . ibuffer-sidebar-toggle-sidebar)
 	  (,(kbd "s-n") . tm/toggle-org-roam-today)
@@ -352,8 +360,6 @@ BUFFER may be a string or nil. Conditionally calls
 
 (require 'exwm-randr)
 (exwm-randr-enable)
-
-(use-package exwm-edit)
 
 (provide 'init-desktop)
 ;;; init-desktop.el ends here
