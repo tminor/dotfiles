@@ -90,6 +90,15 @@
 (use-package lsp-java)
 
 (use-package company-lsp)
+
+(use-package company-box
+  :hook
+  (company-mode . company-box-mode)
+  ;; (prog-mode . company-box--set-mode)
+  :config
+  ;; (setq company-tooltip-minimum-width 60)
+  )
+
 (use-package lsp-treemacs)
 
 (use-package highlight-thing
