@@ -229,7 +229,8 @@ event of an error or nonlocal exit."
                                  "magit-log: "
                                  "magit-refs: "
                                  "*Org Src"
-                                 "*Org Note"))
+                                 "*Org Note"
+                                 "*Org Clock"))
            (display-buffer-reuse-window display-buffer-same-window))
           ;; Use a wider side window
 	  (,(rx string-start (or "*Org Agenda*"))
