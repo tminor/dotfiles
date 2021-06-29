@@ -46,5 +46,32 @@
   :hook
   (systemd-mode . poly-systemd+erb-mode))
 
+(use-package fish-colors
+  :straight
+  (:host github :repo "snyball/emacs-fish-colors")
+  :config
+  (setq fish-color-to-emacs-face '((fish_color_autosuggestion . font-lock-comment-face)
+                                   (fish_color_cancel . error)
+                                   (fish_color_command . font-lock-keyword-face)
+                                   (fish_color_comment . font-lock-comment-face)
+                                   (fish_color_cwd . default)
+                                   (fish_color_cwd_root . default)
+                                   (fish_color_end . default)
+                                   (fish_color_error . error)
+                                   (fish_color_escape . default)
+                                   (fish_color_history_current . default)
+                                   (fish_color_host . default)
+                                   (fish_color_host_remote . default)
+                                   (fish_color_match . default)
+                                   (fish_color_normal . default)
+                                   (fish_color_operator . font-lock-function-name-face)
+                                   (fish_color_param . font-lock-constant-face)
+                                   (fish_color_quote . font-lock-string-face)
+                                   (fish_color_redirection . font-lock-function-name-face)
+                                   (fish_color_search_match . default)
+                                   (fish_color_selection . default)
+                                   (fish_color_status . default)
+                                   (fish_color_user . default))))
+
 (provide 'init-term)
 ;;; init-ivy.el ends here
