@@ -45,6 +45,14 @@
   :hook
   (ruby-mode . lsp)
   (sh-mode . lsp)
+  (go-mode . lsp)
+  (java-mode . lsp)
+  (crystal-mode . lsp)
+  (python-mode . lsp)
+  (puppet-mode . lsp)
+  (js-mode . lsp)
+  (css-mode . lsp)
+  (rust-mode . lsp)
   :config
   (setq lsp-prefer-flymake nil))
 
