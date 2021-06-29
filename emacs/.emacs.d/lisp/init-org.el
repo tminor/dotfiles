@@ -702,7 +702,7 @@ The default definition fails in a side window due to a call to
 (add-to-list 'org-file-apps
              '("\\.pdf\\'" . (lambda (file link)
                                (org-pdftools-open link))))
-(tm/org-make-level-faces "16")
+;; (tm/org-make-level-faces "16")
 ;; Makes more outline path faces available.
 (setq org-n-level-faces 15)
 (setq org-startup-indented t
