@@ -383,14 +383,8 @@ e equal return t."
       (when (re-search-forward (rx-to-string `(seq bol " " ,it)) nil t)
         (origami-show-node (current-buffer) (point))))))
 
-(setq tm/org-super-agenda-auto-show-groups '("Stuck projects"
-                                             "Archive DONE tasks"
-                                             "Projects"
-                                             "Other items"
-                                             "Schedule"
-                                             "High priority"
-                                             "Medium priority"
-                                             "Waiting tasks"))
+(setq tm/org-super-agenda-auto-show-groups '("Other items"
+                                             "Sprint"))
 
 ;; Found here: https://emacs.stackexchange.com/a/30449
 (defun tm/last-weekday-of-month-p (date)
@@ -593,6 +587,7 @@ https://emacs.stackexchange.com/a/3990"
 The default definition fails in a side window due to a call to
 `delete-other-windows'."
   (remove-hook 'post-command-hook 'org-add-log-note)
+  (setq org-log-setup nil)
   (setq org-log-note-window-configuration (current-window-configuration))
   (move-marker org-log-note-return-to (point))
   (pop-to-buffer-same-window (marker-buffer org-log-note-marker))
