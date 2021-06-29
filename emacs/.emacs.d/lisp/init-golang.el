@@ -18,5 +18,7 @@
   :hook
   (go-mode . flycheck-golangci-lint-setup))
 
+(use-package go-dlv)
+
 (provide 'init-golang)
 ;;; init-golang.el ends here
