@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=org-protocol
-Exec=/home/tminor/.emacs.d/bin/org-protocol %u
-Type=Application
-Terminal=false
-Categories=System;
-MimeType=x-scheme-handler/org-protocol;

@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-URL=\'$1\'
-
-emacsclient $URL
