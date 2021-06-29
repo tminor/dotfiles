@@ -166,6 +166,14 @@
 ;;   :config
 ;;   (setq lsp-sonarlint-ruby-enabled t
 ;;         lsp-sonarlint-server-path "/home/tminor/.emacs.d/straight/build/lsp-sonarlint/sonarlint-language-server.jar"))
+
+(use-package lsp-python-ms
+  :init
+  (setq lsp-python-ms-auto-install-server t)
+  :hook
+  (python-mode . (lambda ()
+                   (require 'lsp-python-ms))))
+
 (use-package polymode)
 (provide 'init-ide)
 ;;; init-ide.el ends here
