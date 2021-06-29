@@ -93,6 +93,7 @@
   (tm/leader-def
     :infix "f"
     :prefix-command 'tm/find-prefix-command
+    :prefix-map 'tm/find-prefix-map
     "" '(:which-key "find prefix" :ignore t)
     "f" 'counsel-find-file
     "F" 'find-file-other-window
@@ -101,6 +102,7 @@
   (tm/leader-def
     :infix "h"
     :prefix-command 'tm/help-prefix-command
+    :prefix-map 'tm/help-prefix-map
     "" '(:which-key "help prefix" :ignore t)
     "F" 'counsel-describe-face
     "b" 'counsel-descbinds
