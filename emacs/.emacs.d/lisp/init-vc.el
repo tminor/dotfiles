@@ -71,5 +71,14 @@
   :config
   (setq ghub-use-workaround-for-emacs-bug 'force))
 
+(use-package git-link
+  :config
+  (setq git-link-open-in-browser t))
+
+(use-package diff-hl
+  :hook
+  (prog-mode . diff-hl-margin-mode)
+  (prog-mode . diff-hl-mode))
+
 (provide 'init-vc)
 ;;; init-vc.el ends here
