@@ -15,17 +15,13 @@
   :hook
   (dired-mode . all-the-icons-dired-mode))
 
-(use-package dired-sidebar
-  :straight
-  (:host github :repo "jojojames/dired-sidebar")
-  :commands (dired-sidebar-toggle-sidebar)
-  :hook
-  (dired-sidebar-mode-hook . (lambda ()
-			       (unless (file-remote-p default-directory)
-				 (auto-revert-mode))))
-  :config
-  (setq dired-sidebar-theme 'icons
-	dired-sidebar-use-term-integration t))
+(use-package treemacs)
+
+(use-package treemacs-evil)
+
+(use-package treemacs-projectile)
+
+(use-package dired-subtree)
 
 (provide 'init-dired)
 ;;; init-dired.el ends here
