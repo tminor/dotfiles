@@ -60,7 +60,20 @@
   :init
   (setq lsp-keymap-prefix nil)
   :config
-  (setq lsp-prefer-flymake nil))
+  (setq lsp-prefer-flymake nil)
+  (lsp-register-custom-settings
+   '(("gopls.completeUnimported" t t)
+     ("gopls.staticcheck" t t)))
+  (defun tm/lsp-cancel-download ()
+    (interactive)
+    (let* ((clients (lsp--filter-clients #'lsp--client-download-in-progress?))
+           (client (lsp--completing-read
+                    "Which servers download would you like to cancel?"
+                    clients
+                    (-compose #'symbol-name #'lsp--client-server-id)
+                    nil
+                    t)))
+      (setf (lsp--client-download-in-progress? client) nil))))
 
 (use-package lsp-ui
   :general
