@@ -19,7 +19,8 @@
   :config
   (setq vterm-shell "fish"
 	tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"
-	tramp-default-method "ssh")
+	tramp-default-method "ssh"
+        vterm-buffer-name-string "vterm %s")
   :hook
   (evil-insert-state-entry
    . (lambda ()
