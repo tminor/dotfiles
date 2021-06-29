@@ -6,6 +6,8 @@
 ;;
 ;;; Code:
 
+(use-package crystal-mode)
+
 (use-package ruby-mode
   :straight nil
   :requires
@@ -16,7 +18,7 @@
       'hs-special-modes-alist
       `(ruby-mode
         ,(rx (or "def" "class" "module" "do" "{" "[" "(" "if" "unless" "case")) ; Block start
-        ,(rx (or "}" "]" ")" "end"))		           ; Block end
+        ,(rx (or "}" "]" ")" "end"))    ; Block end
         ,(rx (or "#" "=begin"))		; Comment start
         ruby-forward-sexp nil)))
   ;; https://dev.to/thiagoa/ruby-and-emacs-tip-advanced-pry-integration-33bk
@@ -34,6 +36,10 @@
   (ruby-mode . eldoc-mode)
   (ruby-mode . yard-mode))
 
+(use-package rvm
+  :hook
+  (ruby-mode . rvm-use-default))
+
 (use-package yard-mode)
 
 (use-package ruby-refactor
@@ -44,13 +50,23 @@
   :hook
   (ruby-mode . (lambda () (ruby-refactor-mode-launch))))
 
-(use-package inf-ruby)
+(use-package inf-ruby
+  :hook
+  (inf-ruby-mode . company-mode))
 
 (use-package evil-ruby-text-objects
   :straight
   (:host github :repo "porras/evil-ruby-text-objects")
   :hook
   (ruby-mode . evil-ruby-text-objects-mode))
+
+(use-package poly-erb
+  :init
+  (define-polymode poly-systemd+erb-mode
+    :innermodes '(poly-erb-innermode))
+  (add-to-list 'auto-mode-alist '("\\.service.erb\\'" . poly-systemd+erb-mode)))
+
+(use-package rspec-mode)
 
 (provide 'init-ruby)
 ;;; init-ruby.el ends here
