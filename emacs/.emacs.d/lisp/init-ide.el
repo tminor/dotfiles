@@ -87,6 +87,8 @@
   :hook
   (ruby-mode . lsp-ui-mode))
 
+(use-package lsp-java)
+
 (use-package company-lsp)
 (use-package lsp-treemacs)
 
