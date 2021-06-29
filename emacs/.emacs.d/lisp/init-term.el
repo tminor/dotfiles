@@ -37,5 +37,14 @@
    "gn" 'multi-vterm-next
    "gp" 'multi-vterm-prev))
 
+(use-package systemd
+  :straight
+  (:host github :repo "holomorph/systemd-mode"
+   :files (:defaults "*" "*/*"))
+  :init
+  (add-to-list 'auto-mode-alist '("\\.service.erb\\'" . systemd-mode))
+  :hook
+  (systemd-mode . poly-systemd+erb-mode))
+
 (provide 'init-term)
 ;;; init-ivy.el ends here
