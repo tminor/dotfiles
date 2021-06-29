@@ -1093,7 +1093,13 @@ The default definition fails in a side window due to a call to
 ;; 	notdeft-directories `(,(concat org-directory "/notes/"))
 ;;         notdeft-xapian-program (executable-find "notdeft-xapian")))
 
-(use-package helm-org-rifle)
+(use-package helm-org-rifle
+  :config
+  (defun tm/helm-org-rifle ()
+    "Search `org-roam' files and `org-agenda' files."
+    (interactive)
+    (helm-org-rifle-directories `(,org-roam-directory
+                                  ,org-roam-dailies-directory))))
 
 (use-package counsel-org-clock
   :general
