@@ -37,8 +37,8 @@ This file is essentially an exact copy of a file from David Wilson's
 
 * Channels
 :PROPERTIES:
-:HASH:     8f143b04a318949ab557c47146ca66aa
-:MODIFIED: [2021-06-28 Mon 14:06]
+:HASH:     be92baea0a3ba750d211bca4cd58214c
+:MODIFIED: [2021-06-30 Wed 10:28]
 :ID:       815f1508-0bb3-4393-9c3e-1fc393b32b72
 :END:
 
@@ -50,35 +50,32 @@ with Guix by default like the non-free Linux kernel.
 
 *.config/guix/channels.scm:*
 
-#+begin_src scheme :tangle .config/guix/channels.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/channels.scm
 
-    ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
+  ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
-    (list (channel
-            (name 'channel-x)
-            (url "file:///home/daviwil/Projects/Code/channel-x"))
-          (channel
-            (name 'flat)
-            (url "https://github.com/flatwhatson/guix-channel.git")
-            (commit
-              "7b8353ebbcf486e3344924d1cac0fa7ba47c371d")
-            (introduction
-              (make-channel-introduction
-                "33f86a4b48205c0dc19d7c036c85393f0766f806"
-                (openpgp-fingerprint
-                  "736A C00E 1254 378B A982  7AF6 9DBE 8265 81B6 4490"))))
-          (channel
-            (name 'nonguix)
-            (url "https://gitlab.com/nonguix/nonguix"))
-          (channel
-            (name 'guix)
-            (url "https://git.savannah.gnu.org/git/guix.git")
-            ;; (url "file:///home/daviwil/Projects/Code/guix"))
-            (introduction
-              (make-channel-introduction
-                "9edb3f66fd807b096b48283debdcddccfea34bad"
-                (openpgp-fingerprint
-                  "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA")))))
+  (list (channel
+         (name 'flat)
+         (url "https://github.com/flatwhatson/guix-channel.git")
+         (commit
+          "7b8353ebbcf486e3344924d1cac0fa7ba47c371d")
+         (introduction
+          (make-channel-introduction
+           "33f86a4b48205c0dc19d7c036c85393f0766f806"
+           (openpgp-fingerprint
+            "736A C00E 1254 378B A982  7AF6 9DBE 8265 81B6 4490"))))
+        (channel
+         (name 'nonguix)
+         (url "https://gitlab.com/nonguix/nonguix"))
+        (channel
+         (name 'guix)
+         (url "https://git.savannah.gnu.org/git/guix.git")
+         ;; (url "file:///home/daviwil/Projects/Code/guix"))
+         (introduction
+          (make-channel-introduction
+           "9edb3f66fd807b096b48283debdcddccfea34bad"
+           (openpgp-fingerprint
+            "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA")))))
 
 #+end_src
 
@@ -88,7 +85,7 @@ have to create a branch and commit changes to it before =guix pull= can
 pick them up, though.  You can change the target branch using the
 =branch= field of the =channel=.
 
-#+begin_src scheme :tangle .config/guix/channels.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/channels.scm
 
 ;; (list (channel
 ;;         (name 'nonguix)
@@ -114,8 +111,8 @@ pick them up, though.  You can change the target branch using the
 
 ** Base Configuration
 :PROPERTIES:
-:HASH:     6c67aadc29b087eccd4aa3906e6fec57
-:MODIFIED: [2021-06-29 Tue 15:06]
+:HASH:     9bbc611e9ec9ea50761f3d5a0b403032
+:MODIFIED: [2021-06-30 Wed 11:48]
 :ID:       7b3733c7-0170-474c-ba33-ef72d6ba62b7
 :END:
 
@@ -135,7 +132,7 @@ sudo -E guix system -L ~/.dotfiles/.config/guix/systems reconfigure ~/.dotfiles/
 
 *.config/guix/systems/base-system.scm:*
 
-#+begin_src scheme :tangle .config/guix/systems/base-system.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/systems/base-system.scm
 
 ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
@@ -178,7 +175,7 @@ sudo -E guix system -L ~/.dotfiles/.config/guix/systems reconfigure ~/.dotfiles/
 Add a =udev= rule to enable members of the =video= group to control screen
 brightness.
 
-#+begin_src scheme :tangle .config/guix/systems/base-system.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/systems/base-system.scm
 
 ;; Allow members of the "video" group to change the screen brightness.
 (define %backlight-udev-rule
@@ -196,7 +193,7 @@ Override the default =%desktop-services= to add the =udev= backlight
 configuration and include OpenVPN in the list of NetworkManager
 plugins.
 
-#+begin_src scheme :tangle .config/guix/systems/base-system.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/systems/base-system.scm
 
   (define %my-desktop-services
     (modify-services %desktop-services
@@ -216,7 +213,7 @@ plugins.
 Use the =libinput= driver for all input devices since it's a bit more
 modern than the default.
 
-#+begin_src scheme :tangle .config/guix/systems/base-system.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/systems/base-system.scm
 
   (define %xorg-libinput-config
     "Section \"InputClass\"
@@ -244,11 +241,11 @@ modern than the default.
 Define the =base-operating-system= which will be inherited by all
 machine configurations.
 
-#+begin_src scheme :tangle .config/guix/systems/base-system.scm
-
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/systems/base-system.scm
   (define-public base-operating-system
     (operating-system
      (host-name "tsuga")
+                                          ;(timezone "America/Los_Angeles")
      (timezone "America/New_York")
      (locale "en_US.utf8")
 
@@ -358,7 +355,6 @@ machine configurations.
 
      ;; Allow resolution of '.local' host names with mDNS
      (name-service-switch %mdns-host-lookup-nss)))
-
 #+end_src
 
 ** Machines
@@ -383,8 +379,8 @@ generated.
 
 *** tsuga
 :PROPERTIES:
-:HASH:     f9834c031f586ca73ec2653d8596f31c
-:MODIFIED: [2021-06-28 Mon 14:06]
+:HASH:     72b75c1ce877cdf50a2fc1b64b0a8130
+:MODIFIED: [2021-06-30 Wed 10:32]
 :ID:       09cb9844-acdd-421f-9ae7-2e7cb20f5506
 :END:
 
@@ -393,7 +389,7 @@ testing and Guix demonstrations for System Crafters.
 
 *.config/guix/systems/tsuga.scm:*
 
-#+begin_src scheme :tangle .config/guix/systems/tsuga.scm
+#+begin_src scheme :scheme guile :session guile :tangle :scheme guile :session guile .config/guix/systems/tsuga.scm
 
   ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
@@ -427,12 +423,12 @@ testing and Guix demonstrations for System Crafters.
 
 ** USB Installation Image
 :PROPERTIES:
-:HASH:     bea1562d01ee275894cc16c3c32362c7
-:MODIFIED: [2021-06-28 Mon 14:06]
+:HASH:     6a165863d19ea9978bf3d347cb1636b9
+:MODIFIED: [2021-06-30 Wed 10:33]
 :ID:       471b5309-6506-4421-a0b3-6c0e0838f13c
 :END:
 
-To install Guix on another machine, you should first build need a USB
+To install Guix on another machine, you must first build a USB
 image.  Since I use modern laptops that require non-free components, I
 have to build a custom installation image with the full Linux kernel.
 I also include a few other programs that are useful for the
@@ -441,7 +437,7 @@ Nonguix repository]], hence the copyright header.
 
 *.config/guix/systems/install.scm:*
 
-#+begin_src scheme :tangle .config/guix/systems/install.scm
+#+begin_src scheme :scheme guile :session guile :tangle .config/guix/systems/install.scm
 
   ;;; Copyright © 2019 Alex Griffin <a@ajgrf.com>
   ;;; Copyright © 2019 Pierre Neidhardt <mail@ambrevar.xyz>
