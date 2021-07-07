@@ -6,13 +6,14 @@
 This file is essentially an exact copy of a file from David Wilson's
 [[https://github.com/daviwil/dotfiles/blob/master/Systems.org][dotfiles repo]].
 
-* Table of Contents
+* Contents
 :PROPERTIES:
 :TOC:      :include all :ignore this
-:HASH:     9ac0242c1107cdb7db8f788a6f3ff189
-:MODIFIED: [2021-06-28 Mon 14:14]
+:HASH:     7c0dd28462b83be6be4d62afd88cb041
+:MODIFIED: [2021-07-07 Wed 16:26]
 :ID:       42ded19b-53af-4956-aea5-08d994e59d15
 :END:
+
 :CONTENTS:
 - [[#channels][Channels]]
 - [[#systems][Systems]]
@@ -108,8 +109,8 @@ pick them up, though.  You can change the target branch using the
 
 ** Base Configuration
 :PROPERTIES:
-:HASH:     dc7c030eadd0a15a58011f85e5502523
-:MODIFIED: [2021-06-30 Wed 14:20]
+:HASH:     303ace10fff69bf3042f06a296f8e12f
+:MODIFIED: [2021-07-07 Wed 16:49]
 :ID:       7b3733c7-0170-474c-ba33-ef72d6ba62b7
 :END:
 
@@ -237,28 +238,22 @@ machine configurations.
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
   (define-public base-operating-system
     (operating-system
-     (host-name "tsuga")
-                                          ;(timezone "America/Los_Angeles")
+     (host-name "computer")
      (timezone "America/New_York")
      (locale "en_US.utf8")
-
      ;; Use non-free Linux and firmware
      (kernel linux)
      (firmware (list linux-firmware))
      (initrd microcode-initrd)
-
      ;; Choose US English keyboard layout.  The "altgr-intl"
      ;; variant provides dead keys for accented characters.
      (keyboard-layout (keyboard-layout "us" "altgr-intl" #:model "thinkpad"))
-
      ;; Use the UEFI variant of GRUB with the EFI System
      ;; Partition mounted on /boot/efi.
      (bootloader (bootloader-configuration
                   (bootloader grub-efi-bootloader)
                   (target "/boot/efi")
                   (keyboard-layout keyboard-layout)))
-
-
      ;; Guix doesn't like it when there isn't a file-systems
      ;; entry, so add one that is meant to be overridden
      (file-systems (cons*
@@ -268,14 +263,12 @@ machine configurations.
                      (type "tmpfs")
                      (check? #f))
                     %base-file-systems))
-
      (users (cons (user-account
                    (name "tminor")
                    (comment "Thomas Minor")
                    (group "users")
                    (home-directory "/home/tminor")
-                   (supplementary-groups '(
-                                           "wheel"     ;; sudo
+                   (supplementary-groups '("wheel"     ;; sudo
                                            "netdev"    ;; network devices
                                            "kvm"
                                            "tty"
@@ -285,13 +278,10 @@ machine configurations.
                                            "lp"        ;; control bluetooth devices
                                            "audio"     ;; control audio devices
                                            "video")))  ;; control video devices
-
                   %base-user-accounts))
-
      ;; Add the 'realtime' group
      (groups (cons (user-group (system? #t) (name "realtime"))
                    %base-groups))
-
      ;; Install bare-minimum system packages
      (packages (append (list
                         git
@@ -310,7 +300,6 @@ machine configurations.
                         nss-certs     ;; for HTTPS access
                         gvfs)         ;; for user mounts
                        %base-packages))
-
      ;; Use the "desktop" services, which include the X11 log-in service,
      ;; networking with NetworkManager, and more
      (services (cons* (service slim-service-type
@@ -345,7 +334,6 @@ machine configurations.
                       (remove (lambda (service)
                                 (eq? (service-kind service) gdm-service-type))
                               %my-desktop-services)))
-
      ;; Allow resolution of '.local' host names with mDNS
      (name-service-switch %mdns-host-lookup-nss)))
 #+end_src
@@ -372,8 +360,8 @@ generated.
 
 *** tsuga
 :PROPERTIES:
-:HASH:     95153fe5ac4e8375bbd7bca3f9963385
-:MODIFIED: [2021-06-30 Wed 14:21]
+:HASH:     b66468839bb2c393dcda47ca8e812607
+:MODIFIED: [2021-07-07 Wed 16:49]
 :ID:       09cb9844-acdd-421f-9ae7-2e7cb20f5506
 :END:
 
@@ -383,23 +371,41 @@ testing and Guix demonstrations for System Crafters.
 *.config/guix/systems/tsuga.scm:*
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/tsuga.scm
-
   ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
   (define-module (tsuga)
     #:use-module (base-system)
-    #:use-module (gnu))
+    #:use-module (gnu)
+    #:use-module (guix channels)
+    #:use-module (nongnu packages linux)
+    #:use-module (guix inferior)
+    #:use-module (srfi srfi-1))
 
   (operating-system
    (inherit base-operating-system)
+   (kernel (let* ((channels (list (channel
+                                   (name 'nonguix)
+                                   (url "https://gitlab.com/nonguix/nonguix")
+                                   (commit
+                                    "706d8af5b111d85902280f1154dc4fad683b5281"))
+                                  (channel
+                                   (name 'guix)
+                                   (url "https://git.savannah.gnu.org/git/guix.git")
+                                   (commit "8269d828688dcd5a089a0117764930e82e52ea97")
+                                   (introduction
+                                    (make-channel-introduction
+                                     "9edb3f66fd807b096b48283debdcddccfea34bad"
+                                     (openpgp-fingerprint
+                                      "BBB0 2DDF 2CEA F6A8 0D1D  E643
+  A2A0 6DF2 A33A 54FA"))))))
+                  (inferior (inferior-for-channels channels)))
+             (first (lookup-inferior-packages inferior "linux" "5.12.13"))))
    (host-name "tsuga")
-
    (mapped-devices
     (list (mapped-device
            (source (uuid "039d3ff8-0f90-40bf-89d2-4b2454ada6df"))
            (target "system-root")
            (type luks-device-mapping))))
-
    (file-systems (cons*
                   (file-system
                    (device (file-system-label "tsuga"))
@@ -410,7 +416,11 @@ testing and Guix demonstrations for System Crafters.
                    (device "/dev/nvme0n1p1")
                    (mount-point "/boot/efi")
                    (type "vfat"))
-                  %base-file-systems)))
+                  %base-file-systems))
+   (services (cons* (service gnome-desktop-service-type)
+                    (remove (lambda (service)
+                              (eq? (service-kind service) gdm-service-type))
+                            %my-desktop-services))))
 
 #+end_src
 
