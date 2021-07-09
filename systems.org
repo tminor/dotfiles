@@ -2,6 +2,7 @@
 #+TITLE: System Configuration with Guix
 #+PROPERTY: header-args    :tangle-mode (identity #o444)
 #+PROPERTY: header-args:sh :tangle-mode (identity #o555)
+#+PROPERTY: header-args:   :mkdirp yes
 
 This file is essentially an exact copy of a file from David Wilson's
 [[https://github.com/daviwil/dotfiles/blob/master/Systems.org][dotfiles repo]].
@@ -360,8 +361,8 @@ generated.
 
 *** tsuga
 :PROPERTIES:
-:HASH:     b66468839bb2c393dcda47ca8e812607
-:MODIFIED: [2021-07-07 Wed 16:49]
+:HASH:     1fd621e607a59d5f7828edfbef64ced0
+:MODIFIED: [2021-07-09 Fri 12:01]
 :ID:       09cb9844-acdd-421f-9ae7-2e7cb20f5506
 :END:
 
