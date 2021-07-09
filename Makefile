@@ -3,6 +3,15 @@ SHELL = /bin/sh
 .SUFFIXES:
 .SUFFIXES: .el .scm
 
+# See: https://stackoverflow.com/a/14061796
+# If the first argument is one of the following, treat the remaining
+# arguments as arguments to a subcommand.
+ifeq (emacs,$(firstword $(MAKECMDGOALS)))
+    RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+    # Turn the remaining arguments into do-nothing targets.
+    $(eval $(RUN_ARGS):;@:)
+endif
+
 TARGETS = $(shell grep -Poh '(?<=:tangle\s)([^\s]+)' *.org | sort -u)
 
 dir-exists = $(shell test -d $1 && echo $1)
@@ -33,6 +42,13 @@ clean: ## Removes all configuration files and directories
 	@echo Removing empty target directories...
 	@rmdir -p $(DIRS) || \
 	echo Target directories are non empty, please delete them and try again
+
+subcmd: #
+	@#
+
+.PHONY: emacs
+emacs : subcmd
+	@$(MAKE) -C .emacs.d $(RUN_ARGS)
 
 $(TARGETS): systems.org emacs.org
 	@.bin/tangle-config.el $^
