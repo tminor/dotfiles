@@ -24,13 +24,15 @@
 
 * Dockerfile
 :PROPERTIES:
-:HASH:     53f6fc3567ef11d4d45d3c5d0d182e30
-:MODIFIED: [2021-07-09 Fri 15:32]
+:HASH:     e84ca6a4017e94951b8befa384bf428c
+:MODIFIED: [2021-07-09 Fri 16:29]
 :header-args+: :tangle .emacs.d/Dockerfile
 :END:
 
 #+begin_src dockerfile
   FROM silex/emacs:latest
+
+  WORKDIR /root/.emacs.d
 
   RUN apt-get update
   RUN apt-get install -y git make bsdmainutils
@@ -40,8 +42,8 @@
 
 * Makefile
 :PROPERTIES:
-:HASH:     a8f5e03d1599e031dd038bd7a1431518
-:MODIFIED: [2021-07-09 Fri 16:00]
+:HASH:     aec61eb3dd29f67f40838750806a9654
+:MODIFIED: [2021-07-09 Fri 16:57]
 :header-args+: :tangle .emacs.d/Makefile
 :END:
 
@@ -50,6 +52,9 @@ SHELL = /bin/sh
 
 DOCKER = podman
 EMACS  = emacs
+
+RUN   = run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
+SPEED = bash -c 'time emacs -L . -l init --batch --eval "(message \"Hello, world!\")"'
 
 COMPILED_LIBS = $(patsubst %,%c,$(shell find components/ -name '*.el' -print))
 
@@ -69,13 +74,12 @@ help: ## Display this message
 		column -t -s'|' >&2
 
 .PHONY: docker
-docker: compile ## Build and start a Docker image running Emacs
+docker: compile ## Build a Docker image for Emacs
 	@$(DOCKER) build . -t tmacs
-	@$(DOCKER) run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
 
 .PHONY: speed
-speed: ## Start Emacs and report how long it takes to initialize
-	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
+speed: docker ## Start Emacs and report how long it takes to initialize
+	$(DOCKER) $(RUN) $(SPEED)
 
 .PHONY: compile
 compile: $(COMPILED_LIBS) ## Byte compile library files
@@ -604,8 +608,8 @@ Doom uses the following configuration to improve security.
 
 *** Modern
 :PROPERTIES:
-:HASH:     58c90e7042942bcbcc7f3978453370a8
-:MODIFIED: [2021-07-09 Fri 13:12]
+:HASH:     8aa00097b50d04834ba88eb9d9ee43c9
+:MODIFIED: [2021-07-09 Fri 16:09]
 :header-args+: :tangle .emacs.d/components/search/modern.el
 :END:
 
@@ -622,18 +626,32 @@ aimed to prevent a similar problem with this package.
 
 #+begin_src emacs-lisp
   (use-package selectrum
-    :hook
-    after-init)
+    :defer t
+    :init
+    (selectrum-mode))
 #+end_src
 
 To improve selection, we can also use [[https://github.com/raxod502/prescient.el][prescient]] to sort results by
 "frecency."
 
 #+begin_src emacs-lisp
+  (use-package prescient
+    :config
+    (prescient-persist-mode))
+#+end_src
+
+I'm not sure, but I think the order here (which I stole from Radian)
+has some significance... in any case, I assume this loads =selectrum=
+and =prescient= correctly.
+
+#+begin_src emacs-lisp
   (use-package selectrum-prescient
-    :hook
-    (after-init . selectrum-prescient-mode)
-    (after-init . prescient-persist-mode))
+    :straight (:host github :repo "raxod502/prescient.el"
+               :files ("selectrum-prescient.el"))
+    :demand t
+    :after selectrum
+    :config
+    (selectrum-prescient-mode))
 #+end_src
 
 =selectrum= focuses on being a generic completion framework that
