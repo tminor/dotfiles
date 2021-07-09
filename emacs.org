@@ -1,4 +1,4 @@
-#+PROPERTY: header-args: :mkdirp yes
+#+PROPERTY: header-args :mkdirp yes
 
 * Contents
 :PROPERTIES:
@@ -22,54 +22,69 @@
   - [[#initialization][Initialization]]
 :END:
 
+* Dockerfile
+:PROPERTIES:
+:HASH:     53f6fc3567ef11d4d45d3c5d0d182e30
+:MODIFIED: [2021-07-09 Fri 15:32]
+:header-args+: :tangle .emacs.d/Dockerfile
+:END:
+
+#+begin_src dockerfile
+  FROM silex/emacs:latest
+
+  RUN apt-get update
+  RUN apt-get install -y git make bsdmainutils
+
+  CMD bash
+#+end_src
+
 * Makefile
 :PROPERTIES:
-:HASH:     def1b0315988a8e1686b3ba1bbace979
-:MODIFIED: [2021-07-09 Fri 10:55]
-:header-args: :tangle .emacs.d/Makefile
+:HASH:     a8f5e03d1599e031dd038bd7a1431518
+:MODIFIED: [2021-07-09 Fri 16:00]
+:header-args+: :tangle .emacs.d/Makefile
 :END:
 
 #+begin_src makefile
-  SHELL = /bin/sh
+SHELL = /bin/sh
 
-  DOCKER = podman
-  EMACS  = emacs
+DOCKER = podman
+EMACS  = emacs
 
-  LIBS_DIR      = ./components
-  COMPILED_LIBS = $(patsubst %, %c, $(shell find $(LIBS_DIR) -type f -name *.el -print))
+COMPILED_LIBS = $(patsubst %,%c,$(shell find components/ -name '*.el' -print))
 
-  .SUFFIXES:
-  .SUFFIXES: .el .elc
+.SUFFIXES:
+.SUFFIXES: .el .elc
 
-  .el.elc:
-          $(EMACS) -Q --batch -L . -f batch-byte-compile $<
+.el.elc:
+	$(EMACS) -Q -batch -L . -f batch-byte-compile $^
 
-  .PHONY: help
-  help: ## Display this message
-          @echo "usage:" >&2
-          @grep -h "[#]# " $(MAKEFILE_LIST)       | \
-          sed 's/^/  make /'                      | \
-          sed 's/:[^#]*[#]# /|/'                  | \
-          sed 's/%/LANG/'                         | \
-          column -t -s'|' >&2
+.PHONY: help
+help: ## Display this message
+	@echo "usage:" >&2
+	@grep -h "[#]# " $(MAKEFILE_LIST)		| \
+		sed 's/^/  make /'			| \
+		sed 's/:[^#]*[#]# /|/'			| \
+		sed 's/%/LANG/'				| \
+		column -t -s'|' >&2
 
-  .PHONY: docker
-  docker: compile ## Build and start a Docker image running Emacs
-          $(DOCKER) build . -t tmacs
-          $(DOCKER) run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
+.PHONY: docker
+docker: compile ## Build and start a Docker image running Emacs
+	@$(DOCKER) build . -t tmacs
+	@$(DOCKER) run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
 
-  .PHONY: speed
-  speed: ## Start Emacs and report how long it takes to initialize
-          time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
+.PHONY: speed
+speed: ## Start Emacs and report how long it takes to initialize
+	time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
 
-  .PHONY: compile
-  compile: $(COMPILED_LIBS) ## Byte compile library files
-          @echo $(COMPILED_LIBS)
+.PHONY: compile
+compile: $(COMPILED_LIBS) ## Byte compile library files
+	@echo $(COMPILED_LIBS)
 
-  .PHONY: clean
-  clean: ## Remove byte compiled files and Docker images
-          @rm $(COMPILED_LIBS)
-          @$(DOCKER) image rm --filter reference=tmacs
+.PHONY: clean
+clean: ## Remove byte compiled files and Docker images
+	@rm $(COMPILED_LIBS)
+	@$(DOCKER) image rm --filter reference=tmacs
 #+end_src
 
 * Initialization
@@ -80,9 +95,9 @@
 
 ** Early Init
 :PROPERTIES:
-:HASH:     ada9d2f6886cc0c3918f3fa03d477a07
-:MODIFIED: [2021-07-08 Thu 16:11]
-:header-args:   :tangle .emacs.d/early-init.el
+:HASH:     4fa01f01b74d9a8a783b241c2a6d5436
+:MODIFIED: [2021-07-09 Fri 13:12]
+:header-args+:   :tangle .emacs.d/early-init.el
 :END:
 
 #+begin_src emacs-lisp
@@ -146,9 +161,9 @@ And now we'll load our init library, which we define [[id:0b1a1e03-01cb-43fb-835
 
 ** Init
 :PROPERTIES:
-:HASH:     3d3203f9515755958eb266a432134710
-:MODIFIED: [2021-07-08 Thu 16:07]
-:header-args:   :tangle .emacs.d/init.el
+:HASH:     82ddb3bf799ca3d6a93217198ebd281a
+:MODIFIED: [2021-07-09 Fri 13:12]
+:header-args+:   :tangle .emacs.d/init.el
 :END:
 
 #+begin_src emacs-lisp
@@ -166,9 +181,9 @@ group/load similar things together as much as possible.
 
 ** Initialization
 :PROPERTIES:
-:HASH:     e30f72c1379e46fd5e2ce7eeb48d4e15
-:MODIFIED: [2021-07-08 Thu 15:43]
-:header-args:   :tangle .emacs.d/components/initialization.el
+:HASH:     29f62acb1242e578bd99f29d67c5863c
+:MODIFIED: [2021-07-09 Fri 15:57]
+:header-args+:  :mkdirp yes :tangle .emacs.d/components/initialization.el
 :ID:       0b1a1e03-01cb-43fb-8359-25c465a7ad3f
 :END:
 
@@ -200,7 +215,6 @@ require dependencies needed during initialization.
 
   (require 'subr-x)
   (require 'cl-lib)
-  (require 'helpers)
 #+end_src
 
 *** Package Management
@@ -573,46 +587,15 @@ Doom uses the following configuration to improve security.
 
 *** Footer
 :PROPERTIES:
-:HASH:     874f8a92f424c68e4dfd91546b6abec7
-:MODIFIED: [2021-07-08 Thu 13:54]
+:HASH:     d5f71a5b4c678de8030ecfa8f1ae7705
+:MODIFIED: [2021-07-09 Fri 15:56]
 :END:
 
 #+begin_src emacs-lisp
   (provide 'initialization)
   ;;; lib-init.el ends here
 #+end_src
-** Helpers
-:PROPERTIES:
-:HASH:     bfaf7c2c97ca3f7b1652c9e08dc55d86
-:MODIFIED: [2021-07-08 Thu 16:00]
-:header-args:   :tangle .emacs.d/components/helpers.el
-:END:
 
-This library contains generic helper functions and macros intended to
-be used wherever.
-
-#+begin_src emacs-lisp
-  ;;; helpers.el -*- lexical-binding: t; -*-
-#+end_src
-
-The following macro is taken from Radian; it provides a convenient way
-to call =use-package= without the need to specify =:straight nil= for
-built in Emacs features.
-
-#+begin_src emacs-lisp
-  (defmacro use-feature (name &rest args)
-    "Like `use-package', but with `straight-use-package-by-default' disabled.
-  NAME and ARGS are as in `use-package'."
-    (declare (indent defun))
-    `(use-package ,name
-       :straight nil
-       ,@args))
-#+end_src
-
-#+begin_src emacs-lisp
-  (provide 'helpers)
-  ;;; lib-helpers.el ends here
-#+end_src
 ** Search
 :PROPERTIES:
 :HASH:     c759a4e23695bcfa950d851d2d761971
@@ -621,9 +604,9 @@ built in Emacs features.
 
 *** Modern
 :PROPERTIES:
-:HASH:     4c5d8830db67ecc5d9c634ec00d19149
-:MODIFIED: [2021-07-08 Thu 15:41]
-:header-args: :tangle .emacs.d/components/search/modern.el
+:HASH:     58c90e7042942bcbcc7f3978453370a8
+:MODIFIED: [2021-07-09 Fri 13:12]
+:header-args+: :tangle .emacs.d/components/search/modern.el
 :END:
 
 Completion and search in Emacs is not great by default. Many great
