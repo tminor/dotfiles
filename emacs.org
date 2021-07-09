@@ -1,3 +1,5 @@
+#+PROPERTY: header-args: :mkdirp yes
+
 * Contents
 :PROPERTIES:
 :HASH:     6a77c534ae022e50f5048a20e4b281ba
@@ -19,6 +21,56 @@
   - [[#helpers][Helpers]]
   - [[#initialization][Initialization]]
 :END:
+
+* Makefile
+:PROPERTIES:
+:HASH:     def1b0315988a8e1686b3ba1bbace979
+:MODIFIED: [2021-07-09 Fri 10:55]
+:header-args: :tangle .emacs.d/Makefile
+:END:
+
+#+begin_src makefile
+  SHELL = /bin/sh
+
+  DOCKER = podman
+  EMACS  = emacs
+
+  LIBS_DIR      = ./components
+  COMPILED_LIBS = $(patsubst %, %c, $(shell find $(LIBS_DIR) -type f -name *.el -print))
+
+  .SUFFIXES:
+  .SUFFIXES: .el .elc
+
+  .el.elc:
+          $(EMACS) -Q --batch -L . -f batch-byte-compile $<
+
+  .PHONY: help
+  help: ## Display this message
+          @echo "usage:" >&2
+          @grep -h "[#]# " $(MAKEFILE_LIST)       | \
+          sed 's/^/  make /'                      | \
+          sed 's/:[^#]*[#]# /|/'                  | \
+          sed 's/%/LANG/'                         | \
+          column -t -s'|' >&2
+
+  .PHONY: docker
+  docker: compile ## Build and start a Docker image running Emacs
+          $(DOCKER) build . -t tmacs
+          $(DOCKER) run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
+
+  .PHONY: speed
+  speed: ## Start Emacs and report how long it takes to initialize
+          time emacs -L . -l init --batch --eval "(message \"Hello, world\!\")"
+
+  .PHONY: compile
+  compile: $(COMPILED_LIBS) ## Byte compile library files
+          @echo $(COMPILED_LIBS)
+
+  .PHONY: clean
+  clean: ## Remove byte compiled files and Docker images
+          @rm $(COMPILED_LIBS)
+          @$(DOCKER) image rm --filter reference=tmacs
+#+end_src
 
 * Initialization
 :PROPERTIES:
@@ -608,3 +660,9 @@ conforms to the standard Emacs completion API. The author recommends
 #+begin_src emacs-lisp
   (use-package consult)
 #+end_src
+
+* Tests
+:PROPERTIES:
+:HASH:     a125eb6e3ab2e65ffebdfed162a48814
+:MODIFIED: [2021-07-09 Fri 12:00]
+:END:
