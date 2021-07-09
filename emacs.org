@@ -20,100 +20,6 @@
   - [[#initialization][Initialization]]
 :END:
 
-* What is this?
-:PROPERTIES:
-:HASH:     7fccd02b018bd86db10757c50559327e
-:MODIFIED: [2021-07-07 Wed 16:23]
-:END:
-
-This is my third (maybe fourth or fifth?) attempt at refactoring my
-Emacs configuration. It draws inspiration from (read: copies and
-steals) [[https://github.com/raxod502/radian][Radian]] and [[https://github.com/hlissner/doom-emacs][Doom Emacs]].
-
-* Scripts
-:PROPERTIES:
-:HASH:     1d63b4c67f5b8021aa460c6f572e1919
-:MODIFIED: [2021-07-07 Wed 10:24]
-:END:
-
-** Byte Compilation
-:PROPERTIES:
-:HASH:     248ea3a673b4c2cc14ff4b0244774018
-:MODIFIED: [2021-07-07 Wed 15:43]
-:header-args:   :tangle .local/bin/byte-compile-emacs-config
-:END:
-
-#+begin_src sh :shebang #!/usr/bin/env bash
-  set -e
-  set -o pipefail
-
-  (emacs --batch \
-         --eval "(setq straight-safe-mode t)" \
-         --load "$HOME/.emacs.d/init.el" \
-         --funcall tmacs-batch-byte-compile 2>&1 \
-     | (egrep -v "(In toplevel form|In end of data|Warning: Package cl is deprecated)" || true) \
-     | (! grep .))
-#+end_src
-
-** Dependency Installation
-:PROPERTIES:
-:HASH:     122f25c017b82ab955e4118629a0f2f0
-:MODIFIED: [2021-07-07 Wed 16:01]
-:header-args:   :tangle .emacs.d/.bin/ensure-emacs-deps
-:END:
-
-The following script ensures Emacs has the dependencies required
-before initializing the package manager.
-
-#+begin_src emacs-lisp :shebang #!/bin/sh
-  ":"; exec emacs --quick -l "$HOME/dotfiles/.emacs.d/lib/lib-init.el" --script "$0" # -*- mode: emacs-lisp; lexical-binding: t; -*-
-
-  (require 'lib-init)
-
-  (tmacs-ensure-straight)
-  (tmacs-ensure-core-packages tmacs-core-packages)
-  (tmacs-initialize-core-packages)
-#+end_src
-
-** Emacs Docker Container
-:PROPERTIES:
-:HASH:     25fb6aba71a61f65809ebd10fb834ba1
-:MODIFIED: [2021-07-07 Wed 16:21]
-:header-args: :tangle .local/bin/emacs-docker
-:END:
-
-This script is from Radian; it allows us to conveniently test Emacs in
-a Docker container.
-
-#+begin_src sh :shebang #!/usr/bin/env bash
-  set -e
-  set -o pipefail
-
-  tag="${1:-latest}"
-
-  args=(bash)
-  if [[ -n "$2" ]]; then
-      args=("${args[@]}" -c "$2")
-  fi
-
-  docker() {
-      if [[ "$OSTYPE" != darwin* ]] && [[ "$EUID" != 0 ]]; then
-          command podman "$@"
-      else
-          command docker "$@"
-      fi
-  }
-
-  podman build . -t "tmacs:$tag"    \
-         --build-arg "UID=$UID"     \
-         --build-arg "VERSION=$tag"
-
-  podman run -it --rm                              \
-         -v "$HOME/${repos}:/home/docker/${repos}" \
-         -v "$PWD:/home/docker/tmacs"              \
-         "tmacs:$tag" "${args[@]}"
-#+end_src
-
 * Initialization
 :PROPERTIES:
 :HASH:     b5eab1757b81c89df8a3f1756fcaab20
@@ -122,13 +28,18 @@ a Docker container.
 
 ** Early Init
 :PROPERTIES:
-:HASH:     2bac5807aa45d6d9e850b3f1a70aa2f8
-:MODIFIED: [2021-07-07 Wed 15:43]
+:HASH:     ada9d2f6886cc0c3918f3fa03d477a07
+:MODIFIED: [2021-07-08 Thu 16:11]
 :header-args:   :tangle .emacs.d/early-init.el
 :END:
 
 #+begin_src emacs-lisp
   ;;; early-init.el -*- lexical-binding: t; -*-
+#+end_src
+
+#+begin_src emacs-lisp
+  (setq debug-init (getenv "DEBUG_EMACS")
+        debug-on-error debug-init)
 #+end_src
 
 Garbage collection significantly affects start up time; by setting
@@ -178,88 +89,66 @@ a marginal amount of time by unsetting it.
 And now we'll load our init library, which we define [[id:0b1a1e03-01cb-43fb-8359-25c465a7ad3f][below]].
 
 #+begin_src emacs-lisp
-  (load (concat user-emacs-directory "lib/lib-init.el") nil 'nomessage)
+  (load (concat user-emacs-directory "components/initialization.el") nil 'nomessage)
 #+end_src
 
 ** Init
 :PROPERTIES:
-:HASH:     955da5819d2fd92c9cf41c05922de64c
-:MODIFIED: [2021-07-07 Wed 15:43]
+:HASH:     3d3203f9515755958eb266a432134710
+:MODIFIED: [2021-07-08 Thu 16:07]
 :header-args:   :tangle .emacs.d/init.el
 :END:
 
 #+begin_src emacs-lisp
-  (tmacs-initialize)
 #+end_src
 
-* Lib
+* Components
 :PROPERTIES:
-:HASH:     9e08052b77622689ee563485bf7671ac
-:MODIFIED: [2021-07-07 Wed 12:42]
+:HASH:     cc0ba3414169702cd68003982dd7e375
+:MODIFIED: [2021-07-08 Thu 14:08]
 :END:
 
-** Helpers
-:PROPERTIES:
-:HASH:     1dc49e0426a5a89303f6c89274136da8
-:MODIFIED: [2021-07-07 Wed 15:43]
-:header-args:   :tangle .emacs.d/lib/lib-helpers.el
-:END:
-
-#+begin_src emacs-lisp
-  ;;; lib-helpers.el -*- lexical-binding: t; -*-
-#+end_src
-
-The following macro is taken from Radian; it provides a convenient way
-to call =use-package= without the need to specify =:straight nil= for
-built in Emacs features.
-
-#+begin_src emacs-lisp
-  (defmacro use-feature (name &rest args)
-    "Like `use-package', but with `straight-use-package-by-default' disabled.
-  NAME and ARGS are as in `use-package'."
-    (declare (indent defun))
-    `(use-package ,name
-       :straight nil
-       ,@args))
-#+end_src
-
-#+begin_src emacs-lisp
-  (provide 'lib-helpers)
-  ;;; lib-helpers.el ends here
-#+end_src
+Different aspects and features of Emacs are customized as
+"components," which essentially means that I've attempted to
+group/load similar things together as much as possible.
 
 ** Initialization
 :PROPERTIES:
-:HASH:     107a05b280b1819be4f1326cba0a790b
-:MODIFIED: [2021-07-07 Wed 15:56]
-:header-args:   :tangle .emacs.d/lib/lib-init.el
+:HASH:     e30f72c1379e46fd5e2ce7eeb48d4e15
+:MODIFIED: [2021-07-08 Thu 15:43]
+:header-args:   :tangle .emacs.d/components/initialization.el
 :ID:       0b1a1e03-01cb-43fb-8359-25c465a7ad3f
 :END:
 
+This library contains initialization code that gets loaded *before*
+=init.el= .
+
 #+begin_src emacs-lisp
-  ;;; lib-init.el -*- lexical-binding: t; -*-
+  ;;; initialization.el -*- lexical-binding: t; -*-
 #+end_src
 
 Doom uses the following constants to vary behavior depending on
-Emacs's version and the running operating system.
+Emacs's version and the running operating system. I don't use Windows,
+macOS, or any BSDs often (if ever), but these may come in handy.
 
 #+begin_src emacs-lisp
-  (defconst EMACS27+   (> emacs-major-version 26))
-  (defconst EMACS28+   (> emacs-major-version 27))
-  (defconst IS-MAC     (eq system-type 'darwin))
-  (defconst IS-LINUX   (eq system-type 'gnu/linux))
-  (defconst IS-WINDOWS (memq system-type '(cygwin windows-nt ms-dos)))
-  (defconst IS-BSD     (or IS-MAC (eq system-type 'berkeley-unix)))
+  (defconst EMACS27+    (> emacs-major-version 26))
+  (defconst EMACS28+    (> emacs-major-version 27))
+  (defconst IS-MAC      (eq system-type 'darwin))
+  (defconst IS-LINUX    (eq system-type 'gnu/linux))
+  (defconst IS-WINDOWS  (memq system-type '(cygwin windows-nt ms-dos)))
+  (defconst IS-BSD      (or IS-MAC (eq system-type 'berkeley-unix)))
 #+end_src
 
-We should ensure that our libraries are part of the load path and require dependencies.
+We should ensure that our libraries are part of the load path and
+require dependencies needed during initialization.
 
 #+begin_src emacs-lisp
   (add-to-list 'load-path (file-name-directory load-file-name))
 
   (require 'subr-x)
   (require 'cl-lib)
-  (require 'lib-helpers)
+  (require 'helpers)
 #+end_src
 
 *** Package Management
@@ -270,8 +159,8 @@ We should ensure that our libraries are part of the load path and require depend
 
 **** Bootstrapping
 :PROPERTIES:
-:HASH:     e337145f4495e710a319f752d74f8e3d
-:MODIFIED: [2021-07-07 Wed 13:37]
+:HASH:     15116998922abd6610dc4a841b254a29
+:MODIFIED: [2021-07-08 Thu 14:42]
 :END:
 
 We use =straight.el= for package management. The following source block
@@ -280,93 +169,149 @@ separating =straight.el='s build directories based on the version of the
 currently running Emacs.
 
 #+begin_src emacs-lisp
-  (setq straight-base-dir (no-littering-expand-var-file-name "straight")
-        straight-repository-branch "develop"
-        straight-build-dir (format "build-%s" emacs-version)
-        straight-check-for-modifications '(watch-files find-when-checking))
+  (setq straight-base-dir                 "~/.emacs.d/var/straight"
+        straight-build-dir                (format "build-%s" emacs-version)
+        straight-check-for-modifications  '(watch-files find-when-checking)
+        straight-use-package-by-default   t)
 
   (defvar bootstrap-version nil
     "Variable used by `straight.el' to verify bootstrapping.")
 
-  (defun tmacs-ensure-straight ()
-    "Ensure that `straight.el' is installed."
-    (let ((bootstrap-file
-           (expand-file-name
-            "straight/repos/straight.el/bootstrap.el"
-            (or (bound-and-true-p straight-base-dir)
-                user-emacs-directory)))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage)))
+  (let ((bootstrap-file
+         (expand-file-name
+          "straight/repos/straight.el/bootstrap.el"
+          (or (bound-and-true-p straight-base-dir)
+              user-emacs-directory)))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 #+end_src
 
 **** Core Packages
 :PROPERTIES:
-:HASH:     da986ee5af97016c6f21cf972d12c40f
-:MODIFIED: [2021-07-07 Wed 14:28]
+:HASH:     f248e3d4e0241e93e770b4264902b03c
+:MODIFIED: [2021-07-08 Thu 16:03]
 :END:
 
-We initialize =straight.el= as late as possible to speed up the start up
-process. Some packages must be installed sooner, so we define some
-functions that handle them. These functions are called via =make=.
+[[https://github.com/jwiegley/use-package][use-package]] is indispensable for automatically installing and
+configuring packages.
 
 #+begin_src emacs-lisp
-  (defun tmacs-ensure-core-packages (packages)
-    "Ensure that PACKGES are installed."
-    (dolist (package packages)
-      (let* ((name (car package))
-             (repo (symbol-name name)))
-        (when-let (recipe (plist-get (cdr package) :recipe))
-          (straight-override-recipe (cons name recipe))
-          (when-let (local-repo (plist-get recipe :local-repo))
-            (setq repo local-repo)))
-        ;; Only clone the package, don't build it. Straight hasn't been fully
-        ;; configured yet.
-        (straight-use-package name nil t)
-        ;; In case the package hasn't been built yet.
-        (or (member (directory-file-name (straight--build-dir (symbol-name name)))
-                    load-path)
-            (add-to-list 'load-path (directory-file-name (straight--repos-dir repo)))))))
-
-  (defun tmacs-initialize-core-packages (&optional force-p)
-    "Ensure `straight' is installed and was compiled with this version of Emacs."
-    (when (or force-p (null (bound-and-true-p straight-recipe-repositories)))
-      (let ((packages tmacs-core-packages))
-        (tmacs-ensure-core-packages packages))))
+  (straight-use-package 'use-package)
 #+end_src
 
-And here's a variable that defines core packages:
+[[https://github.com/emacscollective/no-littering][no-littering]] helps keep our =.emacs.d= directory as tidy as possible.
 
 #+begin_src emacs-lisp
-  (setq tmacs-core-packages '(("gcmh")
-                              ("explain-pause-mode"
-                               :recipe (:host github
-                                        :repo "lastquestion/explain-pause-mode"))
-                              ("no-littering")
-                              ("general")
-                              ("which-key")
-                              ("helpful")))
+  (use-package no-littering
+    :demand t)
 #+end_src
 
-Before proceeding, we ensure that the above packages are loaded.
+[[https://github.com/emacsmirror/gcmh][gcmh-mode]] runs garbage collection via idle timer to avoid interfering
+with user activity.
 
 #+begin_src emacs-lisp
-  (unless (every (lambda (p)
-                   (locate-library (car p)))
-                 tmacs-core-packages)
-    (user-error "Missing dependencies; please install them with \"make emacs-deps\""))
+  (use-package gcmh
+    :demand t
+    :init
+    (setq gcmh-idle-delay           5
+          gcmh-high-cons-threshold  (* 16 1024 1024)
+          gcmh-verbose              debug-init))
+#+end_src
+
+[[https://github.com/lastquestion/explain-pause-mode][explain-pause-mode]] summarizes Emacs activity/resource usage in a
+=top=-like fashion.
+
+#+begin_src emacs-lisp
+  (use-package explain-pause-mode
+    :straight
+    (:host github
+     :repo "lastquestion/explain-pause-mode")
+    :demand t)
+#+end_src
+
+***** Keybinding
+:PROPERTIES:
+:HASH:     a8aa47f89edfafde86cabc0185394d0b
+:MODIFIED: [2021-07-08 Thu 16:09]
+:END:
+
+[[https://github.com/justbur/emacs-which-key][which-key]] provides a helpful interface for discovery of keybindings.
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :demand t)
+#+end_src
+
+[[https://github.com/noctuid/general.el][general]] assists us with convenient and consistent keybindings.
+
+#+begin_src emacs-lisp
+  (use-package general
+    :demand t
+    :config
+    (general-evil-setup t)
+    (general-override-mode)
+    (general-auto-unbind-keys)
+    ;; Define a macro that binds commands to a "leader" key (SPC, in
+    ;; this case).
+    (general-create-definer tm/leader-def
+      :states             '(normal motion visual emacs insert)
+      :keymaps            '(local override)
+      :prefix             "SPC"
+      :non-normal-prefix  "M-SPC"
+      :prefix-command     'tm/prefix-command
+      :prefix-map         'tm/prefix-map)
+    (defmacro tm/create-leader-definer (name infix &optional wrapping)
+      "A helper macro for wrapping definers defined via `general-create-definer'.
+
+    NAME is used to generate the definer's wrapper name. INFIX
+    determines the key used as a prefix. WRAPPING can be optionally
+    specified as in the aforementioned macro."
+      (declare (indent defun))
+      (let* ((leader-prefix (concat "tm/" name "-leader-"))
+             (leader-name (intern (concat leader-prefix "def")))
+             (leader-cmd (intern (concat leader-prefix "command")))
+             (leader-map (intern (concat leader-prefix "map")))
+             (wrapping (or wrapping #'tm/leader-def)))
+        `(general-create-definer ,leader-name
+           :wrapping ,wrapping
+           :infix ,infix
+           :prefix-command ',leader-cmd
+           :prefix-map ',leader-map)))
+    (tm/create-leader-definer "file"   "f")
+    (tm/create-leader-definer "help"   "h")
+    (tm/create-leader-definer "dir"    "d")
+    (tm/create-leader-definer "search" "s")
+    (tm/create-leader-definer "toggle" "t")
+    (tm/create-leader-definer "buffer" "b"))
+#+end_src
+
+[[https://github.com/emacs-evil/evil][evil-mode]] creates Vim-like keybindings and functionality for Emacs.
+
+#+begin_src emacs-lisp
+  (use-package evil
+    :general
+    (:states   '(normal motion)
+     :keymaps  '(local override)
+     "/"       'swiper)
+    :init
+    (setq evil-want-keybinding   nil
+          evil-want-integration  t
+          evil-want-fine-undo    t
+          evil-cross-lines       t)
+    (evil-mode))
 #+end_src
 
 *** Native Compilation
 :PROPERTIES:
-:HASH:     24966454011aacc5f5383c5d8bbc2121
-:MODIFIED: [2021-07-07 Wed 13:57]
+:HASH:     0ccb3deb9626943d9df3222129b83503
+:MODIFIED: [2021-07-08 Thu 14:43]
 :END:
 
 Doom configures a variety of settings if native compilation is
@@ -379,23 +324,23 @@ time.
     (mapc (lambda (varset)
             (unless (boundp (car varset))
               (defvaralias (car varset) (cdr varset))))
-          '((native-comp-deferred-compilation . comp-deferred-compilation)
+          '((native-comp-deferred-compilation           . comp-deferred-compilation)
             (native-comp-deferred-compilation-deny-list . comp-deferred-compilation-deny-list)
-            (native-comp-eln-load-path . comp-eln-load-path)
-            (native-comp-warning-on-missing-source . comp-warning-on-missing-source)
-            (native-comp-driver-options . comp-native-driver-options)
-            (native-comp-async-query-on-exit . comp-async-query-on-exit)
-            (native-comp-async-report-warnings-errors . comp-async-report-warnings-errors)
-            (native-comp-async-env-modifier-form . comp-async-env-modifier-form)
-            (native-comp-async-all-done-hook . comp-async-all-done-hook)
-            (native-comp-async-cu-done-functions . comp-async-cu-done-functions)
-            (native-comp-async-jobs-number . comp-async-jobs-number)
-            (native-comp-never-optimize-functions . comp-never-optimize-functions)
-            (native-comp-bootstrap-deny-list . comp-bootstrap-deny-list)
-            (native-comp-always-compile . comp-always-compile)
-            (native-comp-verbose . comp-verbose)
-            (native-comp-debug . comp-debug)
-            (native-comp-speed . comp-speed))))
+            (native-comp-eln-load-path                  . comp-eln-load-path)
+            (native-comp-warning-on-missing-source      . comp-warning-on-missing-source)
+            (native-comp-driver-options                 . comp-native-driver-options)
+            (native-comp-async-query-on-exit            . comp-async-query-on-exit)
+            (native-comp-async-report-warnings-errors   . comp-async-report-warnings-errors)
+            (native-comp-async-env-modifier-form        . comp-async-env-modifier-form)
+            (native-comp-async-all-done-hook            . comp-async-all-done-hook)
+            (native-comp-async-cu-done-functions        . comp-async-cu-done-functions)
+            (native-comp-async-jobs-number              . comp-async-jobs-number)
+            (native-comp-never-optimize-functions       . comp-never-optimize-functions)
+            (native-comp-bootstrap-deny-list            . comp-bootstrap-deny-list)
+            (native-comp-always-compile                 . comp-always-compile)
+            (native-comp-verbose                        . comp-verbose)
+            (native-comp-debug                          . comp-debug)
+            (native-comp-speed                          . comp-speed))))
 
   (when (boundp 'native-comp-eln-load-path)
     (add-to-list 'native-comp-eln-load-path (no-littering-expand-var-file-name "eln/")))
@@ -405,74 +350,10 @@ time.
     )
 #+end_src
 
-*** Byte Compilation
-:PROPERTIES:
-:HASH:     3a107d4fdf4537f0a94aec75961ff1ba
-:MODIFIED: [2021-07-07 Wed 13:59]
-:END:
-
-#+begin_src emacs-lisp
-  (use-feature bytecomp
-    :config
-    ;; The `make-local' warning gets triggered every time you call
-    ;; `define-minor-mode' inside of `use-package', and the `noruntime'
-    ;; warning gets triggered basically all the time for everything.
-    (setq byte-compile-warnings '(not make-local noruntime))
-    (defun tmacs-batch-byte-compile ()
-      "Byte-compile our library files."
-      (byte-recompile-directory "./lib"))
-
-    (defun tmacs-byte-compile (&optional report-progress)
-      "Byte-compile tmacs.el. For interactive usage.
-  REPORT-PROGRESS non-nil (or interactively) means to print more
-  messages."
-      (interactive (list 'report-progress))
-      (cl-block nil
-        (unless (some (lambda (f)
-                        (file-newer-than-file-p f (concat f "c")))
-                      (directory-files-recursively "./lib" "lib-[^.]+\\.el$"))
-          (when report-progress
-            (message "Byte-compiled configuration already up to date"))
-          (cl-return))
-        (when report-progress
-          (message "Byte-compiling updated configuration..."))
-        (ignore-errors
-          (kill-buffer " *tmacs-byte-compile*"))
-        (let ((default-directory tmacs-directory))
-          (tmacs-env-setup)
-          (make-process
-           :name "tmacs-byte-compile"
-           :buffer " *tmacs-byte-compile*"
-           :command '("make" "compile")
-           :noquery t
-           :sentinel
-           (lambda (proc _event)
-             (unless (process-live-p proc)
-               (with-current-buffer (process-buffer proc)
-                 (if (= 0 (process-exit-status proc))
-                     (progn
-                       (insert "Byte-compilation completed successfully!\n")
-                       (message
-                        (if report-progress
-                            "Byte-compiling updated configuration...done"
-                          "Byte-compiled updated configuration")))
-                   (save-match-data
-                     (save-excursion
-                       (goto-char (point-min))
-                       (when (looking-at "In toplevel form:")
-                         (forward-line))
-                       (when (looking-at "lib-[^.]+\\.el:[0-9]+:[0-9]+:Warning: ")
-                         (goto-char (match-end 0)))
-                       (message "Failed to byte-compile%s"
-                                (if (looking-at ".+")
-                                    (format ": %s" (match-string 0))
-                                  " (no output)")))))))))))))
-#+end_src
-
 *** Quieter Start Up
 :PROPERTIES:
-:HASH:     65d972e224c25f5ce2d73fb2be6e4c96
-:MODIFIED: [2021-07-07 Wed 14:01]
+:HASH:     69ee03a656076b676d358c5049092272
+:MODIFIED: [2021-07-08 Thu 14:44]
 :END:
 
 Doom uses the following configuration changes to decrease the amount
@@ -489,36 +370,33 @@ of noise during start up.
 
   ;; Reduce *Messages* noise at startup. An empty scratch buffer (or the dashboard)
   ;; is more than enough.
-  (setq inhibit-startup-message t
-        inhibit-startup-echo-area-message user-login-name
-        inhibit-default-init t
-        ;; Shave seconds off startup time by starting the scratch buffer in
-        ;; `fundamental-mode', rather than, say, `org-mode' or `text-mode', which
-        ;; pull in a ton of packages.
-        initial-major-mode 'fundamental-mode
-        initial-scratch-message nil)
+  (setq inhibit-startup-message            t
+        inhibit-startup-echo-area-message  user-login-name
+        inhibit-default-init               t
+        initial-major-mode                 'fundamental-mode
+        initial-scratch-message            nil)
 #+end_src
 
 *** Less Littering
 :PROPERTIES:
-:HASH:     df8d081f2fbcb20cec038e5ba2278aa1
-:MODIFIED: [2021-07-07 Wed 14:06]
+:HASH:     43ede217e6912779e5e51ceb7d2d9693
+:MODIFIED: [2021-07-08 Thu 13:44]
 :END:
 
 #+begin_src emacs-lisp
-  (setq async-byte-compile-log-file (no-littering-expand-var-file-name "async-bytecomp.log")
-        custom-file                 (no-littering-expand-var-file-name "custom.el")
-        desktop-dirname             (no-littering-expand-var-file-name "desktop")
-        desktop-base-file-name      (no-littering-expand-var-file-name "autosave")
-        desktop-base-lock-name      (no-littering-expand-var-file-name "autosave-lock")
-        pcache-directory            (no-littering-expand-var-file-name "pcache/")
-        request-storage-directory   (no-littering-expand-var-file-name "request"))
+  (setq async-byte-compile-log-file  (no-littering-expand-var-file-name "async-bytecomp.log")
+        custom-file                  (no-littering-expand-var-file-name "custom.el")
+        desktop-dirname              (no-littering-expand-var-file-name "desktop")
+        desktop-base-file-name       (no-littering-expand-var-file-name "autosave")
+        desktop-base-lock-name       (no-littering-expand-var-file-name "autosave-lock")
+        pcache-directory             (no-littering-expand-var-file-name "pcache/")
+        request-storage-directory    (no-littering-expand-var-file-name "request"))
 #+end_src
 
 *** Optimizations
 :PROPERTIES:
-:HASH:     4656ee7293d8792a122204ca63aaddb0
-:MODIFIED: [2021-07-07 Wed 14:10]
+:HASH:     5eb88e3d2d4202ef8347c6b9f9568cdd
+:MODIFIED: [2021-07-08 Thu 14:46]
 :END:
 
 Doom uses the following (extensive) configuration to optimize Emacs
@@ -532,8 +410,8 @@ start up.
   ;; Disable bidirectional text rendering for a modest performance boost. I've set
   ;; this to `nil' in the past, but the `bidi-display-reordering's docs say that
   ;; is an undefined state and suggest this to be just as good:
-  (setq-default bidi-display-reordering 'left-to-right
-                bidi-paragraph-direction 'left-to-right)
+  (setq-default bidi-display-reordering   'left-to-right
+                bidi-paragraph-direction  'left-to-right)
 
   ;; Disabling the BPA makes redisplay faster, but might produce incorrect display
   ;; reordering of bidirectional text with embedded parentheses and other bracket
@@ -542,8 +420,8 @@ start up.
 
   ;; Reduce rendering/line scan work for Emacs by not rendering cursors or regions
   ;; in non-focused windows.
-  (setq-default cursor-in-non-selected-windows nil)
-  (setq highlight-nonselected-windows nil)
+  (setq-default cursor-in-non-selected-windows  nil)
+  (setq highlight-nonselected-windows           nil)
 
   ;; More performant rapid scrolling over unfontified regions. May cause brief
   ;; spells of inaccurate syntax highlighting right after scrolling, which should
@@ -557,13 +435,6 @@ start up.
   ;; font. By inhibiting this, we halve startup times, particularly when we use
   ;; fonts that are larger than the system default (which would resize the frame).
   (setq frame-inhibit-implied-resize t)
-
-  ;; The GC introduces annoying pauses and stuttering into our Emacs experience,
-  ;; so we use `gcmh' to stave off the GC while we're using Emacs, and provoke it
-  ;; when it's idle.
-  (setq gcmh-idle-delay 5  ; default is 15s
-        gcmh-high-cons-threshold (* 16 1024 1024)  ; 16mb
-        gcmh-verbose tmacs-debug-p)
 
   ;; Emacs "updates" its ui more often than it needs to, so slow it down slightly
   (setq idle-update-delay 1.0)  ; default is 0.5
@@ -585,9 +456,9 @@ start up.
   ;; Performance on Windows is considerably worse than elsewhere. We'll need
   ;; everything we can get.
   (when IS-WINDOWS
-    (setq w32-get-true-file-attributes nil   ; decrease file IO workload
-          w32-pipe-read-delay 0              ; faster IPC
-          w32-pipe-buffer-size (* 64 1024))) ; read more at a time (was 4K)
+    (setq w32-get-true-file-attributes  nil           ; decrease file IO workload
+          w32-pipe-read-delay           0             ; faster IPC
+          w32-pipe-buffer-size          (* 64 1024))) ; read more at a time (was 4K)
 
   ;; Remove command line options that aren't relevant to our current OS; means
   ;; slightly less to process at startup.
@@ -648,27 +519,92 @@ Doom uses the following configuration to improve security.
                            "~/.authinfo.gpg"))
 #+end_src
 
-*** Initialization Function
-:PROPERTIES:
-:HASH:     76cb762b496438ce8776d12916a75c3d
-:MODIFIED: [2021-07-07 Wed 15:52]
-:END:
-
-Doom delegates most initialization work to =doom-initialize=, so why not
-do the same?
-
-#+begin_src emacs-lisp
-  (defun tmacs-initialize ()
-    (tmacs-ensure-straight))
-#+end_src
-
 *** Footer
 :PROPERTIES:
-:HASH:     02589c673a7f86a049e04b871ad0ceff
-:MODIFIED: [2021-07-07 Wed 15:53]
+:HASH:     874f8a92f424c68e4dfd91546b6abec7
+:MODIFIED: [2021-07-08 Thu 13:54]
 :END:
 
 #+begin_src emacs-lisp
-  (provide 'lib-init)
+  (provide 'initialization)
   ;;; lib-init.el ends here
+#+end_src
+** Helpers
+:PROPERTIES:
+:HASH:     bfaf7c2c97ca3f7b1652c9e08dc55d86
+:MODIFIED: [2021-07-08 Thu 16:00]
+:header-args:   :tangle .emacs.d/components/helpers.el
+:END:
+
+This library contains generic helper functions and macros intended to
+be used wherever.
+
+#+begin_src emacs-lisp
+  ;;; helpers.el -*- lexical-binding: t; -*-
+#+end_src
+
+The following macro is taken from Radian; it provides a convenient way
+to call =use-package= without the need to specify =:straight nil= for
+built in Emacs features.
+
+#+begin_src emacs-lisp
+  (defmacro use-feature (name &rest args)
+    "Like `use-package', but with `straight-use-package-by-default' disabled.
+  NAME and ARGS are as in `use-package'."
+    (declare (indent defun))
+    `(use-package ,name
+       :straight nil
+       ,@args))
+#+end_src
+
+#+begin_src emacs-lisp
+  (provide 'helpers)
+  ;;; lib-helpers.el ends here
+#+end_src
+** Search
+:PROPERTIES:
+:HASH:     c759a4e23695bcfa950d851d2d761971
+:MODIFIED: [2021-07-08 Thu 14:23]
+:END:
+
+*** Modern
+:PROPERTIES:
+:HASH:     4c5d8830db67ecc5d9c634ec00d19149
+:MODIFIED: [2021-07-08 Thu 15:41]
+:header-args: :tangle .emacs.d/components/search/modern.el
+:END:
+
+Completion and search in Emacs is not great by default. Many great
+packages exist to provide a better experience for =completing-read= and
+buffer searching (and searching anywhere else), but the most popular
+have warts. I've used [[https://github.com/abo-abo/swiper][Ivy]] for as long as I've used Emacs and it works
+well but it's exceedingly complex. Newer packages exist that aim to
+provide simpler APIs and better performance, so we'll give them a try.
+
+[[https://github.com/raxod502/selectrum#swiper][selectrum]] provides a "better incremental narrowing solution." The
+author has (rightfully) criticized the absurd complexity of Ivy and
+aimed to prevent a similar problem with this package.
+
+#+begin_src emacs-lisp
+  (use-package selectrum
+    :hook
+    after-init)
+#+end_src
+
+To improve selection, we can also use [[https://github.com/raxod502/prescient.el][prescient]] to sort results by
+"frecency."
+
+#+begin_src emacs-lisp
+  (use-package selectrum-prescient
+    :hook
+    (after-init . selectrum-prescient-mode)
+    (after-init . prescient-persist-mode))
+#+end_src
+
+=selectrum= focuses on being a generic completion framework that
+conforms to the standard Emacs completion API. The author recommends
+[[https://github.com/minad/consult][consult]] as an alternative/replacement for [[https://github.com/abo-abo/swiper][swiper/counsel]].
+
+#+begin_src emacs-lisp
+  (use-package consult)
 #+end_src
