@@ -47,7 +47,7 @@ subcmd: #
 	@#
 
 .PHONY: emacs
-emacs : subcmd
+emacs : subcmd build
 	@$(MAKE) -C .emacs.d $(RUN_ARGS)
 
 $(TARGETS): systems.org emacs.org
