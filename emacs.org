@@ -22,15 +22,21 @@
   - [[#initialization][Initialization]]
 :END:
 
-* Dockerfile
+* Building
 :PROPERTIES:
-:HASH:     e84ca6a4017e94951b8befa384bf428c
-:MODIFIED: [2021-07-09 Fri 16:29]
+:HASH:     0e3aa8d054c9158f87ec23518113a340
+:MODIFIED: [2021-07-12 Mon 14:04]
+:END:
+
+** Dockerfile
+:PROPERTIES:
+:HASH:     1a6fc187cb0e108d78f53c8e2499f67f
+:MODIFIED: [2021-07-12 Mon 14:18]
 :header-args+: :tangle .emacs.d/Dockerfile
 :END:
 
 #+begin_src dockerfile
-  FROM silex/emacs:latest
+  FROM silex/emacs:cask
 
   WORKDIR /root/.emacs.d
 
@@ -40,10 +46,10 @@
   CMD bash
 #+end_src
 
-* Makefile
+** Makefile
 :PROPERTIES:
-:HASH:     aec61eb3dd29f67f40838750806a9654
-:MODIFIED: [2021-07-09 Fri 16:57]
+:HASH:     efe9a9e5be26fc93e5ed9805e739d80e
+:MODIFIED: [2021-07-12 Mon 15:12]
 :header-args+: :tangle .emacs.d/Makefile
 :END:
 
@@ -55,6 +61,7 @@ EMACS  = emacs
 
 RUN   = run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
 SPEED = bash -c 'time emacs -L . -l init --batch --eval "(message \"Hello, world!\")"'
+TEST  = bash -c 'cask install; cask exec sh -c "buttercup -L . tests -l init"'
 
 COMPILED_LIBS = $(patsubst %,%c,$(shell find components/ -name '*.el' -print))
 
@@ -89,6 +96,26 @@ compile: $(COMPILED_LIBS) ## Byte compile library files
 clean: ## Remove byte compiled files and Docker images
 	@rm $(COMPILED_LIBS)
 	@$(DOCKER) image rm --filter reference=tmacs
+
+.PHONY: check
+check:
+	$(DOCKER) $(RUN) $(TEST)
+#+end_src
+
+** Cask File
+:PROPERTIES:
+:HASH:     95ee6c65c6c19ac96f0483582644a88a
+:MODIFIED: [2021-07-12 Mon 14:50]
+:header-args+: :tangle .emacs.d/Cask
+:END:
+
+#+begin_src cask
+  (source gnu)
+  (source melpa)
+
+  (development
+   (depends-on "buttercup")
+   (depends-on "el-get"))
 #+end_src
 
 * Initialization
@@ -165,12 +192,16 @@ And now we'll load our init library, which we define [[id:0b1a1e03-01cb-43fb-835
 
 ** Init
 :PROPERTIES:
-:HASH:     82ddb3bf799ca3d6a93217198ebd281a
-:MODIFIED: [2021-07-09 Fri 13:12]
+:HASH:     fef4b202be10cb5256e76846a9b75faa
+:MODIFIED: [2021-07-12 Mon 13:42]
 :header-args+:   :tangle .emacs.d/init.el
 :END:
 
+After initialization, set =tmacs-initialized-p= to indicate that we
+didn't encounter any problems.
+
 #+begin_src emacs-lisp
+  (setq tmacs-initialized-p t)
 #+end_src
 
 * Components
@@ -664,6 +695,28 @@ conforms to the standard Emacs completion API. The author recommends
 
 * Tests
 :PROPERTIES:
-:HASH:     a125eb6e3ab2e65ffebdfed162a48814
-:MODIFIED: [2021-07-09 Fri 12:00]
+:HASH:     3cf21022d1607894282d8b788e07957e
+:MODIFIED: [2021-07-12 Mon 13:19]
 :END:
+
+I've declared Emacs bankruptcy a few times for a variety of
+reasons. Each time, the difficulty of troubleshooting unexpected
+errors has been one of those reasons. After taking over maintenance of
+=jsonnet-mode= I implemented automated tests via [[https://github.com/jorgenschaefer/emacs-buttercup][buttercup]] which has
+generally made maintenance a lot easier. Hopefully it will have the
+same effect for my configuration.
+
+** Initialization
+:PROPERTIES:
+:HASH:     f772b297ba56ecfedcbd4cae93f83d6a
+:MODIFIED: [2021-07-12 Mon 14:09]
+:header-args+: :tangle .emacs.d/tests/test-init.el
+:END:
+
+#+begin_src emacs-lisp
+  (require 'buttercup)
+
+  (describe "Initialization"
+    (it "should succeed"
+      (expect tmacs-initialized-p :to-be t)))
+#+end_src
