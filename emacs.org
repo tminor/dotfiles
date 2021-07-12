@@ -48,8 +48,8 @@
 
 ** Makefile
 :PROPERTIES:
-:HASH:     efe9a9e5be26fc93e5ed9805e739d80e
-:MODIFIED: [2021-07-12 Mon 15:12]
+:HASH:     ba9a60f04bbd0fce8cb6aa6749c321a2
+:MODIFIED: [2021-07-12 Mon 16:13]
 :header-args+: :tangle .emacs.d/Makefile
 :END:
 
@@ -60,8 +60,7 @@ DOCKER = podman
 EMACS  = emacs
 
 RUN   = run -it --rm -v "${PWD}/.emacs.d:/root/.emacs.d" tmacs
-SPEED = bash -c 'time emacs -L . -l init --batch --eval "(message \"Hello, world!\")"'
-TEST  = bash -c 'cask install; cask exec sh -c "buttercup -L . tests -l init"'
+TEST  = bash -c 'cd tests; cask install; cask exec sh -c "buttercup -L ../tests"'
 
 COMPILED_LIBS = $(patsubst %,%c,$(shell find components/ -name '*.el' -print))
 
@@ -69,7 +68,7 @@ COMPILED_LIBS = $(patsubst %,%c,$(shell find components/ -name '*.el' -print))
 .SUFFIXES: .el .elc
 
 .el.elc:
-	$(EMACS) -Q -batch -L . -f batch-byte-compile $^
+	$(EMACS) -Q -batch -f batch-byte-compile $<
 
 .PHONY: help
 help: ## Display this message
@@ -84,10 +83,6 @@ help: ## Display this message
 docker: compile ## Build a Docker image for Emacs
 	@$(DOCKER) build . -t tmacs
 
-.PHONY: speed
-speed: docker ## Start Emacs and report how long it takes to initialize
-	$(DOCKER) $(RUN) $(SPEED)
-
 .PHONY: compile
 compile: $(COMPILED_LIBS) ## Byte compile library files
 	@echo $(COMPILED_LIBS)
@@ -99,14 +94,18 @@ clean: ## Remove byte compiled files and Docker images
 
 .PHONY: check
 check:
-	$(DOCKER) $(RUN) $(TEST)
+	@$(DOCKER) $(RUN) $(TEST)
+
+.PHONY: run
+run: check
+	@$(DOCKER) $(RUN)
 #+end_src
 
 ** Cask File
 :PROPERTIES:
-:HASH:     95ee6c65c6c19ac96f0483582644a88a
-:MODIFIED: [2021-07-12 Mon 14:50]
-:header-args+: :tangle .emacs.d/Cask
+:HASH:     52a5f3f438a4d7fdb5274ab8c97c28bd
+:MODIFIED: [2021-07-12 Mon 15:57]
+:header-args+: :tangle .emacs.d/tests/Cask
 :END:
 
 #+begin_src cask
@@ -127,7 +126,7 @@ check:
 ** Early Init
 :PROPERTIES:
 :HASH:     4fa01f01b74d9a8a783b241c2a6d5436
-:MODIFIED: [2021-07-09 Fri 13:12]
+:MODIFIED: [2021-07-12 Mon 16:27]
 :header-args+:   :tangle .emacs.d/early-init.el
 :END:
 
@@ -708,15 +707,21 @@ same effect for my configuration.
 
 ** Initialization
 :PROPERTIES:
-:HASH:     f772b297ba56ecfedcbd4cae93f83d6a
-:MODIFIED: [2021-07-12 Mon 14:09]
+:HASH:     c8ed4fecdd6fe85c7a27120a0fadd49f
+:MODIFIED: [2021-07-12 Mon 16:07]
 :header-args+: :tangle .emacs.d/tests/test-init.el
 :END:
 
 #+begin_src emacs-lisp
   (require 'buttercup)
+  (require 'cl-lib)
 
   (describe "Initialization"
+    (before-all
+      (cl-letf (((symbol-function 'message) #'ignore))
+        (load "../early-init.el")
+        (load "../init.el")))
+
     (it "should succeed"
       (expect tmacs-initialized-p :to-be t)))
 #+end_src
