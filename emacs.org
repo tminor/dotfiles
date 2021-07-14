@@ -631,13 +631,13 @@ Doom uses the following configuration to improve security.
 
 *** Footer
 :PROPERTIES:
-:HASH:     d5f71a5b4c678de8030ecfa8f1ae7705
-:MODIFIED: [2021-07-09 Fri 15:56]
+:HASH:     4df8f8284cf1357678fe7c31655ac1b5
+:MODIFIED: [2021-07-12 Mon 16:59]
 :END:
 
 #+begin_src emacs-lisp
   (provide 'initialization)
-  ;;; lib-init.el ends here
+  ;;; inialization.el ends here
 #+end_src
 
 ** Search
@@ -648,10 +648,14 @@ Doom uses the following configuration to improve security.
 
 *** Modern
 :PROPERTIES:
-:HASH:     8aa00097b50d04834ba88eb9d9ee43c9
-:MODIFIED: [2021-07-09 Fri 16:09]
+:HASH:     2c8800d683e892a3244bfc6644ad8d4d
+:MODIFIED: [2021-07-12 Mon 17:01]
 :header-args+: :tangle .emacs.d/components/search/modern.el
 :END:
+
+#+begin_src emacs-lisp
+  ;;; modern-search.el -*- lexical-binding: t; -*-
+#+end_src
 
 Completion and search in Emacs is not great by default. Many great
 packages exist to provide a better experience for =completing-read= and
@@ -700,6 +704,11 @@ conforms to the standard Emacs completion API. The author recommends
 
 #+begin_src emacs-lisp
   (use-package consult)
+#+end_src
+
+#+begin_src emacs-lisp
+  (provide 'modern-search)
+  ;;; modern-search.el ends here
 #+end_src
 
 * Tests
