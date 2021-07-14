@@ -726,8 +726,8 @@ same effect for my configuration.
 
 ** Initialization
 :PROPERTIES:
-:HASH:     c8ed4fecdd6fe85c7a27120a0fadd49f
-:MODIFIED: [2021-07-12 Mon 16:07]
+:HASH:     8c88e2fc42e7139bcad033ab2e4eff51
+:MODIFIED: [2021-07-12 Mon 16:47]
 :header-args+: :tangle .emacs.d/tests/test-init.el
 :END:
 
@@ -737,10 +737,14 @@ same effect for my configuration.
 
   (describe "Initialization"
     (before-all
+      (setq expected-file-name-handler-alist file-name-handler-alist)
       (cl-letf (((symbol-function 'message) #'ignore))
         (load "../early-init.el")
         (load "../init.el")))
 
     (it "should succeed"
-      (expect tmacs-initialized-p :to-be t)))
+      (expect tmacs-initialized-p :to-be t))
+
+    (it "should preserve, unset, and reset file-name-handler-alist"
+      (expect file-name-handler-alist :to-be expected-file-name-handler-alist)))
 #+end_src
