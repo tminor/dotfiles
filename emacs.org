@@ -125,8 +125,8 @@ run: check
 
 ** Early Init
 :PROPERTIES:
-:HASH:     4fa01f01b74d9a8a783b241c2a6d5436
-:MODIFIED: [2021-07-12 Mon 16:27]
+:HASH:     cfda0c14c58e085c7925c099e9e66de4
+:MODIFIED: [2021-07-12 Mon 16:43]
 :header-args+:   :tangle .emacs.d/early-init.el
 :END:
 
@@ -175,11 +175,12 @@ a marginal amount of time by unsetting it.
   (unless (or (daemonp) noninteractive)
     (let ((old-file-name-handler-alist file-name-handler-alist))
       (setq-default file-name-handler-alist nil)
-      (defun tmacs-reset-file-handler-alist ()
-        "This function is used in `emacs-startup-hook' to reset `file-name-handler-alist' to its default value."
-        (setq file-name-handler-alist
-              (delete-dups (append file-name-handler-alist
-                                   old-file-name-handler-alist))))
+      (eval
+       `(defun tmacs-reset-file-handler-alist ()
+          "This function is used in `emacs-startup-hook' to reset `file-name-handler-alist' to its default value."
+          (setq file-name-handler-alist
+                (delete-dups (append file-name-handler-alist
+                                     ',old-file-name-handler-alist)))))
       (add-hook 'emacs-startup-hook #'tmacs-reset-file-handler-alist 101)))
 #+end_src
 
