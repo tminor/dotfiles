@@ -267,8 +267,8 @@ require dependencies needed during initialization.
 
 **** Bootstrapping
 :PROPERTIES:
-:HASH:     15116998922abd6610dc4a841b254a29
-:MODIFIED: [2021-07-08 Thu 14:42]
+:HASH:     41843f5bcb3fe927b8df945139438edf
+:MODIFIED: [2021-07-12 Mon 16:59]
 :END:
 
 We use =straight.el= for package management. The following source block
@@ -277,10 +277,12 @@ separating =straight.el='s build directories based on the version of the
 currently running Emacs.
 
 #+begin_src emacs-lisp
-  (setq straight-base-dir                 "~/.emacs.d/var/straight"
-        straight-build-dir                (format "build-%s" emacs-version)
-        straight-check-for-modifications  '(watch-files find-when-checking)
-        straight-use-package-by-default   t)
+  (setq straight-base-dir                "~/.emacs.d/var/straight"
+        straight-build-dir               (format "build-%s" emacs-version)
+        straight-use-package-by-default  t)
+
+  (when (executable-find "watchexec")
+    (setq straight-check-for-modifications '(watch-files find-when-checking)))
 
   (defvar bootstrap-version nil
     "Variable used by `straight.el' to verify bootstrapping.")
