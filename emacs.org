@@ -192,10 +192,17 @@ And now we'll load our init library, which we define [[id:0b1a1e03-01cb-43fb-835
 
 ** Init
 :PROPERTIES:
-:HASH:     fef4b202be10cb5256e76846a9b75faa
-:MODIFIED: [2021-07-12 Mon 13:42]
+:HASH:     49c277e947e2c767ddf44b8c87b90312
+:MODIFIED: [2021-07-12 Mon 17:32]
 :header-args+:   :tangle .emacs.d/init.el
 :END:
+
+#+begin_src emacs-lisp
+  (mapc (apply-partially #'add-to-list 'load-path)
+        (seq-filter #'file-directory-p
+                    (directory-files-recursively
+                     (concat (file-name-directory load-file-name) "components") ".*" t)))
+#+end_src
 
 After initialization, set =tmacs-initialized-p= to indicate that we
 didn't encounter any problems.
