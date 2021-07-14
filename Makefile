@@ -51,4 +51,4 @@ emacs : subcmd build
 	@$(MAKE) -C .emacs.d $(RUN_ARGS)
 
 $(TARGETS): systems.org emacs.org
-	@.bin/tangle-config.el $^
+	@scripts/tangle-config.el $^
