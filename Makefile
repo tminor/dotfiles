@@ -26,7 +26,8 @@ help: ## Display this message
 		column -t -s'|' >&2
 
 .PHONY: build
-build: $(TARGETS)
+build: tangle
+	@echo Tangling config files...
 
 .PHONY: install
 install: ## Symlinks configuration files into home directory
@@ -50,5 +51,5 @@ subcmd: #
 emacs : subcmd build
 	@$(MAKE) -C .emacs.d $(RUN_ARGS)
 
-$(TARGETS): systems.org emacs.org
+tangle: systems.org emacs.org
 	@scripts/tangle-config.el $^
