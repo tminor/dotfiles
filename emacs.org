@@ -640,22 +640,11 @@ Doom uses the following configuration to improve security.
   ;;; inialization.el ends here
 #+end_src
 
-** Search
+*** Search
 :PROPERTIES:
-:HASH:     c759a4e23695bcfa950d851d2d761971
-:MODIFIED: [2021-07-08 Thu 14:23]
+:HASH:     54b14a77b1fb8ac632b6c95c21727d61
+:MODIFIED: [2021-07-20 Tue 15:23]
 :END:
-
-*** Modern
-:PROPERTIES:
-:HASH:     2c8800d683e892a3244bfc6644ad8d4d
-:MODIFIED: [2021-07-12 Mon 17:01]
-:header-args+: :tangle .emacs.d/components/search/modern.el
-:END:
-
-#+begin_src emacs-lisp
-  ;;; modern-search.el -*- lexical-binding: t; -*-
-#+end_src
 
 Completion and search in Emacs is not great by default. Many great
 packages exist to provide a better experience for =completing-read= and
@@ -703,12 +692,51 @@ conforms to the standard Emacs completion API. The author recommends
 [[https://github.com/minad/consult][consult]] as an alternative/replacement for [[https://github.com/abo-abo/swiper][swiper/counsel]].
 
 #+begin_src emacs-lisp
-  (use-package consult)
+  (use-package consult
+    :demand t)
 #+end_src
 
+[[https://github.com/oantolin/embark][embark]] adds contextual actions for selections in the minibuffer.
+
 #+begin_src emacs-lisp
-  (provide 'modern-search)
-  ;;; modern-search.el ends here
+  (use-package embark
+    :after 'consult
+    :init
+    (setq prefix-help-command #'embark-prefix-help-command))
+
+  (use-package embark-consult
+    :after (embark consult)
+    :demand t
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+[[https://github.com/minad/marginalia][marginalia]] provides annotations in the minibuffer.
+
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :init
+    (marginalia-mode))
+#+end_src
+
+*** Help
+:PROPERTIES:
+:HASH:     7915b3565f065dc33b97bba16106bfd2
+:MODIFIED: [2021-07-19 Mon 16:34]
+:END:
+
+[[https://github.com/Wilfred/helpful][helpful]] provides a much improved experience for Emacs's =*help*=
+buffers.
+
+#+begin_src emacs-lisp
+  (use-package helpful
+    :demand t
+    :general
+    (tm/help-leader-def
+     "f" 'helpful-callable
+     "v" 'helpful-variable
+     "d" 'helpful-at-point
+     "k" 'helpful-key))
 #+end_src
 
 * Tests
