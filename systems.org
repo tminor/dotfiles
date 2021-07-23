@@ -40,8 +40,8 @@ This file is essentially an exact copy of a file from David Wilson's
 
 * Channels
 :PROPERTIES:
-:HASH:     b3d030434e53de5ca5bc349ac29f12ff
-:MODIFIED: [2021-06-30 Wed 14:20]
+:HASH:     c79524eb1a1ce297662a5498753cd385
+:MODIFIED: [2021-07-23 Fri 09:34]
 :ID:       815f1508-0bb3-4393-9c3e-1fc393b32b72
 :END:
 
@@ -54,30 +54,30 @@ with Guix by default like the non-free Linux kernel.
 *.config/guix/channels.scm:*
 
 #+begin_src scheme :scheme guile :tangle .config/guix/channels.scm
-  ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
+;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
-  (list (channel
-         (name 'flat)
-         (url "https://github.com/flatwhatson/guix-channel.git")
-         (commit
-          "7b8353ebbcf486e3344924d1cac0fa7ba47c371d")
-         (introduction
-          (make-channel-introduction
-           "33f86a4b48205c0dc19d7c036c85393f0766f806"
-           (openpgp-fingerprint
-            "736A C00E 1254 378B A982  7AF6 9DBE 8265 81B6 4490"))))
-        (channel
-         (name 'nonguix)
-         (url "https://gitlab.com/nonguix/nonguix"))
-        (channel
-         (name 'guix)
-         (url "https://git.savannah.gnu.org/git/guix.git")
-         ;; (url "file:///home/daviwil/Projects/Code/guix"))
-         (introduction
-          (make-channel-introduction
-           "9edb3f66fd807b096b48283debdcddccfea34bad"
-           (openpgp-fingerprint
-            "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA")))))
+(list (channel
+       (name 'flat)
+       (url "https://github.com/flatwhatson/guix-channel.git")
+       (commit
+        "7b8353ebbcf486e3344924d1cac0fa7ba47c371d")
+       (introduction
+        (make-channel-introduction
+         "33f86a4b48205c0dc19d7c036c85393f0766f806"
+         (openpgp-fingerprint
+          "736A C00E 1254 378B A982  7AF6 9DBE 8265 81B6 4490"))))
+      (channel
+       (name 'nonguix)
+       (url "https://gitlab.com/nonguix/nonguix"))
+      (channel
+       (name 'guix)
+       (url "https://git.savannah.gnu.org/git/guix.git")
+       ;; (url "file:///home/daviwil/Projects/Code/guix"))
+       (introduction
+        (make-channel-introduction
+         "9edb3f66fd807b096b48283debdcddccfea34bad"
+         (openpgp-fingerprint
+          "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA")))))
 #+end_src
 
 The following channel list can be used when testing patches to
@@ -87,18 +87,18 @@ pick them up, though.  You can change the target branch using the
 =branch= field of the =channel=.
 
 #+begin_src scheme :scheme guile :tangle .config/guix/channels.scm
-  ;; (list (channel
-  ;;         (name 'nonguix)
-  ;;         (url "https://gitlab.com/nonguix/nonguix"))
-  ;;       (channel
-  ;;         (name 'guix)
-  ;;         (branch "fix-glu-pkg-config")
-  ;;         (url "file:///home/daviwil/Projects/Code/guix")
-  ;;         (introduction
-  ;;           (make-channel-introduction
-  ;;             "d06d5db885e4b8399e878708862fbe3a67f0592c"
-  ;;             (openpgp-fingerprint
-  ;;               "53C4 1E6E 41AA FE55 335A  CA5E 446A 2ED4 D940 BF14")))))
+;; (list (channel
+;;         (name 'nonguix)
+;;         (url "https://gitlab.com/nonguix/nonguix"))
+;;       (channel
+;;         (name 'guix)
+;;         (branch "fix-glu-pkg-config")
+;;         (url "file:///home/daviwil/Projects/Code/guix")
+;;         (introduction
+;;           (make-channel-introduction
+;;             "d06d5db885e4b8399e878708862fbe3a67f0592c"
+;;             (openpgp-fingerprint
+;;               "53C4 1E6E 41AA FE55 335A  CA5E 446A 2ED4 D940 BF14")))))
 #+end_src
 
 * Systems
@@ -110,8 +110,8 @@ pick them up, though.  You can change the target branch using the
 
 ** Base Configuration
 :PROPERTIES:
-:HASH:     303ace10fff69bf3042f06a296f8e12f
-:MODIFIED: [2021-07-07 Wed 16:49]
+:HASH:     401b9687ad6b74dbd217fb1425a7997c
+:MODIFIED: [2021-07-23 Fri 09:34]
 :ID:       7b3733c7-0170-474c-ba33-ef72d6ba62b7
 :END:
 
@@ -124,54 +124,53 @@ Any configuration that derives from =base-operating-system= must invoke
 =guix system= in a specific way to ensure it gets loaded correctly:
 
 #+begin_src sh
-  sudo -E guix system -L ~/.dotfiles/.config/guix/systems reconfigure ~/.dotfiles/.config/guix/systems/davinci.scm
+sudo -E guix system -L ~/.dotfiles/.config/guix/systems reconfigure ~/.dotfiles/.config/guix/systems/davinci.scm
 #+end_src
 
 *.config/guix/systems/base-system.scm:*
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
-  ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
+;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
-  (define-module (base-system)
-    #:use-module (gnu)
-    #:use-module (srfi srfi-1)
-    #:use-module (gnu system nss)
-    #:use-module (gnu services pm)
-    #:use-module (gnu services cups)
-    #:use-module (gnu services desktop)
-    #:use-module (gnu services docker)
-    #:use-module (gnu services networking)
-    #:use-module (gnu services virtualization)
-    #:use-module (gnu packages wm)
-    #:use-module (gnu packages cups)
-    #:use-module (gnu packages vim)
-    #:use-module (gnu packages gtk)
-    #:use-module (gnu packages xorg)
-    #:use-module (gnu packages emacs)
-    #:use-module (gnu packages file-systems)
-    #:use-module (gnu packages gnome)
-    #:use-module (gnu packages mtools)
-    #:use-module (gnu packages linux)
-    #:use-module (gnu packages audio)
-    #:use-module (gnu packages gnuzilla)
-    #:use-module (gnu packages pulseaudio)
-    #:use-module (gnu packages web-browsers)
-    #:use-module (gnu packages version-control)
-    #:use-module (gnu packages package-management)
-    #:use-module (nongnu packages linux)
-    #:use-module (nongnu system linux-initrd))
+(define-module (base-system)
+  #:use-module (gnu)
+  #:use-module (srfi srfi-1)
+  #:use-module (gnu system nss)
+  #:use-module (gnu services pm)
+  #:use-module (gnu services cups)
+  #:use-module (gnu services desktop)
+  #:use-module (gnu services docker)
+  #:use-module (gnu services networking)
+  #:use-module (gnu services virtualization)
+  #:use-module (gnu packages wm)
+  #:use-module (gnu packages cups)
+  #:use-module (gnu packages vim)
+  #:use-module (gnu packages gtk)
+  #:use-module (gnu packages xorg)
+  #:use-module (gnu packages emacs)
+  #:use-module (gnu packages file-systems)
+  #:use-module (gnu packages gnome)
+  #:use-module (gnu packages mtools)
+  #:use-module (gnu packages linux)
+  #:use-module (gnu packages audio)
+  #:use-module (gnu packages gnuzilla)
+  #:use-module (gnu packages pulseaudio)
+  #:use-module (gnu packages web-browsers)
+  #:use-module (gnu packages version-control)
+  #:use-module (gnu packages package-management)
+  #:use-module (nongnu packages linux)
+  #:use-module (nongnu system linux-initrd))
 
-  (use-service-modules nix)
-  (use-service-modules desktop xorg)
-  (use-package-modules certs)
-  (use-package-modules shells)
+(use-service-modules nix)
+(use-service-modules desktop xorg)
+(use-package-modules certs)
+(use-package-modules shells)
 #+end_src
 
 Add a =udev= rule to enable members of the =video= group to control screen
 brightness.
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
-
 ;; Allow members of the "video" group to change the screen brightness.
 (define %backlight-udev-rule
   (udev-rule
@@ -181,7 +180,6 @@ brightness.
                   "\n"
                   "ACTION==\"add\", SUBSYSTEM==\"backlight\", "
                   "RUN+=\"/run/current-system/profile/bin/chmod g+w /sys/class/backlight/%k/brightness\"")))
-
 #+end_src
 
 Override the default =%desktop-services= to add the =udev= backlight
@@ -189,154 +187,150 @@ configuration and include OpenVPN in the list of NetworkManager
 plugins.
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
-
-  (define %my-desktop-services
-    (modify-services %desktop-services
-                     (elogind-service-type config =>
-                                           (elogind-configuration (inherit config)
-                                                                  (handle-lid-switch-external-power 'suspend)))
-                     (udev-service-type config =>
-                                        (udev-configuration (inherit config)
-                                                            (rules (cons %backlight-udev-rule
-                                                                         (udev-configuration-rules config)))))
-                     (network-manager-service-type config =>
-                                                   (network-manager-configuration (inherit config)
-                                                                                  (vpn-plugins (list network-manager-openvpn))))))
-
+(define %my-desktop-services
+  (modify-services %desktop-services
+                   (elogind-service-type config =>
+                                         (elogind-configuration (inherit config)
+                                                                (handle-lid-switch-external-power 'suspend)))
+                   (udev-service-type config =>
+                                      (udev-configuration (inherit config)
+                                                          (rules (cons %backlight-udev-rule
+                                                                       (udev-configuration-rules config)))))
+                   (network-manager-service-type config =>
+                                                 (network-manager-configuration (inherit config)
+                                                                                (vpn-plugins (list network-manager-openvpn))))))
 #+end_src
 
 Use the =libinput= driver for all input devices since it's a bit more
 modern than the default.
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
+(define %xorg-libinput-config
+  "Section \"InputClass\"
+  Identifier \"Touchpads\"
+  Driver \"libinput\"
+  MatchDevicePath \"/dev/input/event*\"
+  MatchIsTouchpad \"on\"
 
-  (define %xorg-libinput-config
-    "Section \"InputClass\"
-    Identifier \"Touchpads\"
-    Driver \"libinput\"
-    MatchDevicePath \"/dev/input/event*\"
-    MatchIsTouchpad \"on\"
-
-    Option \"Tapping\" \"on\"
-    Option \"TappingDrag\" \"on\"
-    Option \"DisableWhileTyping\" \"on\"
-    Option \"MiddleEmulation\" \"on\"
-    Option \"ScrollMethod\" \"twofinger\"
-  EndSection
-  Section \"InputClass\"
-    Identifier \"Keyboards\"
-    Driver \"libinput\"
-    MatchDevicePath \"/dev/input/event*\"
-    MatchIsKeyboard \"on\"
-  EndSection
-  ")
-
+  Option \"Tapping\" \"on\"
+  Option \"TappingDrag\" \"on\"
+  Option \"DisableWhileTyping\" \"on\"
+  Option \"MiddleEmulation\" \"on\"
+  Option \"ScrollMethod\" \"twofinger\"
+EndSection
+Section \"InputClass\"
+  Identifier \"Keyboards\"
+  Driver \"libinput\"
+  MatchDevicePath \"/dev/input/event*\"
+  MatchIsKeyboard \"on\"
+EndSection
+")
 #+end_src
 
 Define the =base-operating-system= which will be inherited by all
 machine configurations.
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
-  (define-public base-operating-system
-    (operating-system
-     (host-name "computer")
-     (timezone "America/New_York")
-     (locale "en_US.utf8")
-     ;; Use non-free Linux and firmware
-     (kernel linux)
-     (firmware (list linux-firmware))
-     (initrd microcode-initrd)
-     ;; Choose US English keyboard layout.  The "altgr-intl"
-     ;; variant provides dead keys for accented characters.
-     (keyboard-layout (keyboard-layout "us" "altgr-intl" #:model "thinkpad"))
-     ;; Use the UEFI variant of GRUB with the EFI System
-     ;; Partition mounted on /boot/efi.
-     (bootloader (bootloader-configuration
-                  (bootloader grub-efi-bootloader)
-                  (target "/boot/efi")
-                  (keyboard-layout keyboard-layout)))
-     ;; Guix doesn't like it when there isn't a file-systems
-     ;; entry, so add one that is meant to be overridden
-     (file-systems (cons*
-                    (file-system
-                     (mount-point "/tmp")
-                     (device "none")
-                     (type "tmpfs")
-                     (check? #f))
-                    %base-file-systems))
-     (users (cons (user-account
-                   (name "tminor")
-                   (comment "Thomas Minor")
-                   (group "users")
-                   (home-directory "/home/tminor")
-                   (supplementary-groups '("wheel"     ;; sudo
-                                           "netdev"    ;; network devices
-                                           "kvm"
-                                           "tty"
-                                           "input"
-                                           "docker"
-                                           "realtime"  ;; Enable realtime scheduling
-                                           "lp"        ;; control bluetooth devices
-                                           "audio"     ;; control audio devices
-                                           "video")))  ;; control video devices
-                  %base-user-accounts))
-     ;; Add the 'realtime' group
-     (groups (cons (user-group (system? #t) (name "realtime"))
-                   %base-groups))
-     ;; Install bare-minimum system packages
-     (packages (append (list
-                        git
-                        ntfs-3g
-                        exfat-utils
-                        fuse-exfat
-                        stow
-                        vim
-                        emacs
-                        xterm
-                        bluez
-                        bluez-alsa
-                        pulseaudio
-                        tlp
-                        xf86-input-libinput
-                        nss-certs     ;; for HTTPS access
-                        gvfs)         ;; for user mounts
-                       %base-packages))
-     ;; Use the "desktop" services, which include the X11 log-in service,
-     ;; networking with NetworkManager, and more
-     (services (cons* (service slim-service-type
-                               (slim-configuration
-                                (xorg-configuration
-                                 (xorg-configuration
-                                  (keyboard-layout keyboard-layout)
-                                  (extra-config (list %xorg-libinput-config))))))
-                      (service tlp-service-type
-                               (tlp-configuration
-                                (cpu-boost-on-ac? #t)
-                                (wifi-pwr-on-bat? #t)))
-                      (pam-limits-service ;; This enables JACK to enter realtime mode
-                       (list
-                        (pam-limits-entry "@realtime" 'both 'rtprio 99)
-                        (pam-limits-entry "@realtime" 'both 'memlock 'unlimited)))
-                      (extra-special-file "/usr/bin/env"
-                                          (file-append coreutils "/bin/env"))
-                      (service thermald-service-type)
-                      (service docker-service-type)
-                      (service libvirt-service-type
-                               (libvirt-configuration
-                                (unix-sock-group "libvirt")
-                                (tls-port "16555")))
-                      (service cups-service-type
-                               (cups-configuration
-                                (web-interface? #t)
-                                (extensions
-                                 (list cups-filters))))
-                      (service nix-service-type)
-                      (bluetooth-service #:auto-enable? #t)
-                      (remove (lambda (service)
-                                (eq? (service-kind service) gdm-service-type))
-                              %my-desktop-services)))
-     ;; Allow resolution of '.local' host names with mDNS
-     (name-service-switch %mdns-host-lookup-nss)))
+(define-public base-operating-system
+  (operating-system
+   (host-name "computer")
+   (timezone "America/New_York")
+   (locale "en_US.utf8")
+   ;; Use non-free Linux and firmware
+   (kernel linux)
+   (firmware (list linux-firmware))
+   (initrd microcode-initrd)
+   ;; Choose US English keyboard layout.  The "altgr-intl"
+   ;; variant provides dead keys for accented characters.
+   (keyboard-layout (keyboard-layout "us" "altgr-intl" #:model "thinkpad"))
+   ;; Use the UEFI variant of GRUB with the EFI System
+   ;; Partition mounted on /boot/efi.
+   (bootloader (bootloader-configuration
+                (bootloader grub-efi-bootloader)
+                (target "/boot/efi")
+                (keyboard-layout keyboard-layout)))
+   ;; Guix doesn't like it when there isn't a file-systems
+   ;; entry, so add one that is meant to be overridden
+   (file-systems (cons*
+                  (file-system
+                   (mount-point "/tmp")
+                   (device "none")
+                   (type "tmpfs")
+                   (check? #f))
+                  %base-file-systems))
+   (users (cons (user-account
+                 (name "tminor")
+                 (comment "Thomas Minor")
+                 (group "users")
+                 (home-directory "/home/tminor")
+                 (supplementary-groups '("wheel"     ;; sudo
+                                         "netdev"    ;; network devices
+                                         "kvm"
+                                         "tty"
+                                         "input"
+                                         "docker"
+                                         "realtime"  ;; Enable realtime scheduling
+                                         "lp"        ;; control bluetooth devices
+                                         "audio"     ;; control audio devices
+                                         "video")))  ;; control video devices
+                %base-user-accounts))
+   ;; Add the 'realtime' group
+   (groups (cons (user-group (system? #t) (name "realtime"))
+                 %base-groups))
+   ;; Install bare-minimum system packages
+   (packages (append (list
+                      git
+                      ntfs-3g
+                      exfat-utils
+                      fuse-exfat
+                      stow
+                      vim
+                      emacs
+                      xterm
+                      bluez
+                      bluez-alsa
+                      pulseaudio
+                      tlp
+                      xf86-input-libinput
+                      nss-certs     ;; for HTTPS access
+                      gvfs)         ;; for user mounts
+                     %base-packages))
+   ;; Use the "desktop" services, which include the X11 log-in service,
+   ;; networking with NetworkManager, and more
+   (services (cons* (service slim-service-type
+                             (slim-configuration
+                              (xorg-configuration
+                               (xorg-configuration
+                                (keyboard-layout keyboard-layout)
+                                (extra-config (list %xorg-libinput-config))))))
+                    (service tlp-service-type
+                             (tlp-configuration
+                              (cpu-boost-on-ac? #t)
+                              (wifi-pwr-on-bat? #t)))
+                    (pam-limits-service ;; This enables JACK to enter realtime mode
+                     (list
+                      (pam-limits-entry "@realtime" 'both 'rtprio 99)
+                      (pam-limits-entry "@realtime" 'both 'memlock 'unlimited)))
+                    (extra-special-file "/usr/bin/env"
+                                        (file-append coreutils "/bin/env"))
+                    (service thermald-service-type)
+                    (service docker-service-type)
+                    (service libvirt-service-type
+                             (libvirt-configuration
+                              (unix-sock-group "libvirt")
+                              (tls-port "16555")))
+                    (service cups-service-type
+                             (cups-configuration
+                              (web-interface? #t)
+                              (extensions
+                               (list cups-filters))))
+                    (service nix-service-type)
+                    (bluetooth-service #:auto-enable? #t)
+                    (remove (lambda (service)
+                              (eq? (service-kind service) gdm-service-type))
+                            %my-desktop-services)))
+   ;; Allow resolution of '.local' host names with mDNS
+   (name-service-switch %mdns-host-lookup-nss)))
 #+end_src
 
 ** Machines
@@ -361,74 +355,73 @@ generated.
 
 *** tsuga
 :PROPERTIES:
-:HASH:     1fd621e607a59d5f7828edfbef64ced0
-:MODIFIED: [2021-07-09 Fri 12:01]
+:HASH:     de98fc7e6c543c2c3ef334a501ca4439
+:MODIFIED: [2021-07-23 Fri 09:35]
 :ID:       09cb9844-acdd-421f-9ae7-2e7cb20f5506
 :END:
 
-= tsuga= is a 5th Generation ThinkPad X1 Carbon that I use for system
+=tsuga= is a 5th Generation ThinkPad X1 Carbon that I use for system
 testing and Guix demonstrations for System Crafters.
 
 *.config/guix/systems/tsuga.scm:*
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/tsuga.scm
-  ;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
+;; NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
-  (define-module (tsuga)
-    #:use-module (base-system)
-    #:use-module (gnu)
-    #:use-module (guix channels)
-    #:use-module (nongnu packages linux)
-    #:use-module (guix inferior)
-    #:use-module (srfi srfi-1))
+(define-module (tsuga)
+  #:use-module (base-system)
+  #:use-module (gnu)
+  #:use-module (guix channels)
+  #:use-module (nongnu packages linux)
+  #:use-module (guix inferior)
+  #:use-module (srfi srfi-1))
 
-  (operating-system
-   (inherit base-operating-system)
-   (kernel (let* ((channels (list (channel
-                                   (name 'nonguix)
-                                   (url "https://gitlab.com/nonguix/nonguix")
-                                   (commit
-                                    "706d8af5b111d85902280f1154dc4fad683b5281"))
-                                  (channel
-                                   (name 'guix)
-                                   (url "https://git.savannah.gnu.org/git/guix.git")
-                                   (commit "8269d828688dcd5a089a0117764930e82e52ea97")
-                                   (introduction
-                                    (make-channel-introduction
-                                     "9edb3f66fd807b096b48283debdcddccfea34bad"
-                                     (openpgp-fingerprint
-                                      "BBB0 2DDF 2CEA F6A8 0D1D  E643
-  A2A0 6DF2 A33A 54FA"))))))
-                  (inferior (inferior-for-channels channels)))
-             (first (lookup-inferior-packages inferior "linux" "5.12.13"))))
-   (host-name "tsuga")
-   (mapped-devices
-    (list (mapped-device
-           (source (uuid "039d3ff8-0f90-40bf-89d2-4b2454ada6df"))
-           (target "system-root")
-           (type luks-device-mapping))))
-   (file-systems (cons*
-                  (file-system
-                   (device (file-system-label "tsuga"))
-                   (mount-point "/")
-                   (type "ext4")
-                   (dependencies mapped-devices))
-                  (file-system
-                   (device "/dev/nvme0n1p1")
-                   (mount-point "/boot/efi")
-                   (type "vfat"))
-                  %base-file-systems))
-   (services (cons* (service gnome-desktop-service-type)
-                    (remove (lambda (service)
-                              (eq? (service-kind service) gdm-service-type))
-                            %my-desktop-services))))
-
+(operating-system
+ (inherit base-operating-system)
+ (kernel (let* ((channels (list (channel
+                                 (name 'nonguix)
+                                 (url "https://gitlab.com/nonguix/nonguix")
+                                 (commit
+                                  "706d8af5b111d85902280f1154dc4fad683b5281"))
+                                (channel
+                                 (name 'guix)
+                                 (url "https://git.savannah.gnu.org/git/guix.git")
+                                 (commit "8269d828688dcd5a089a0117764930e82e52ea97")
+                                 (introduction
+                                  (make-channel-introduction
+                                   "9edb3f66fd807b096b48283debdcddccfea34bad"
+                                   (openpgp-fingerprint
+                                    "BBB0 2DDF 2CEA F6A8 0D1D  E643
+A2A0 6DF2 A33A 54FA"))))))
+                (inferior (inferior-for-channels channels)))
+           (first (lookup-inferior-packages inferior "linux" "5.12.13"))))
+ (host-name "tsuga")
+ (mapped-devices
+  (list (mapped-device
+         (source (uuid "039d3ff8-0f90-40bf-89d2-4b2454ada6df"))
+         (target "system-root")
+         (type luks-device-mapping))))
+ (file-systems (cons*
+                (file-system
+                 (device (file-system-label "tsuga"))
+                 (mount-point "/")
+                 (type "ext4")
+                 (dependencies mapped-devices))
+                (file-system
+                 (device "/dev/nvme0n1p1")
+                 (mount-point "/boot/efi")
+                 (type "vfat"))
+                %base-file-systems))
+ (services (cons* (service gnome-desktop-service-type)
+                  (remove (lambda (service)
+                            (eq? (service-kind service) gdm-service-type))
+                          %my-desktop-services))))
 #+end_src
 
 ** USB Installation Image
 :PROPERTIES:
-:HASH:     99cf22fa331ce56cfb8f7651971056af
-:MODIFIED: [2021-06-30 Wed 14:20]
+:HASH:     bb49de03e794f77224ea5ee1cc1a4b03
+:MODIFIED: [2021-07-23 Fri 09:35]
 :ID:       471b5309-6506-4421-a0b3-6c0e0838f13c
 :END:
 
@@ -442,58 +435,56 @@ Nonguix repository]], hence the copyright header.
 *.config/guix/systems/install.scm:*
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/install.scm
+;;; Copyright © 2019 Alex Griffin <a@ajgrf.com>
+;;; Copyright © 2019 Pierre Neidhardt <mail@ambrevar.xyz>
+;;; Copyright © 2019 David Wilson <david@daviwil.com>
+;;;
+;;; This program is free software: you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation, either version 3 of the License, or
+;;; (at your option) any later version.
+;;;
+;;; This program is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU General Public License
+;;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-  ;;; Copyright © 2019 Alex Griffin <a@ajgrf.com>
-  ;;; Copyright © 2019 Pierre Neidhardt <mail@ambrevar.xyz>
-  ;;; Copyright © 2019 David Wilson <david@daviwil.com>
-  ;;;
-  ;;; This program is free software: you can redistribute it and/or modify
-  ;;; it under the terms of the GNU General Public License as published by
-  ;;; the Free Software Foundation, either version 3 of the License, or
-  ;;; (at your option) any later version.
-  ;;;
-  ;;; This program is distributed in the hope that it will be useful,
-  ;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ;;; GNU General Public License for more details.
-  ;;;
-  ;;; You should have received a copy of the GNU General Public License
-  ;;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; Generate a bootable image (e.g. for USB sticks, etc.) with:
+;; $ guix system disk-image nongnu/system/install.scm
 
-  ;; Generate a bootable image (e.g. for USB sticks, etc.) with:
-  ;; $ guix system disk-image nongnu/system/install.scm
+(define-module (nongnu system install)
+  #:use-module (gnu system)
+  #:use-module (gnu system install)
+  #:use-module (gnu packages version-control)
+  #:use-module (gnu packages vim)
+  #:use-module (gnu packages curl)
+  #:use-module (gnu packages emacs)
+  #:use-module (gnu packages linux)
+  #:use-module (gnu packages mtools)
+  #:use-module (gnu packages package-management)
+  #:use-module (nongnu packages linux)
+  #:export (installation-os-nonfree))
 
-  (define-module (nongnu system install)
-    #:use-module (gnu system)
-    #:use-module (gnu system install)
-    #:use-module (gnu packages version-control)
-    #:use-module (gnu packages vim)
-    #:use-module (gnu packages curl)
-    #:use-module (gnu packages emacs)
-    #:use-module (gnu packages linux)
-    #:use-module (gnu packages mtools)
-    #:use-module (gnu packages package-management)
-    #:use-module (nongnu packages linux)
-    #:export (installation-os-nonfree))
+(define installation-os-nonfree
+  (operating-system
+   (inherit installation-os)
+   (kernel linux)
+   (firmware (list linux-firmware))
 
-  (define installation-os-nonfree
-    (operating-system
-      (inherit installation-os)
-      (kernel linux)
-      (firmware (list linux-firmware))
+   ;; Add the 'net.ifnames' argument to prevent network interfaces
+   ;; from having really long names.  This can cause an issue with
+   ;; wpa_supplicant when you try to connect to a wifi network.
+   (kernel-arguments '("quiet" "modprobe.blacklist=radeon" "net.ifnames=0"))
 
-      ;; Add the 'net.ifnames' argument to prevent network interfaces
-      ;; from having really long names.  This can cause an issue with
-      ;; wpa_supplicant when you try to connect to a wifi network.
-      (kernel-arguments '("quiet" "modprobe.blacklist=radeon" "net.ifnames=0"))
+   ;; Add some extra packages useful for the installation process
+   (packages
+    (append (list exfat-utils fuse-exfat git curl stow vim emacs-no-x-toolkit)
+            (operating-system-packages installation-os)))))
 
-      ;; Add some extra packages useful for the installation process
-      (packages
-       (append (list exfat-utils fuse-exfat git curl stow vim emacs-no-x-toolkit)
-               (operating-system-packages installation-os)))))
-
-  installation-os-nonfree
-
+installation-os-nonfree
 #+end_src
 
 * Profile Management
@@ -513,8 +504,8 @@ couple of shell scripts:
 
 ** Activating Profiles
 :PROPERTIES:
-:HASH:     d569deb3fe283f1e4632158dc3ecaee8
-:MODIFIED: [2021-06-28 Mon 14:07]
+:HASH:     a4cf2c060b36f5c52952ae83305badfa
+:MODIFIED: [2021-07-23 Fri 09:35]
 :ID:       2f87f6a2-0347-49bb-a4e9-d9c63b71ae25
 :END:
 
@@ -523,60 +514,56 @@ This script accepts a space-separated list of manifest file names
 installs those profiles for the first time.  For example:
 
 #+begin_src sh
-
 activate-profiles desktop emacs music
-
 #+end_src
 
 *.local/bin/activate-profiles:*
 
 #+begin_src sh :tangle .local/bin/activate-profiles :shebang #!/bin/sh
+# NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
-  # NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
+GREEN='\033[1;32m'
+RED='\033[1;30m'
+NC='\033[0m'
+GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
 
-  GREEN='\033[1;32m'
-  RED='\033[1;30m'
-  NC='\033[0m'
-  GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
+profiles=$*
+if [[ $# -eq 0 ]]; then
+  profiles="$HOME/.config/guix/manifests/*.scm";
+fi
 
-  profiles=$*
-  if [[ $# -eq 0 ]]; then
-      profiles="$HOME/.config/guix/manifests/*.scm";
-  fi
+for profile in $profiles; do
+  # Remove the path and file extension, if any
+  profileName=$(basename $profile)
+  profileName="${profileName%.*}"
+  profilePath="$GUIX_EXTRA_PROFILES/$profileName"
+  manifestPath=$HOME/.config/guix/manifests/$profileName.scm
 
-  for profile in $profiles; do
-    # Remove the path and file extension, if any
-    profileName=$(basename $profile)
-    profileName="${profileName%.*}"
-    profilePath="$GUIX_EXTRA_PROFILES/$profileName"
-    manifestPath=$HOME/.config/guix/manifests/$profileName.scm
+  if [ -f $manifestPath ]; then
+    echo
+    echo -e "${GREEN}Activating profile:" $manifestPath "${NC}"
+    echo
 
-    if [ -f $manifestPath ]; then
-      echo
-      echo -e "${GREEN}Activating profile:" $manifestPath "${NC}"
-      echo
+    mkdir -p $profilePath
+    guix package --manifest=$manifestPath --profile="$profilePath/$profileName"
 
-      mkdir -p $profilePath
-      guix package --manifest=$manifestPath --profile="$profilePath/$profileName"
-
-      # Source the new profile
-      GUIX_PROFILE="$profilePath/$profileName"
-      if [ -f $GUIX_PROFILE/etc/profile ]; then
-          . "$GUIX_PROFILE"/etc/profile
-      else
-          echo -e "${RED}Couldn't find profile:" $GUIX_PROFILE/etc/profile "${NC}"
-      fi
+    # Source the new profile
+    GUIX_PROFILE="$profilePath/$profileName"
+    if [ -f $GUIX_PROFILE/etc/profile ]; then
+      . "$GUIX_PROFILE"/etc/profile
     else
-      echo "No profile found at path" $profilePath
+      echo -e "${RED}Couldn't find profile:" $GUIX_PROFILE/etc/profile "${NC}"
     fi
-  done
-
+  else
+    echo "No profile found at path" $profilePath
+  fi
+done
 #+end_src
 
 ** Updating Profiles
 :PROPERTIES:
-:HASH:     9458474d45bf4b9953759b459998ae99
-:MODIFIED: [2021-06-28 Mon 14:07]
+:HASH:     fcb26e08f2c7bf88f5a22e078e54f0cf
+:MODIFIED: [2021-07-23 Fri 09:37]
 :ID:       95136268-6ac3-46a8-af7a-ead0b869d417
 :END:
 
@@ -587,37 +574,33 @@ profile names are provided, it walks the list of profile directories
 under =~/.guix-extra-profiles= and updates each one of them.
 
 #+begin_src sh
-
 update-profiles emacs
-
 #+end_src
 
 *.local/bin/update-profiles:*
 
 #+begin_src sh :tangle .local/bin/update-profiles :shebang #!/bin/sh
+# NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
 
-  # NOTE: This file is generated from ~/.dotfiles/System.org.  Please see commentary there.
+GREEN='\033[1;32m'
+NC='\033[0m'
+GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
 
-  GREEN='\033[1;32m'
-  NC='\033[0m'
-  GUIX_EXTRA_PROFILES=$HOME/.guix-extra-profiles
+profiles=$*
+if [[ $# -eq 0 ]]; then
+  profiles="$GUIX_EXTRA_PROFILES/*";
+fi
 
-  profiles=$*
-  if [[ $# -eq 0 ]]; then
-      profiles="$GUIX_EXTRA_PROFILES/*";
-  fi
+for profile in $profiles; do
+  profileName=$(basename $profile)
+  profilePath=$GUIX_EXTRA_PROFILES/$profileName
 
-  for profile in $profiles; do
-    profileName=$(basename $profile)
-    profilePath=$GUIX_EXTRA_PROFILES/$profileName
+  echo
+  echo -e "${GREEN}Updating profile:" $profilePath "${NC}"
+  echo
 
-    echo
-    echo -e "${GREEN}Updating profile:" $profilePath "${NC}"
-    echo
-
-    guix package --profile="$profilePath/$profileName" --manifest="$HOME/.config/guix/manifests/$profileName.scm"
-  done
-
+  guix package --profile="$profilePath/$profileName" --manifest="$HOME/.config/guix/manifests/$profileName.scm"
+done
 #+end_src
 
 * Dotfiles Management
@@ -634,8 +617,8 @@ written a couple of scripts to simplify that process:
 
 ** Syncing
 :PROPERTIES:
-:HASH:     4ab15201ca69a1694bf212a7e99f8cf3
-:MODIFIED: [2021-06-28 Mon 14:07]
+:HASH:     ddf6a75e9e3820ff50eb87a96c144949
+:MODIFIED: [2021-07-23 Fri 09:37]
 :ID:       bdd56eda-4701-4bed-931b-805853963ab0
 :END:
 
@@ -651,55 +634,53 @@ conflicts manually and run =update-dotfiles= myself.
 *.local/bin/sync-dotfiles*
 
 #+begin_src sh :tangle .local/bin/sync-dotfiles :shebang #!/bin/sh
+# Sync dotfiles repo and ensure that dotfiles are tangled correctly afterward
 
-  # Sync dotfiles repo and ensure that dotfiles are tangled correctly afterward
+GREEN='\033[1;32m'
+BLUE='\033[1;34m'
+RED='\033[1;30m'
+NC='\033[0m'
 
-  GREEN='\033[1;32m'
-  BLUE='\033[1;34m'
-  RED='\033[1;30m'
-  NC='\033[0m'
+# Navigate to the directory of this script (generally ~/.dotfiles/.local/bin)
+cd $(dirname $(readlink -f $0))
+cd ..
 
-  # Navigate to the directory of this script (generally ~/.dotfiles/.local/bin)
-  cd $(dirname $(readlink -f $0))
-  cd ..
+echo
+echo -e "${BLUE}Saving Org buffers if Emacs is running...${NC}"
+emacsclient -u -e "(org-save-all-org-buffers)" -a "echo 'Emacs is not currently running'"
 
+echo -e "${BLUE}Stashing existing changes...${NC}"
+stash_result=$(git stash push -m "sync-dotfiles: Before syncing dotfiles")
+needs_pop=1
+if [ "$stash_result" = "No local changes to save" ]; then
+  needs_pop=0
+fi
+
+echo -e "${BLUE}Pulling updates from dotfiles repo...${NC}"
+echo
+git pull origin master
+echo
+
+if [[ $needs_pop -eq 1 ]]; then
+  echo -e "${BLUE}Popping stashed changes...${NC}"
   echo
-  echo -e "${BLUE}Saving Org buffers if Emacs is running...${NC}"
-  emacsclient -u -e "(org-save-all-org-buffers)" -a "echo 'Emacs is not currently running'"
+  git stash pop
+fi
 
-  echo -e "${BLUE}Stashing existing changes...${NC}"
-  stash_result=$(git stash push -m "sync-dotfiles: Before syncing dotfiles")
-  needs_pop=1
-  if [ "$stash_result" = "No local changes to save" ]; then
-      needs_pop=0
-  fi
-
-  echo -e "${BLUE}Pulling updates from dotfiles repo...${NC}"
+unmerged_files=$(git diff --name-only --diff-filter=U)
+if [[ ! -z $unmerged_files ]]; then
+  echo -e "${RED}The following files have merge conflicts after popping the stash:${NC}"
   echo
-  git pull origin master
-  echo
-
-  if [[ $needs_pop -eq 1 ]]; then
-      echo -e "${BLUE}Popping stashed changes...${NC}"
-      echo
-      git stash pop
-  fi
-
-  unmerged_files=$(git diff --name-only --diff-filter=U)
-  if [[ ! -z $unmerged_files ]]; then
-     echo -e "${RED}The following files have merge conflicts after popping the stash:${NC}"
-     echo
-     printf %"s\n" $unmerged_files  # Ensure newlines are printed
-  else
-      update-dotfiles
-  fi
-
+  printf %"s\n" $unmerged_files  # Ensure newlines are printed
+else
+  update-dotfiles
+fi
 #+end_src
 
 * Nix Package Manager
 :PROPERTIES:
-:HASH:     68bf55844d19ae76dcd6097492d8b2f1
-:MODIFIED: [2021-06-28 Mon 14:06]
+:HASH:     b7edfb1a86c37e9434cb8d40e2411baa
+:MODIFIED: [2021-07-23 Fri 09:37]
 :ID:       69df9aab-dc16-46f8-87a7-d2241795ac1c
 :END:
 
@@ -708,26 +689,20 @@ use are more easily available in the Nix package repository, so I use
 it to install them.
 
 #+begin_src conf :tangle .nix-channels
-
 https://nixos.org/channels/nixpkgs-unstable nixpkgs
-
 #+end_src
 
 The channel needs to be updated before any packages can be installed:
 
 #+begin_src sh
-
 nix-channel --update
-
 #+end_src
 
 Installing packages:
 
 #+begin_src sh
-
 nix-env -i nodejs dotnet-sdk gh hledger
 # nix-env -iA nixpkgs.nodejs-12_x # For a specific version
-
 #+end_src
 
 * System Installation
@@ -744,8 +719,8 @@ following this for your own system install.
 
 ** Building the Installation Image
 :PROPERTIES:
-:HASH:     360ea52f6821cb3844cf42c252393d6e
-:MODIFIED: [2021-06-28 Mon 14:14]
+:HASH:     85e2217556ae38a04a4dd500bc2e54aa
+:MODIFIED: [2021-07-23 Fri 09:37]
 :ID:       a3886877-0f25-4d02-9f96-010bdde7eb81
 :END:
 
@@ -754,11 +729,9 @@ firmware blobs from the [[https://gitlab.com/nonguix/nonguix][nonguix]] channel.
 installation image can be built with this command:
 
 #+begin_src sh
-
-  # Create a slightly larger install image to have some headroom
-  # for temporary file creation and avoid "no space free" errors
-  guix system image ./install.scm --image-size=5G
-
+# Create a slightly larger install image to have some headroom
+# for temporary file creation and avoid "no space free" errors
+guix system image ./install.scm --image-size=5G
 #+end_src
 
 *NOTE:* It can take an hour or more for this to complete, so be
@@ -769,9 +742,7 @@ image file that was created.  You can now write the installation image
 to a USB stick using =dd=:
 
 #+begin_src sh
-
-  sudo dd if=/gnu/store/nyg6jv3a4l0pbcvb0x7jfsb60k9qalga-disk-image of=/dev/sdX status=progress
-
+sudo dd if=/gnu/store/nyg6jv3a4l0pbcvb0x7jfsb60k9qalga-disk-image of=/dev/sdX status=progress
 #+end_src
 
 ** Installing Guix
@@ -786,8 +757,8 @@ and choose "Install using the shell based process."
 
 *** Setting up WiFi
 :PROPERTIES:
-:HASH:     97ec181ec3eb55239b4c8f0f9de5f195
-:MODIFIED: [2021-06-28 Mon 14:14]
+:HASH:     f429a56d9da55c16c759f534eb3113c6
+:MODIFIED: [2021-07-23 Fri 09:39]
 :ID:       bdd8b82c-fd89-414b-936e-3f7c995bb996
 :END:
 
@@ -797,14 +768,12 @@ wifi access point and =psk= to the passphrase for your wifi.  You may
 also need to change the =key_mgmt= parameter depending on the type of
 authentication your wifi router supports ([[https://wiki.archlinux.org/index.php/Wpa_supplicant#Configuration][some examples]] on Arch Wiki).
 
-#+begin_src
-
-  network={
-    ssid="ssid-name"
-    key_mgmt=WPA-PSK
-    psk="unencrypted passphrase"
-  }
-
+#+begin_src conf
+network={
+  ssid="ssid-name"
+  key_mgmt=WPA-PSK
+  psk="unencrypted passphrase"
+}
 #+end_src
 
 First, run the following commands to unblock the wifi card, determine
@@ -812,36 +781,30 @@ its device name, and connect using the device name you received from
 =ifconfig -a=.  In my case it's =wlp4s0= so I run the command like so:
 
 #+begin_src sh
-
-  rfkill unblock all
-  ifconfig -a
-  wpa_supplicant -c wifi.conf -i wlp4s0 -B
-
+rfkill unblock all
+ifconfig -a
+wpa_supplicant -c wifi.conf -i wlp4s0 -B
 #+end_src
 
 #+begin_quote
-
 *NOTE:* If for any reason running =wpa_supplicant= fails, make sure to
 kill any background instances of it before trying to run it again
 because the old instances will block new runs from working.  This
 wasted a couple hours of my time the first time I tried installing
 Guix!
-
 #+end_quote
 
 The last step to set up networking is to run =dhclient= to turn on DNS
 for your wifi connection:
 
 #+begin_src sh
-
-  dhclient -v wlp4s0
-
+dhclient -v wlp4s0
 #+end_src
 
 *** Setting Up Partitions
 :PROPERTIES:
-:HASH:     2d0994807ebc329265824e5afef6018a
-:MODIFIED: [2021-06-28 Mon 14:14]
+:HASH:     507aa58725ac2135cb02535507934584
+:MODIFIED: [2021-07-23 Fri 09:39]
 :ID:       6806acd6-7fff-460b-97c7-4d315f634702
 :END:
 
@@ -851,9 +814,7 @@ it is that you need to use =cfdisk= to create a partition in your free
 space:
 
 #+begin_src sh
-
-  cfdisk /dev/nvme0n1
-
+cfdisk /dev/nvme0n1
 #+end_src
 
 Once you have your Linux root partition set up, you can enable LUKS to
@@ -862,12 +823,10 @@ encrypt that partition by running the following commands (where
 label you'd like to use for it):
 
 #+begin_src sh
-
-  cryptsetup luksFormat /dev/nvme0n1p5
-  cryptsetup open --type luks /dev/nvme0n1p5 system-root
-  mkfs.ext4 -L system-root /dev/mapper/system-root
-  mount LABEL=system-root /mnt
-
+cryptsetup luksFormat /dev/nvme0n1p5
+cryptsetup open --type luks /dev/nvme0n1p5 system-root
+mkfs.ext4 -L system-root /dev/mapper/system-root
+mount LABEL=system-root /mnt
 #+end_src
 
 Finally, make sure to mount your EFI partition to =/mnt/boot= so that
@@ -875,10 +834,8 @@ the installer can install the bootloader.  The Guix installation
 instructions obscure this step slightly so it's easy to miss:
 
 #+begin_src sh
-
-  mkdir -p /mnt/boot/efi
-  mount /dev/<EFI partition> /mnt/boot/efi
-
+mkdir -p /mnt/boot/efi
+mount /dev/<EFI partition> /mnt/boot/efi
 #+end_src
 
 Now your EFI and encrypted root filesystems are mounted so you can
@@ -886,15 +843,13 @@ proceed with system installation.  You must now set up the
 installation enviornment using =herd=:
 
 #+begin_src sh
-
-  herd start cow-store /mnt
-
+herd start cow-store /mnt
 #+end_src
 
 *** Initial System Installation
 :PROPERTIES:
-:HASH:     e0a51d75ab33d7f73ca22f0cb3ec3da0
-:MODIFIED: [2021-06-28 Mon 14:14]
+:HASH:     cb368c4f695326f115f02c0bf9be697e
+:MODIFIED: [2021-07-23 Fri 09:39]
 :ID:       7ec36fe0-55ce-4f4e-a9e5-74683affbd4a
 :END:
 
@@ -903,9 +858,7 @@ to pull it down into the current directory (the one you're already in,
 not =/mnt=):
 
 #+begin_src sh
-
-  git clone https://github.com/daviwil/dotfiles
-
+git clone https://github.com/daviwil/dotfiles
 #+end_src
 
 One important step before you attempt system installation is to set up
@@ -915,12 +868,10 @@ into the root user's =.config/guix= path and then run =guix pull= to
 activate it:
 
 #+begin_src sh
-
-  mkdir -p ~/.config/guix
-  cp dotfiles/guix/channels.scm ~/.config/guix
-  guix pull
-  hash guix  # This is necessary to ensure the updated profile path is active!
-
+mkdir -p ~/.config/guix
+cp dotfiles/guix/channels.scm ~/.config/guix
+guix pull
+hash guix  # This is necessary to ensure the updated profile path is active!
 #+end_src
 
 The pull operation may take a while depending on how recently you
@@ -933,26 +884,20 @@ that you are installing.  To figure out the UUID of your encrypted
 root partition, you can use the following command:
 
 #+begin_src sh
-
-  cryptsetup luksUUID /dev/<root partition>
-
+cryptsetup luksUUID /dev/<root partition>
 #+end_src
 
 #+begin_quote
-
 **TIP:** To make it easier to copy the UUID into your config file, you
 can switch to another tty using =Ctrl-Alt-F4= and press =Enter= to get to
 another root prompt.  You can then switch back and forth between the
 previous TTY on =F3=.
-
 #+end_quote
 
 Now you can initialize your system using the following command:
 
 #+begin_src sh
-
-  guix system -L ~/.dotfiles/.config/guix/systems init path/to/config.scm /mnt
-
+guix system -L ~/.dotfiles/.config/guix/systems init path/to/config.scm /mnt
 #+end_src
 
 This could take a while, so make sure your laptop is plugged in and
@@ -962,8 +907,8 @@ will have any packages that were already installed.
 
 *** Initial System Setup
 :PROPERTIES:
-:HASH:     92ea40fe9d60684dd6dfbe456989d38a
-:MODIFIED: [2021-06-28 Mon 14:14]
+:HASH:     36f203603f8936678a18b3862f839577
+:MODIFIED: [2021-07-23 Fri 09:39]
 :ID:       cb7afb89-60f5-481f-b665-3be5d5989caf
 :END:
 
@@ -975,10 +920,8 @@ login as =root= and immediately change the =root= and user passwords using
 =passwd= (there isn't a root password by default!):
 
 #+begin_src sh
-
-  passwd             # Set passwd for 'root'
-  passwd <username>  # Set password for your user account (no angle brackets)
-
+passwd             # Set passwd for 'root'
+passwd <username>  # Set password for your user account (no angle brackets)
 #+end_src
 
 Now log into your user account and clone your dotfiles repository.
@@ -990,9 +933,7 @@ pull=.  At the moment I just symlink the Guix config folder from my
 =.dotfiles= to =~/.config/guix=:
 
 #+begin_src sh
-
-  ln -sf ~/.dotfiles/guix ~/.config/guix
-
+ln -sf ~/.dotfiles/guix ~/.config/guix
 #+end_src
 
 Verify that your =channels.scm= file is in the target path
@@ -1004,9 +945,7 @@ activities.  I separate different types of packages into individual
 manifest files and manage them with my =activate-profiles= script:
 
 #+begin_src sh
-
-  activate-profiles desktop emacs
-
+activate-profiles desktop emacs
 #+end_src
 
 Now the packages for these manifests will be installed and usable.
