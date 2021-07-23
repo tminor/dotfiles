@@ -1,8 +1,8 @@
 # -*- geiser-scheme-implementaion: guile; -*-
 #+TITLE: System Configuration with Guix
 #+PROPERTY: header-args    :tangle-mode (identity #o444)
-#+PROPERTY: header-args:sh :tangle-mode (identity #o555)
-#+PROPERTY: header-args:   :mkdirp yes
+#+PROPERTY: header-args:sh+ :tangle-mode (identity #o555)
+#+PROPERTY: header-args+   :mkdirp yes
 
 This file is essentially an exact copy of a file from David Wilson's
 [[https://github.com/daviwil/dotfiles/blob/master/Systems.org][dotfiles repo]].
@@ -693,63 +693,6 @@ conflicts manually and run =update-dotfiles= myself.
   else
       update-dotfiles
   fi
-
-#+end_src
-
-** Updating
-:PROPERTIES:
-:HASH:     90cc46d2434d51efef836078c4f95a52
-:MODIFIED: [2021-06-28 Mon 14:07]
-:ID:       2190db69-d610-414c-9ffd-228448bc0617
-:END:
-
-Updating my dotfiles requires running a script in Emacs to loop over
-all of my literate configuration =.org= files and run
-=org-babel-tangle-file= to make sure all of my configuration files are
-up to date.
-
-*.local/bin/update-dotfiles*
-
-#+begin_src sh :tangle .local/bin/update-dotfiles :shebang #!/bin/sh
-
-  # Navigate to the directory of this script (generally ~/.dotfiles/.local/bin)
-  cd $(dirname $(readlink -f $0))
-  cd ..
-
-  # The heavy lifting is done by an Emacs script
-  emacs -Q --script ./.emacs.d/tangle-dotfiles.el
-
-  # Make sure any running Emacs instance gets updated settings
-  emacsclient -e '(load-file "~/.emacs.d/per-system-settings.el")' -a "echo 'Emacs is not currently running'"
-
-  # Update configuration symlinks
-  stow .
-
-#+end_src
-
-*.emacs.d/tangle-dotfiles.el*
-
-#+begin_src emacs-lisp :tangle .emacs.d/tangle-dotfiles.el
-
-  (require 'org)
-  (load-file "~/.dotfiles/.emacs.d/lisp/tm-settings.el")
-
-  ;; Don't ask when evaluating code blocks
-  (setq org-confirm-babel-evaluate nil)
-
-  (let* ((dotfiles-path (expand-file-name "~/.dotfiles"))
-	 (org-files (directory-files dotfiles-path nil "\\.org$")))
-
-    (defun tm/tangle-org-file (org-file)
-      (message "\n\033[1;32mUpdating %s\033[0m\n" org-file)
-      (org-babel-tangle-file (expand-file-name org-file dotfiles-path)))
-
-    ;; Tangle Systems.org first
-    (tm/tangle-org-file "Systems.org")
-
-    (dolist (org-file org-files)
-      (unless (member org-file '("README.org" "Systems.org"))
-      	(tm/tangle-org-file org-file))))
 
 #+end_src
 
