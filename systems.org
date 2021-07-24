@@ -110,15 +110,13 @@ pick them up, though.  You can change the target branch using the
 
 ** Base Configuration
 :PROPERTIES:
-:HASH:     401b9687ad6b74dbd217fb1425a7997c
-:MODIFIED: [2021-07-23 Fri 09:34]
+:HASH:     3aef16ca059a3c3ce38bb38642b80414
+:MODIFIED: [2021-07-23 Fri 10:55]
 :ID:       7b3733c7-0170-474c-ba33-ef72d6ba62b7
 :END:
 
 This base configuration is shared between all of the machines I manage
-with Guix.  Since all of my machines are Lenovo ThinkPad laptops, the
-same basic configuration applies pretty cleanly across all of them.
-This may change in the future.
+with Guix.
 
 Any configuration that derives from =base-operating-system= must invoke
 =guix system= in a specific way to ensure it gets loaded correctly:
@@ -139,7 +137,6 @@ sudo -E guix system -L ~/.dotfiles/.config/guix/systems reconfigure ~/.dotfiles/
   #:use-module (gnu services pm)
   #:use-module (gnu services cups)
   #:use-module (gnu services desktop)
-  #:use-module (gnu services docker)
   #:use-module (gnu services networking)
   #:use-module (gnu services virtualization)
   #:use-module (gnu packages wm)
@@ -161,7 +158,7 @@ sudo -E guix system -L ~/.dotfiles/.config/guix/systems reconfigure ~/.dotfiles/
   #:use-module (nongnu packages linux)
   #:use-module (nongnu system linux-initrd))
 
-(use-service-modules nix)
+(use-service-modules nix docker)
 (use-service-modules desktop xorg)
 (use-package-modules certs)
 (use-package-modules shells)
@@ -187,7 +184,7 @@ configuration and include OpenVPN in the list of NetworkManager
 plugins.
 
 #+begin_src scheme :scheme guile :tangle .config/guix/systems/base-system.scm
-(define %my-desktop-services
+(define-public %my-desktop-services
   (modify-services %desktop-services
                    (elogind-service-type config =>
                                          (elogind-configuration (inherit config)
@@ -268,7 +265,6 @@ machine configurations.
                                          "kvm"
                                          "tty"
                                          "input"
-                                         "docker"
                                          "realtime"  ;; Enable realtime scheduling
                                          "lp"        ;; control bluetooth devices
                                          "audio"     ;; control audio devices
@@ -314,7 +310,6 @@ machine configurations.
                     (extra-special-file "/usr/bin/env"
                                         (file-append coreutils "/bin/env"))
                     (service thermald-service-type)
-                    (service docker-service-type)
                     (service libvirt-service-type
                              (libvirt-configuration
                               (unix-sock-group "libvirt")
@@ -353,15 +348,14 @@ functionality, I can define a set of variables that can be tweaked for
 each system and applied across these configuration files when they get
 generated.
 
-*** tsuga
+**** tsuga
 :PROPERTIES:
-:HASH:     de98fc7e6c543c2c3ef334a501ca4439
-:MODIFIED: [2021-07-23 Fri 09:35]
+:HASH:     7c9162944a3a70329da17b0aff59109c
+:MODIFIED: [2021-07-23 Fri 12:54]
 :ID:       09cb9844-acdd-421f-9ae7-2e7cb20f5506
 :END:
 
-=tsuga= is a 5th Generation ThinkPad X1 Carbon that I use for system
-testing and Guix demonstrations for System Crafters.
+=tsuga= is a 5th Generation ThinkPad X1 Carbon.
 
 *.config/guix/systems/tsuga.scm:*
 
@@ -371,6 +365,10 @@ testing and Guix demonstrations for System Crafters.
 (define-module (tsuga)
   #:use-module (base-system)
   #:use-module (gnu)
+  #:use-module (gnu packages file-systems)
+  #:use-module (gnu services)
+  #:use-module (gnu services desktop)
+  #:use-module (gnu services xorg)
   #:use-module (guix channels)
   #:use-module (nongnu packages linux)
   #:use-module (guix inferior)
