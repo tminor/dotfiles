@@ -38,8 +38,8 @@
   (setq company-tooltip-align-annotations t))
 
 (use-package aggressive-indent
-  :hook
-  (prog-mode . aggressive-indent-mode))
+  :init
+  (setq global-aggressive-indent-mode t))
 
 (use-package lsp-mode
   :general
@@ -61,6 +61,21 @@
   (setq lsp-keymap-prefix nil)
   :config
   (setq lsp-prefer-flymake nil)
+  (with-eval-after-load 'lsp-go
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-tramp-connection '("gopls"
+                                                              "-remote=auto"
+                                                              "-"))
+                      :major-modes '(go-mode go-dot-mod-mode)
+                      :language-id "go"
+                      :priority 0
+                      :remote? t
+                      :server-id 'gopls
+                      :completion-in-comments? t
+                      :library-folders-fn #'lsp-go--library-default-directories
+                      :after-open-fn (lambda ()
+                                       ;; https://github.com/golang/tools/commit/b2d8b0336
+                                       (setq-local lsp-completion-filter-on-incomplete nil)))))
   (lsp-register-custom-settings
    '(("gopls.completeUnimported" t t)
      ("gopls.staticcheck" t t)))
@@ -174,9 +189,12 @@
   (python-mode . (lambda ()
                    (require 'lsp-python-ms))))
 
-(use-package yasnippet-snippets)
-
 (use-package yasnippet
+  :general
+  (:keymaps '(yas-keymap yas/keymap)
+   :states 'insert
+   "C-<tab>" 'yas-next-field
+   "C-<iso-lefttab>" 'yas-prev-field)
   :init
   (setq tm/enable-company-yas t)
   (defun tm/backend-with-yas (backend)
@@ -185,15 +203,13 @@
       (append (if (consp backend) backend (list backend))
               '(:with company-yasnippet))))
   :hook
-  (lsp-after-open . (lambda ()
-                      (setq company-backends
-                            (mapcar #'tm/backend-with-yas company-backends))
-                      ;; (company-box--set-mode)
-                      ))
-  :config
-  (add-to-list 'yasnippet-snippets-dir
-               (concat no-littering-etc-directory
-                       "yasnippet/snippets/ruby-mode")))
+  (prog-mode . (lambda ()
+                 (setq company-backends
+                       (mapcar #'tm/backend-with-yas company-backends))))
+  (prog-mode . yas-minor-mode))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
 
 (use-package polymode)
 (use-package tide

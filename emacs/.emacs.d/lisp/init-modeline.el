@@ -7,8 +7,6 @@
 ;;; Code:
 
 (use-package doom-modeline
-  :straight
-  (:host github :repo "seagle0128/doom-modeline")
   :init
   (require 'all-the-icons)
   :config
@@ -17,6 +15,8 @@
 	doom-modeline-height 45
 	all-the-icons-scale-factor 1
 	doom-modeline-buffer-encoding nil)
+  (doom-modeline-def-segment sky-color-clock
+    (sky-color-clock))
   (doom-modeline-def-segment org-pomodoro
     "Displays `org-pomodoro` timer."
     (if (doom-modeline--active)
@@ -56,16 +56,17 @@
 	  parrot selection-info)
     '(objed-state org-pomodoro persp-name battery grip irc mu4e gnus
                   github debug lsp minor-modes input-method indent-info
-                  buffer-encoding major-mode process vcs checker))
+                  buffer-encoding major-mode process vcs checker "  "))
   (doom-modeline-def-modeline 'tm/doom-modeline-exwm
-    '(bar window-number modals misc-info) '(org-pomodoro battery major-mode process))
+    '(bar window-number modals misc-info) '(org-pomodoro battery major-mode process "  "))
   (defun tm/set-exwm-modeline ()
     "Set a minimal modeline if exwm-mode is enabled."
-    (if (eq major-mode 'exwm-mode)
-	(doom-modeline-set-modeline 'tm/doom-modeline-exwm)
-      (doom-modeline-set-modeline 'main)))
+    (unless exwm--floating-frame
+      (if (eq major-mode 'exwm-mode)
+	  (doom-modeline-set-modeline 'tm/doom-modeline-exwm)
+        (doom-modeline-set-modeline 'main))))
   :hook
-  (after-init . doom-modeline-init)
+  ;; (after-init . doom-modeline-init)
   (buffer-list-update . tm/set-exwm-modeline))
 
 (provide 'init-modeline)

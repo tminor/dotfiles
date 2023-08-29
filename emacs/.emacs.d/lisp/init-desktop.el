@@ -11,11 +11,6 @@
 (require 'f)
 (require 'cl-lib)
 
-(defmacro tm/setq (var-name value)
-  "Assign VALUE to VAR-NAME via `setq'."
-  (let ((symbol (intern var-name)))
-    `(setq ,var-name ,value)))
-
 ;; TODO: Fix dbus error when playing a spotify track.
 (use-package counsel-spotify
   :init
@@ -42,65 +37,7 @@
 
 (use-package windower)
 
-;; FIXME: I need to take a closer look at the below
-;; functions. Debugging is needed.
-;; TODO: Use a plist instead?
-(defvar tm/displays-alist
-  '(("eDP-1"
-     (("--primary" . t)
-      ("--mode" . "1920x1080")
-      ("--pos" . "5120x840")
-      ("--rotate" . "normal")))
-    ("DP-1-2-8"
-     (("--primary" . nil)
-      ("--mode" . "2560x1440")
-      ("--pos" . "2560x0")
-      ("--rotate" . "normal")))
-    ("DP-1-2-1-8"
-     (("--primary" . nil)
-      ("--mode" . "2560x1440")
-      ("--pos" . "0x0")
-      ("--rotate" . "normal")))
-    ("DP-1-3"
-     (("--primary" . nil)
-      ("--mode" . "1920x1080")
-      ("--pos" . "0x0")
-      ("--rotate" . "normal"))))
-  "A list representing display configuration as predetermined by ARandR.
-This list is a list of cons cells, the car of which represents the name
-of a display and the cdr of which is an alist representing xrandr command
-line flags and their corresponding values.")
-
-(defun tm/make-xrandr-command (displays-alist)
-  "Create xrandr command args string from DISPLAYS-ALIST."
-  (let ((xrandr-cmd-args ""))
-    (dolist (display displays-alist)
-      (let ((name (car display))
-	    (properties (car (cdr display)))
-	    assigned-output-name-p
-	    return-val)
-	(cl-loop for (key . value) in properties
-		 collect
-		 (catch 'next
-		   (progn
-		     (unless assigned-output-name-p
-		       (progn
-			 (setq xrandr-cmd-args
-			       (string-join `(,xrandr-cmd-args
-					      "--output" ,name)
-					    " "))
-			 (setq assigned-output-name-p t)
-			 (throw 'next nil)))
-		     (if (and (symbolp value)
-			      (string= (symbol-name value) "t"))
-			 (setq xrandr-cmd-args (string-join
-						`(,xrandr-cmd-args ,key)
-						" "))
-		       (setq xrandr-cmd-args
-			     (string-join `(,xrandr-cmd-args ,key ,value)
-					  " ")))))))
-      (setq return-val xrandr-cmd-args))
-    return-val))
+(use-package framemove)
 
 (defun tm/find-connected-displays ()
   "Return a list of currently connected displays."
@@ -115,32 +52,6 @@ line flags and their corresponding values.")
 	  (setq connected-displays (cons (match-string 1) connected-displays)))
 	(forward-line)))
     connected-displays))
-
-(defun tm/expected-displays-connected-p ()
-  "Check the output from xrandr for expected displays in CONNECTED-DISPLAYS."
-  (let ((displays-regex
-	 (rx (eval (cons 'or (cl-loop for (name props) in tm/displays-alist
-				      collect name)))))
-	(match-results '()))
-    (dolist (display tm/displays-alist)
-      (let ((name (car display)))
-	(setq match-results
-	      (cons (string-match-p displays-regex name)
-		    match-results))))
-    (eval (cons 'and match-results))))
-
-(defun tm/exwm-change-screen-hook ()
-  "Find connected displays and match them against any preconfigured displays."
-  (let* ((connected-displays (tm/find-connected-displays))
-	 (matched-displays (tm/expected-displays-connected-p))
-	 xrandr-args)
-    (if matched-displays
-	(progn
-	  (setq xrandr-args (tm/make-xrandr-command tm/displays-alist))
-	  (call-process "/usr/bin/xrandr" nil nil nil xrandr-args)
-	  (setq exwm-randr-workspace-monitor-plist (list 3 "eDP-1"
-							 2 "DP-1-2-8"
-							 1 "DP-1-2-1-8"))))))
 
 (defun tm/volume-amixer-change (amount)
   (with-temp-buffer
@@ -210,11 +121,11 @@ Return an alist containing mute status and volume level."
 		       (propertize
 			(format " %s %s%s "
 				(cond ((string= direction "up")
-				       "🔊")
+				       (all-the-icons-material "volume_up"))
 				      ((string= direction "down")
-				       "🔉")
+				       (all-the-icons-material "volume_down"))
 				      ((string= direction "off")
-				       "🔇"))
+				       (all-the-icons-material "volume_off")))
 				value "%")
 			'font-lock-face font-lock-builtin-face))))
     (if muted-p
@@ -234,28 +145,88 @@ Return an alist containing mute status and volume level."
   (defun tm/exwm-rename-buffer-to-title ()
     "Names EXWM buffers after the application running in them."
     (exwm-workspace-rename-buffer exwm-title))
+  (defun tm/get-xrandr-displays ()
+    "Return a list of display names from `xrandr`."
+    (let ((displays-command (string-join '("echo -n"
+                                           "$(xrandr |"
+                                           "egrep -o '^[^\s]+\sconnected' |"
+                                           "awk '{print $1}')")
+                                         " ")))
+      (split-string (shell-command-to-string displays-command) " ")))
+  (defun tm/exwm-display-setup ()
+    (let ((displays (tm/get-xrandr-displays))
+          (external-monitor-xrandr-cmd (string-join '("xrandr"
+                                                      "--output eDP-1"
+                                                      "--mode 1920x1200"
+                                                      "--pos %s"
+                                                      "--rotate normal"
+                                                      "--output %s"
+                                                      "--primary"
+                                                      "--mode %s"
+                                                      "--pos 0x0"
+                                                      "--rotate normal")
+                                                    " "))
+          (no-external-monitor-xrandr-cmd (string-join '("xrandr"
+                                                         "--auto"))))
+      (cond
+       ((member "HDMI-1" (tm/get-xrandr-displays))
+        (progn
+          (shell-command (format external-monitor-xrandr-cmd "2560x1027" "HDMI-1" "2560x1440"))
+          (setq exwm-randr-workspace-monitor-plist (list 0 "eDP-1"
+                                                         1 "HDMI-1"
+                                                         2 "HDMI-1"))
+          (exwm-workspace-switch-create 1)))
+       ((member "DP-3" (tm/get-xrandr-displays))
+        (progn
+          (shell-command (format external-monitor-xrandr-cmd "2560x1027" "DP-3" "2560x1440"))
+          (setq exwm-randr-workspace-monitor-plist (list 0 "eDP-1"
+                                                         1 "DP-3"
+                                                         2 "DP-3"))
+          (exwm-workspace-switch-create 1)))
+       ((member "DP-2" (tm/get-xrandr-displays))
+        (progn
+          (shell-command (format external-monitor-xrandr-cmd "2560x1027" "DP-2" "2560x1440"))
+          (setq exwm-randr-workspace-monitor-plist (list 0 "eDP-1"
+                                                         1 "DP-2"
+                                                         2 "DP-2"))
+          (exwm-workspace-switch-create 1)))
+       (t (shell-command no-external-monitor-xrandr-cmd)))
+      (display-battery-mode 1)))
+  (defmacro tm/exwm-move (direction)
+    (let ((windmove-fn (intern (concat "windmove-" direction)))
+          (framemove-fn (intern (concat "fm-" direction "-frame"))))
+      `(lambda ()
+         (interactive)
+         (or (ignore-errors (,windmove-fn)) (,framemove-fn)))))
   :hook
   (exwm-floating-setup . exwm-layout-hide-mode-line)
   (exwm-floating-exit . exwm-layout-show-mode-line)
   (exwm-update-title . tm/exwm-rename-buffer-to-title)
-  ((exwm-init exwm-randr-screen-change) . tm/exwm-change-screen-hook)
   (exwm-workspace-switch . exwm-input-release-keyboard)
   (exwm-init . (lambda ()
                  (when (executable-find "dunst")
-                   (start-process-shell-command "Dunst" nil "dunst"))
+                   (start-process-shell-command "dunst" nil "dunst"))
                  (when (executable-find "nm-applet")
                    (start-process-shell-command "nm-applet" nil "nm-applet"))
+
+                 (when (shell-command "flatpak list --app | grep -q DavMail")
+                   (start-process-shell-command "davmail"
+                                                nil
+                                                "XDG_CURRENT_DESKTOP=GNOME flatpak run org.davmail.DavMail"))
+                 (when (executable-find "goimapnotify")
+                   (start-process-shell-command "goimapnotify" nil "goimapnotify -conf ~/.config/goimapnotify.json"))
                  (when (executable-find "shutter")
-                   (start-process-shell-command "shutter" nil "shutter"))))
+                   (start-process-shell-command "shutter" "shutter" "shutter --min_at_startup"))))
+  (after-init . tm/exwm-display-setup)
   :init
   (setq exwm-input-global-keys
-	`((,(kbd "s-R") . exwm-reset)
-	  (,(kbd "C-s-R") . exwm-restart)
+	`((,(kbd "C-s-R") . exwm-restart)
+	  (,(kbd "s-R") . exwm-reset)
 	  (,(kbd "s-i") . exwm-input-toggle-keyboard)
-	  (,(kbd "s-h") . windmove-left)
-	  (,(kbd "s-j") . windmove-down)
-	  (,(kbd "s-k") . windmove-up)
-	  (,(kbd "s-l") . windmove-right)
+	  (,(kbd "s-h") . ,(tm/exwm-move "left"))
+	  (,(kbd "s-j") . ,(tm/exwm-move "down"))
+	  (,(kbd "s-k") . ,(tm/exwm-move "up"))
+	  (,(kbd "s-l") . ,(tm/exwm-move "right"))
 	  (,(kbd "s-Q") . kill-this-buffer)
 	  (,(kbd "s-b") . ivy-switch-buffer)
 	  (,(kbd "s-f") . find-file)
@@ -271,6 +242,7 @@ Return an alist containing mute status and volume level."
 	  (,(kbd "s-B") . ibuffer-sidebar-toggle-sidebar)
 	  (,(kbd "s-n") . tm/toggle-org-roam-today)
 	  (,(kbd "s-<return>") . multi-vterm)
+          (,(kbd "s-<escape>") . vterm-send-escape)
 	  (,(kbd "s-!") . delete-other-windows)
 	  (,(kbd "s-@") . split-window-below)
 	  (,(kbd "s-#") . split-window-right)
@@ -315,13 +287,12 @@ Return an alist containing mute status and volume level."
 				       (interactive)
 				       (shell-command "light -U 5; light")))))
 
-  (display-battery-mode 1)
   (display-time-mode 1)
-  (setq display-time-format " 📆 %b%e 🕐 %H:%M")
   :config
   (setq exwm-workspace-show-all-buffers t
 	exwm-input-line-mode-passthrough t
-	exwm-manage-configurations '((t char-mode t)))
+	exwm-manage-configurations '((t char-mode t))
+        exwm-systemtray-height 20)
   (add-to-list 'exwm-input-prefix-keys ?\ )
   (defun tm/ivy--switch-buffer-action (buffer)
     "Switch to BUFFER.
@@ -354,12 +325,20 @@ BUFFER may be a string or nil. Conditionally calls
   (advice-add 'ivy--switch-buffer-action
 	      :override #'tm/ivy--switch-buffer-action))
 
+(use-package exwm-mff
+  :straight
+  (:host github :repo "ieure/exwm-mff")
+  :hook
+  (after-init . exwm-mff-mode))
+
 (require 'exwm-systemtray)
 (exwm-systemtray-enable)
 (setq exwm-systemtray-height 18)
 
 (require 'exwm-randr)
 (exwm-randr-enable)
+
+(exwm-init)
 
 (provide 'init-desktop)
 ;;; init-desktop.el ends here

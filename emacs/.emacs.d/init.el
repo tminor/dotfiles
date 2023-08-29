@@ -6,13 +6,13 @@
 
 ;;; Code:
 
-;; for native-comp branch
-(when (fboundp 'native-compile-async)
-  (if (yes-or-no-p "async compile?")
-      (setq comp-async-jobs-number 4 ;; not using all cores
-            comp-deferred-compilation t
-            comp-deferred-compilation-black-list '())
-    (setq comp-deferred-compilation nil)))
+(setq comp-deferred-compilation nil)
+(server-start)
+
+(define-obsolete-variable-alias
+  'native-comp-deferred-compilation-deny-list
+  'native-comp-jit-compilation-deny-list
+  "Renamed")
 
 ;; Produce backtraces when errors occur: can be helpful to diagnose
 ;; startup issues
@@ -39,50 +39,43 @@
 
 (setq default-directory "~/")
 
-(require 'init-package)
-(require 'init-key-bindings)
-(require 'init-settings)
-;; (require 'init-fonts)
-(require 'init-exec-path)
-;; (require 'init-desktop)
-(require 'init-ivy)
-(require 'init-nav)
-(require 'init-modeline)
-;; (require 'init-org)
-;; (require 'init-vc)
-(require 'init-dired)
-(require 'init-help)
-(require 'init-search)
-(require 'init-ide)
-(require 'init-dired)
-;; (require 'init-hydra)
-;; (require 'init-eshell)
-;; (require 'init-mail)
-(require 'init-projectile)
-;; (require 'init-log)
-;; (require 'init-prose)
-(require 'init-term)
+(defun tm/load (lib)
+  (message (format "loading %s" lib))
+  (require lib))
 
-(require 'init-prog-mode)
-;; (require 'init-clojure)
-;; (require 'init-coffee)
-(require 'init-elisp)
-(require 'init-golang)
-;; (require 'init-jsonnet)
-(require 'init-lisp)
-(require 'init-markup)
-(require 'init-php)
-;; (require 'init-puppet)
-;; (require 'init-python)
-(require 'init-regex)
-(require 'init-ruby)
-(require 'init-xml)
-(require 'init-shell)
-(require 'init-yasnippet)
-(require 'init-web)
-;; (require 'init-guile)
+(tm/load 'init-package)
+(tm/load 'init-key-bindings)
+(tm/load 'init-settings)
+(tm/load 'init-fonts)
+(tm/load 'init-exec-path)
+(tm/load 'init-desktop)
+(tm/load 'init-ivy)
+(tm/load 'init-nav)
+(tm/load 'init-modeline)
+(tm/load 'init-org)
+(tm/load 'init-vc)
+(tm/load 'init-dired)
+(tm/load 'init-help)
+(tm/load 'init-search)
+(tm/load 'init-ide)
+(tm/load 'init-dired)
+(tm/load 'init-projectile)
+(tm/load 'init-prose)
+(tm/load 'init-term)
 
-;; (enable-theme 'taihaku)
-;; (enable-theme 'local)
+(tm/load 'init-prog-mode)
+(tm/load 'init-elisp)
+(tm/load 'init-golang)
+(tm/load 'init-lisp)
+(tm/load 'init-markup)
+(tm/load 'init-php)
+(tm/load 'init-regex)
+(tm/load 'init-ruby)
+(tm/load 'init-xml)
+(tm/load 'init-shell)
+(tm/load 'init-web)
+
+(enable-theme 'taihaku)
+(enable-theme 'local)
 
 (put 'narrow-to-region 'disabled nil)

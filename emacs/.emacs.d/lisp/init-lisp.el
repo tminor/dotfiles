@@ -17,6 +17,11 @@
   (lispy-set-key-theme '(lispy c-digits)))
 
 (use-package lispyville
+  :general
+  (:keymaps '(lisp-mode-map local)
+   :states '(normal motion)
+   "H" 'lispyville-move-up
+   "L" 'lispyville-move-down)
   :init
   (with-eval-after-load 'lispyville
     (lispyville-set-key-theme

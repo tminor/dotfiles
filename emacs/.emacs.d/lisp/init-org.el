@@ -14,6 +14,13 @@
 
 (use-package org)
 (use-package org-contrib
+  :general
+  (:keymaps '(org-agenda-mode-map)
+   :states '(normal motion)
+   "cC" (lambda ()
+          (interactive)
+          (call-interactively (org-set-property "CATEGORY" nil)))
+   "@" #'org-agenda-log-mode)
   :straight (:host github :repo "emacsmirror/org-contrib"))
 
 (use-package pdf-tools
@@ -24,25 +31,6 @@
    "go" 'pdf-occur)
   :hook
   (pdf-view-mode . (lambda () (pdf-tools-enable-minor-modes))))
-
-;; (pdf-tools-install)
-
-(use-package org-mime)
-
-(use-package org-pdftools
-  :straight
-  (:host github :repo "fuxialexander/org-pdftools")
-  :hook
-  (org-load . org-pdftools-setup-link))
-
-(use-package org-noter
-  :straight
-  (:host github :repo "weirdNox/org-noter")
-  :config
-  (setq org-noter-always-create-frame nil
-        org-noter-doc-property-in-notes t
-        org-noter-always-create-frame nil
-        org-noter-kill-frame-at-session-end nil))
 
 (use-package org-superstar
   :hook
@@ -58,10 +46,8 @@
   (evil-set-initial-state 'org-super-agenda-mode 'motion))
 
 (with-eval-after-load 'org-super-agenda
- (setq org-super-agenda-header-map
+  (setq org-super-agenda-header-map
         (make-sparse-keymap)) )
-
-(use-package org-web-tools)
 
 (use-package org-pomodoro
   :general
@@ -73,24 +59,18 @@
     :prefix-command 'tm/toggle-prefix-command
     :prefix-map 'tm/toggle-prefix-map
     "p" (lambda () (if org-pomodoro-play-sounds
-		  (setq org-pomodoro-play-sounds nil)
-		(setq org-pomodoro-play-sounds t))))
+		       (setq org-pomodoro-play-sounds nil)
+		     (setq org-pomodoro-play-sounds t))))
   :config
-  ;; (advice-add 'org-pomodoro-notify
-  ;;             :override (lambda ()
-  ;;       		  (async-start
-  ;;       		   (lambda (title message)
-  ;;       		     "Send a desktop notification with TITLE and MESSAGE.
-  ;; Use `notifications-notify' instead of `alert'."
-  ;;       		     (notifications-notify :title title
-  ;;       					   :body message))
-  ;;       		   'ignore)))
   (setq org-pomodoro-play-sounds t
 	org-pomodoro-format "🍅 %s"
 	org-pomodoro-overtime-format "+%s"
 	org-pomodoro-short-break-format "🍅 %s"
 	org-pomodoro-long-break-format "🎉 %s"
-        org-pomodoro-play-sounds nil)
+        org-pomodoro-play-sounds nil
+        org-pomodoro-length 50
+        org-pomodoro-short-break-length 10
+        org-pomodoro-long-break-length 60)
   (defun org-pomodoro-start (&optional state)
     "Start the `org-pomodoro` timer.
 The argument STATE is optional.  The default state is `:pomodoro`."
@@ -110,33 +90,6 @@ The argument STATE is optional.  The default state is `:pomodoro`."
   (org-variable-pitch-fixed-font "FiraCode")
   :init
   (require 'org-indent))
-
-(use-package org-journal
-  :general
-  (tm/leader-def
-    :infix "j"
-    :prefix-command 'tm/org-journal-prefix-command
-    :prefix-map 'tm/org-journal-prefix-map
-    "" '(:which-key "org-journal prefix" :ignore t)
-    "c" 'org-journal-new-entry
-    "l" 'org-journal-next-entry
-    "h" 'org-journal-previous-entry)
-  :custom
-  (org-journal-dir "~/org/work/journal")
-  (org-journal-file-type 'weekly)
-  (org-journal-file-format "%Y%m%d.org")
-  (org-journal-enable-encryption t)
-  (org-journal-encrypt-journal t))
-
-(use-package org-sync
-  :straight
-  (:host github :repo "arbox/org-sync"))
-
-(mapc 'load
-      '("org-sync"
-        "org-sync-bb"
-        "org-sync-github"
-        "org-sync-gitlab"))
 
 ;;; Function defs:
 (defun tm/org-remove-inherited-local-tags ()
@@ -180,71 +133,36 @@ The argument STATE is optional.  The default state is `:pomodoro`."
   (setq org-n-level-faces
         (string-to-number level)))
 
-; Defs for hashing and updating a heading's modification time.
+(use-package org-journal
+  :config
+  (setq org-journal-dir (concat org-directory "/notes")
+        org-journal-file-type 'weekly))
 
-(defun tm/getentryhash ()
-  "Get the hash sum of the text in current entry, except :HASH:
-d :MODIFIED: property texts."
-  (save-excursion
-    (let* ((full-str
-            (buffer-substring-no-properties (point-min)
-                                            (point-max)))
-           (str-nohash
-            (if (string-match "^ *:HASH:.+\n" full-str)
-                (replace-match "" nil nil full-str)
-              full-str))
-           (str-nohash-nomod
-            (if (string-match "^ *:MODIFIED:.+\n" str-nohash)
-                (replace-match "" nil nil str-nohash)
-              str-nohash))
-           (str-nohash-nomod-nopropbeg
-            (if (string-match "^ *:PROPERTIES:\n" str-nohash-nomod)
-                (replace-match "" nil nil str-nohash-nomod)
-              str-nohash-nomod))
-           (str-nohash-nomod-nopropbeg-end
-            (if (string-match "^ *:END:\n" str-nohash-nomod-nopropbeg)
-                (replace-match "" nil nil str-nohash-nomod-nopropbeg)
-              str-nohash-nomod-nopropbeg)))
-      (secure-hash 'md5 str-nohash-nomod-nopropbeg-end))))
+;; Defs for hashing and updating a heading's modification time.
 
-(defun tm/update-modification-time ()
-  "Set the :MODIFIED: property of the current entry to NOW and date :HASH: property."
-  (save-excursion
-    (save-restriction
-      (let* ((beg
-              (progn
-                (org-back-to-heading)
-                (point)))
-             (end
-              (progn
-                (outline-next-heading)
-                (- (point) 1))))
-        (narrow-to-region beg end)
-        (org-set-property "HASH"
-                          (format "%s" (tm/getentryhash)))
-        (org-set-property "MODIFIED"
-                          (format-time-string "[%Y-%m-%d %a %H:%M]"))))))
+(defun tm/org-entry-hash ()
+  "Get the md5sum from the org entry at point."
+  (let* ((props-regexp (rx bol ":PROPERTIES:" eol (*? anything) bol ":END:" eol))
+         (tree (org-no-properties
+                (concat (org-get-heading)
+                        (replace-regexp-in-string props-regexp "" (org-get-entry))))))
+    (secure-hash 'md5 tree)))
 
-(defun tm/skip-nonmodified ()
-  "Skip headings whose :MODIFIED: properties are unchanged."
-  (let ((next-headline
-         (save-excursion
-           (or (outline-next-heading)
-               (point-max)))))
-    (save-restriction
-      (let* ((beg
-              (progn
-                (org-back-to-heading)
-                (point)))
-             (end
-              (progn
-                (outline-next-heading)
-                (- (point) 1))))
-        (narrow-to-region beg end)
-        (if (string= (org-entry-get (point) "HASH" nil)
-                     (format "%s" (tm/getentryhash)))
-            next-headline
-          nil)))))
+(defun tm/org-entry-set-modification-time ()
+  "Update the MODIFIED property for the entry at point."
+  (let ((current-hash (org-entry-get (point) "HASH"))
+        (new-hash (tm/org-entry-hash))
+        (now (format-time-string "[%Y-%m-%d %a %H:%M]")))
+    (unless (string= current-hash new-hash)
+      (org-entry-put (point) "HASH" new-hash)
+      (org-entry-put (point) "MODIFIED" now))))
+
+(add-hook 'before-save-hook
+           (lambda ()
+             (when (eq major-mode 'org-mode)
+               (org-map-entries #'tm/org-entry-set-modification-time
+                                  nil
+                                  'file))))
 
 ;; Functions for agenda navigation.
 ;; TODO: Debug functions.
@@ -383,8 +301,7 @@ e equal return t."
       (when (re-search-forward (rx-to-string `(seq bol " " ,it)) nil t)
         (origami-show-node (current-buffer) (point))))))
 
-(setq tm/org-super-agenda-auto-show-groups '("Other items"
-                                             "Sprint"))
+(setq tm/org-super-agenda-auto-show-groups `(,(rx (not " "))))
 
 ;; Found here: https://emacs.stackexchange.com/a/30449
 (defun tm/last-weekday-of-month-p (date)
@@ -412,10 +329,10 @@ e equal return t."
   "Opens agenda for today."
   (interactive)
   (org-agenda arg "wt"))
-(defun tm/org-agenda-both-today (&optional arg)
+(defun tm/org-agenda (&optional arg)
   "Opens today's agenda for both home and work."
   (interactive)
-  (org-agenda arg "b"))
+  (org-agenda arg "M"))
 
 (defmacro tm/org-get-headings-command (fn-suffix target)
   "Generate a command for capturing to TARGET."
@@ -429,15 +346,13 @@ e equal return t."
                             org-base-directory)
                           ,target))
             (buf (find-buffer-visiting file)))
-       (unless buf
-         (find-file file))
-       (with-current-buffer
-           buf
+       (unless buf (find-file file))
+       (with-current-buffer buf
          ;; Gets headings from TARGET and fontifies them before collecting
-         ;; them in `heading-point-alist', each cons cell of which reprents a
+         ;; them in `heading-point-alist', each cons cell of which represents a
          ;; heading (with text properties) pointing at the value for that
          ;; heading's point.  `heading-point-alist' is passed to
-         ;; `completing-read' read, ultimately calling `goto-char' against the
+         ;; `completing-read', ultimately calling `goto-char' against the
          ;; point from the chosen cons cell.
          (let* ((heading-point-alist '())
                 (headings
@@ -450,8 +365,7 @@ e equal return t."
                                 heading-point-alist
                                 :test #'equal)))))
            (goto-char (cdr (assoc
-                            (completing-read "File under: "
-                                             heading-point-alist)
+                            (completing-read "File under: " heading-point-alist)
                             heading-point-alist))))))))
 
 (defun tm/toggle-agenda ()
@@ -459,14 +373,14 @@ e equal return t."
   (interactive)
   (let ((buffer (get-buffer "*Org Agenda*")))
     (if buffer
-	(if (not (get-buffer-window-list buffer))
+	(if (not (get-buffer-window-list buffer 0))
 	    (display-buffer-in-side-window buffer
 					   '((display-buffer-reuse-window display-buffer-in-side-window)
 					     (direction . rightmost)
 					     (side . right)
 					     (window-width . 100)))
 	  (window-toggle-side-windows))
-      (tm/org-agenda-both-today))))
+      (tm/org-agenda))))
 
 (org-link-set-parameters "helpful"
                          :follow #'helpful-symbol
@@ -523,8 +437,6 @@ TEXT represents a formatted Org link."
                 ;; Heading part.
                 (format heading-fmt (file-name-nondirectory current-file)))))))
     (funcall-interactively orig-fun)))
-
-(advice-add 'org-archive-subtree :around #'tm/archive-in-subtree)
 
 (defun tm/todo-to-int (todo)
   "Convert TODO to an integer representation."
@@ -678,25 +590,17 @@ The default definition fails in a side window due to a call to
 (add-hook 'org-mode-hook #'visual-line-mode)
 (add-hook 'org-mode-hook
           #'(lambda () (dolist (symbol '(("#+TITLE:" . ?\u22ee)
-                                    ("#+begin_src" . ?\u03bb)
-                                    ("#+BEGIN_SRC" . ?\u03bb)
-                                    ("#+end_src" . ?\u224b)
-                                    ("#+END_SRC" . ?\u224b)
-                                    ("#+begin_quote" . ?\u201c)
-                                    ("#+BEGIN_QUOTE" . ?\u201c)
-                                    ("#+end_quote" . ?\u201d)
-                                    ("#+END_QUOTE" . ?\u201d)))
-                    (cl-pushnew symbol prettify-symbols-alist
-                                :test #'equal))))
-(add-hook 'before-save-hook
-          (lambda ()
-            (when (eq major-mode 'org-mode)
-              (org-map-entries #'tm/update-modification-time
-                               nil
-                               'file
-                               #'tm/skip-nonmodified))))
+                                         ("#+begin_src" . ?\u03bb)
+                                         ("#+BEGIN_SRC" . ?\u03bb)
+                                         ("#+end_src" . ?\u224b)
+                                         ("#+END_SRC" . ?\u224b)
+                                         ("#+begin_quote" . ?\u201c)
+                                         ("#+BEGIN_QUOTE" . ?\u201c)
+                                         ("#+end_quote" . ?\u201d)
+                                         ("#+END_QUOTE" . ?\u201d)))
+                         (cl-pushnew symbol prettify-symbols-alist
+                                     :test #'equal))))
 (add-hook 'org-mode-hook #'prettify-symbols-mode)
-
 
 ;; General Org settings:
 (add-to-list 'org-file-apps
@@ -712,7 +616,7 @@ The default definition fails in a side window due to a call to
                                     "PROJ(p!)"
                                     "|"
                                     "DONE(d!)"
-                                    "CANC(c!)"
+                                    "DROP(D!)"
                                     "NOTE(n!)"))
       org-log-into-drawer t
       org-use-fast-todo-selection 'expert
@@ -771,7 +675,6 @@ The default definition fails in a side window due to a call to
 
 (add-hook 'find-file-hook #'tm/enable-minor-mode-based-on-extension)
 (add-hook 'org-agenda-mode-hook #'org-super-agenda-mode)
-(add-hook 'org-agenda-finalize-hook #'tm/org-super-agenda-origami-fold-default)
 
 (with-eval-after-load 'org
   (require 'evil-org-agenda)
@@ -782,9 +685,7 @@ The default definition fails in a side window due to a call to
       ;; indicating this variable should be increased
       undo-outer-limit 25170000
       ;; Files that `org-agenda' uses to populate its commands/views
-      org-agenda-files `(,(concat org-base-directory "capture.org")
-                         ,(concat org-base-directory "todo.org")
-                         ,(concat org-base-directory "calendar/"))
+      org-agenda-files `(,(concat org-base-directory "todo.org"))
       ;; Don't show scheduled TODOs in `org-agenda'
       org-agenda-todo-ignore-scheduled t
       ;; Tell `org-agenda' to use `current-buffer' to avoid destroying
@@ -807,68 +708,45 @@ The default definition fails in a side window due to a call to
       org-habit-graph-column 45
       org-habit-show-habits-only-for-today nil
       org-agenda-skip-unavailable-files t
-      org-id-link-to-org-use-id t)
+      org-id-link-to-org-use-id t
+      org-archive-location (concat org-directory "/archive.org::datetree/")
+      org-global-properties '(("Effort_ALL" . "00:05 00:15 00:30 01:00 02:00 03:00 05:00 10:00"))
+      org-log-reschedule 'time
+      org-log-redeadline 'time
+
+(require 'org-clock)
+
+(defun tm/org-agenda-clock-sum ()
+  (let* ((clock-sum (org-clock-sum-current-item))
+         (hours (/ clock-sum 60))
+         (minutes (mod clock-sum 60)))
+    (format "%02d:%02d" hours minutes)))
 
 (setq org-agenda-custom-commands
-      `(("b" "Daily agenda for both work and home"
+      `(("d" "Daily"
          ((agenda
            ""
            ((org-agenda-use-tag-inheritance nil)
             (org-agenda-todo-ignore-scheduled 'past)
-            (org-agenda-files '("~/org/todo.org" "~/org/calendar"))
+            (org-agenda-files `(,(concat org-base-directory "todo.org")
+                                ,(concat org-base-directory "procedures.org")
+                                ,(concat org-base-directory "calendar.org")))
+            (org-agenda-skip-function
+             (lambda ()
+               (when (or (string= (org-entry-get (point) "STATUS") "CANCELLED")
+                         (string= (org-entry-get (point) "STATUS") "TENTATIVE"))
+                 (progn (outline-next-heading) (point)))))
             (org-agenda-time-grid (quote
                                    ((daily today remove-match)
                                     (300 600 900 1200 1500 1800 2100)
                                     "......" "----------------")))
             (org-agenda-span 'day)
-            (org-agenda-overriding-header "")
-            (org-super-agenda-groups
-             '((:name "Trash"
-                :discard (:tag "HABIT"))))
-            (org-agenda-hide-tags-regexp
-             (rx (or (and (not (in "H"))
-                          (not (in "O"))
-                          (not (in "M"))
-                          (not (in "E")))
-                     (and (not (in "W"))
-                          (not (in "O"))
-                          (not (in "R"))
-                          (not (in "K"))))))))
-	  (stuck
-	   ""
-	   ((org-agenda-use-tag-inheritance nil)
-            (org-agenda-overriding-header "")
-	    (org-super-agenda-groups
-	     '((:name "Stuck projects"
-		:todo "PROJ")))))
+            (org-agenda-overriding-header "")))
           (tags
-           "+REFILE"
-           ((org-agenda-use-tag-inheritance nil)
-            (org-agenda-files '("~/org/capture.org"))
+           "/TODO|WAIT|DONE|DROP"
+           ((org-agenda-files `(,(concat org-base-directory "todo.org")))
             (org-agenda-prefix-format
-             ,(concat "    %5(org-entry-get nil \"MODIFIED\") "))
-            (org-agenda-sorting-strategy '(effort-down))
-            (org-agenda-cmp-user-defined (tm/org-cmp-date-property
-                                          "MODIFIED"))
-            (org-agenda-sorting-strategy '(user-defined-down))
-            (org-agenda-overriding-header "")
-            (org-agenda-hide-tags-regexp
-             (rx (zero-or-more anything)))
-            (org-overriding-columns-format
-             (concat "%40ITEM(Task) "
-                     "%TODO "
-                     "%3PRIORITY "
-                     "%17Effort(Estimated Effort){:} "
-                     "%CLOCKSUM"))
-            (org-super-agenda-groups
-             '((:name "Needs refiling"
-                :tag "REFILE"
-                :order 0)))))
-          (tags
-           "/DONE|TODO|WAIT|CANC|PROJ"
-           ((org-agenda-files '("~/org/todo.org"))
-            (org-agenda-prefix-format
-             ,(concat "    %5(org-entry-get nil \"MODIFIED\") %e "))
+             ,(concat "    %5(org-entry-get nil \"MODIFIED\") %(tm/org-agenda-clock-sum)/%e %c: "))
             (org-agenda-todo-ignore-scheduled t)
             (org-agenda-sorting-strategy '(effort-down))
             (org-agenda-cmp-user-defined (tm/org-cmp-date-property
@@ -882,34 +760,71 @@ The default definition fails in a side window due to a call to
                      "%17Effort(Estimated Effort){:} "
                      "%CLOCKSUM"))
             (org-super-agenda-groups
-             '((:order-multi (0 (:name "Sprint (DOING)"
-                                 :and (:property ("SPRINT" "t") :not (:scheduled t)
-                                       :todo "DOIN"))
-                                (:name "Sprint (TODO)"
-                                 :and (:property ("SPRINT" "t") :not (:scheduled t)
-                                       :todo "TODO"))))
-               (:name "High priority"
+             '((:name "On hold"
                 :order 1
-                :and (:todo "TODO" :priority "A" :tag "TASKS"
+                :and (:todo "WAIT" :priority>= "C"))
+               (:name "High priority"
+                :order 2
+                :and (:todo "TODO" :priority "A"
+                      :not (:scheduled t)))
+               (:name "Medium priority"
+                :order 3
+                :and (:todo "TODO" :priority "B"
+                      :not (:scheduled t)))
+               (:name "Low priority"
+                :order 4
+                :and (:todo "TODO" :priority "C"
+                      :not (:scheduled t)))
+               (:name "Archive DONE tasks"
+                :order 5
+                :and (:todo ("DONE" "DROP") :not (:tag "ARCHIVE")))))))))
+        ("w" "Weekly"
+         ((agenda
+           ""
+           ((org-agenda-use-tag-inheritance nil)
+            (org-agenda-todo-ignore-scheduled 'past)
+            (org-agenda-files `(,(concat org-base-directory "todo.org")
+                                ,(concat org-base-directory "procedures.org")
+                                ,(concat org-base-directory "calendar.org")))
+            (org-agenda-time-grid (quote
+                                   ((daily today remove-match)
+                                    (300 600 900 1200 1500 1800 2100)
+                                    "......" "----------------")))
+            (org-agenda-span 'week)
+            (org-agenda-overriding-header "")))
+          (tags
+           "/TODO|DONE|DROP"
+           ((org-agenda-files `(,(concat org-base-directory "todo.org")))
+            (org-agenda-prefix-format
+             ,(concat "    %5(org-entry-get nil \"MODIFIED\") %(tm/org-agenda-clock-sum)/%e %c: "))
+            (org-agenda-todo-ignore-scheduled t)
+            (org-agenda-sorting-strategy '(effort-down))
+            (org-agenda-cmp-user-defined (tm/org-cmp-date-property
+                                          "MODIFIED"))
+            (org-agenda-sorting-strategy '(user-defined-down))
+            (org-agenda-overriding-header "")
+            (org-overriding-columns-format
+             (concat "%40ITEM(Task) "
+                     "%TODO "
+                     "%3PRIORITY "
+                     "%17Effort(Estimated Effort){:} "
+                     "%CLOCKSUM"))
+            (org-super-agenda-groups
+             '((:name "High priority"
+                :order 1
+                :and (:todo "TODO" :priority "A"
                       :not (:scheduled t)))
                (:name "Medium priority"
                 :order 2
-                :and (:todo "TODO" :priority "B" :tag "TASKS"
+                :and (:todo "TODO" :priority "B"
                       :not (:scheduled t)))
                (:name "Low priority"
                 :order 3
-                :and (:todo "TODO" :priority "C" :tag "TASKS"
+                :and (:todo "TODO" :priority "C"
                       :not (:scheduled t)))
                (:name "Archive DONE tasks"
                 :order 4
-                :and (:todo ("DONE" "CANC") :not (:tag "PROJECTS"
-                                                  :tag "FUTURE")))
-               (:name "Projects"
-                :order 5
-                :and (:todo "PROJ" :not (:tag "FUTURE")))
-               (:name "Attic: tasks for the Future™"
-                :order 6
-                :tag "FUTURE")))))))))
+                :and (:todo ("DONE" "DROP") :not (:tag "ARCHIVE")))))))))))
 
 (with-eval-after-load 'f
   (dolist (file org-agenda-files nil)
@@ -927,34 +842,20 @@ The default definition fails in a side window due to a call to
 (with-eval-after-load 'org
   (tm/org-get-headings-command todo "todo.org"))
 
-(setq org-default-notes-file "/home/tminor/org/capture.org")
+(setq org-default-notes-file (concat org-base-directory "capture.org"))
 
 (with-eval-after-load 'org
   (setq
    org-capture-templates
-   `(
-     ("j" "Journal entry" entry
+   `(("n" "Note" entry
       ;; Target
       (function (lambda ()
                   (org-journal-new-entry t)
                   (goto-char (point-min))))
+      ;; Template
       ,(concat "* %(format-time-string org-journal-time-format)"
                "%^{Title}\n"
-               ":LOGBOOK:\n"
-               "- State \"TODO\"    from \"\"        %U\n"
-               ":END:\n\n"
                "%i%?"))
-
-     ("c" "Emacs configuration change" entry
-      ;; Target
-      (file+function "~/.emacs.d/main.org" tm/org-get-headings-config)
-      ;; Template
-      ,(concat "* TODO %?\n"
-               ":LOGBOOK:\n"
-               "- State \"TODO\"    from \"\"        %U\n"
-               ":END:\n")
-      :empty-lines 1)
-
      ("d" "Doing now (switch clocked task)" entry
       ;; Target
       (file+function "~/org/todo.org" tm/org-get-headings-todo)
@@ -963,62 +864,60 @@ The default definition fails in a side window due to a call to
                ":LOGBOOK:\n"
                "- State \"TODO\"    from \"\"        %U\n"
                ":END:\n")
-      :empty-lines 1
       :clock-in t
       :clock-keep t)
-
      ("t" "Task" entry
       ;; Target
-      (file+function "~/org/todo.org" tm/org-get-headings-todo)
+      (file "todo.org")
       ;; Template
       ,(concat "* TODO %?\n"
+               "DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+30d\"))\n"
                ":PROPERTIES:\n"
                ":NOTIFY: todo\n"
                ":END:\n"
                ":LOGBOOK:\n"
                "- State \"TODO\"    from \"\"        %U\n"
-               ":END:\n")
-      :empty-lines 1))))
+               ":END:\n")))))
 
-(use-package org-ql)
+;; (use-package org-ql)
 
-(use-package calfw
-  :general
-  (:keymaps 'cfw:calendar-mode-map
-   :states '(normal motion)
-   "SPC" 'tm/prefix-command
-   "RET" 'cfw:org-open-agenda-day
-   "j" 'cfw:navi-next-week-command
-   "k" 'cfw:navi-previous-week-command
-   "l" 'cfw:navi-next-day-command
-   "h" 'cfw:navi-previous-day-command
-   "^" 'cfw:navi-goto-week-begin-command
-   "$" 'cfw:navi-goto-week-end-command
-   "gg" 'cfw:navi-goto-first-date-command
-   "G" 'cfw:navi-goto-last-date-command
-   "[" 'cfw:navi-previous-month-command
-   "]" 'cfw:navi-next-month-command
-   "." 'cfw:navi-goto-today-command
-   "gd" 'cfw:navi-goto-date-command
-   "J" 'cfw:navi-next-item-command
-   "K" 'cfw:navi-prev-item-command
-   "zm" 'cfw:change-view-month
-   "zw" 'cfw:change-view-week
-   "zt" 'cfw:change-view-two-weeks
-   "zd" 'cfw:change-view-day
-   "gr" 'cfw:refresh-calendar-buffer
-   "C-RET" 'cfw:org-onclick)
-  (tm/leader-def
-    "c" 'cfw:open-org-calendar)
-  :config
-  (evil-set-initial-state 'cfw:calendar-mode 'motion)
-  (setq cfw:org-face-agenda-item-foreground-color "#606A92"))
+;; (use-package calfw
+;;   :general
+;;   (:keymaps 'cfw:calendar-mode-map
+;;    :states '(normal motion)
+;;    "SPC" 'tm/prefix-command
+;;    "RET" 'cfw:org-open-agenda-day
+;;    "j" 'cfw:navi-next-week-command
+;;    "k" 'cfw:navi-previous-week-command
+;;    "l" 'cfw:navi-next-day-command
+;;    "h" 'cfw:navi-previous-day-command
+;;    "^" 'cfw:navi-goto-week-begin-command
+;;    "$" 'cfw:navi-goto-week-end-command
+;;    "gg" 'cfw:navi-goto-first-date-command
+;;    "G" 'cfw:navi-goto-last-date-command
+;;    "[" 'cfw:navi-previous-month-command
+;;    "]" 'cfw:navi-next-month-command
+;;    "." 'cfw:navi-goto-today-command
+;;    "gd" 'cfw:navi-goto-date-command
+;;    "J" 'cfw:navi-next-item-command
+;;    "K" 'cfw:navi-prev-item-command
+;;    "zm" 'cfw:change-view-month
+;;    "zw" 'cfw:change-view-week
+;;    "zt" 'cfw:change-view-two-weeks
+;;    "zd" 'cfw:change-view-day
+;;    "gr" 'cfw:refresh-calendar-buffer
+;;    "C-RET" 'cfw:org-onclick)
+;;   (tm/leader-def
+;;     "c" 'cfw:open-org-calendar)
+;;   :config
+;;   (evil-set-initial-state 'cfw:calendar-mode 'motion)
+;;   (setq cfw:org-face-agenda-item-foreground-color "#606A92"))
 
-(use-package calfw-org)
-(require 'calfw-org)
+;; (use-package calfw-org)
+;; (require 'calfw-org)
 
-(use-package org-download)
-(require 'org-download)
+;; (use-package org-download)
+;; (require 'org-download)
 
 (use-package ace-link
   :general
@@ -1038,38 +937,14 @@ The default definition fails in a side window due to a call to
                                        (ruby       . t)
                                        (shell      . t))))
 
-(use-package org-roam
-  :defer t
-  :straight
-  (:host github :repo "jethrokuan/org-roam"
-   :branch "v2")
-  :general
-  (tm/leader-def
-    :infix "or"
-    :prefix-command 'tm/org-roam-prefix-command
-    :prefix-map 'tm/org-roam-prefix-map
-    "" '(:which-key "org-roam prefix" :ignore t)
-    "o" 'org-roam
-    "f" 'org-roam-find-file
-    "g" 'org-roam-show-graph
-    "i" 'org-roam-insert
-    "d" 'org-roam-dailies-today)
-  :config
-  (setq org-roam-directory "~/src/blog/org-src/"
-        org-roam-dailies-directory (concat org-roam-directory "dailies")
-        org-roam-tag-sources '(prop all-directories)
-        org-roam-capture-templates
-        '(("d" "default" plain "%?"
-           :if-new (file+head "%(completing-read \"Choose note directory: \" (cons org-roam-directory (-filter #'f-directory-p (directory-files-recursively org-roam-directory (rx (zero-or-more any)) t))))/${slug}"
-                              "#+title: ${title}\n")
-           :unnarrowed t)))
-  (org-roam-setup)
-  :hook
-  (org-mode . company-mode))
-
-;; (use-package org-fc
-;;   :straight
-;;   (:host github :repo "l3kn/org-fc"))
+;; (use-package org-roam
+;;   :defer t
+;;   :config
+;;   (setq org-roam-directory (file-truename "~/org/notes")
+;;         org-roam-dailies-directory org-roam-directory
+;;         org-roam-completion-everywhere t)
+;;   :hook
+;;   (after-init . org-roam-db-autosync-mode))
 
 ;; (use-package notdeft
 ;;   :straight
@@ -1115,7 +990,7 @@ The default definition fails in a side window due to a call to
   (setq alert-default-style 'libnotify
         org-wild-notifier-keyword-whitelist '()
         org-wild-notifier-tags-whitelist '()
-        org-wild-notifier-alert-time '(60 30 20 15 10 5 3 2 1))
+        org-wild-notifier-alert-time '(15 10 5 1))
   :hook
   (after-init . org-wild-notifier-mode))
 
@@ -1123,7 +998,13 @@ The default definition fails in a side window due to a call to
   :config
   (setq org-reveal-root "file:///home/tminor/src/reveal.js"))
 
-;; (use-package ox-hugo)
+(use-package org-appear
+  :init
+  (setq org-appear-autolinks t)
+  :hook
+  (org-mode . org-appear-mode))
+
+(use-package org-clock-convenience)
 
 (provide 'init-org)
 ;;; init-org.el ends here

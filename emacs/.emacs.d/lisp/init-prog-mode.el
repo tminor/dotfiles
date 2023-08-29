@@ -20,14 +20,14 @@
   (setq prettify-symbols-unprettify-at-point t)
   (dolist (symbol '((">="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?≥))
                     ("<="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?≤))
-                    ("lambda" . ?λ)))
+                    ("lambda" . ?λ)
+                    ("=>" . (?\s (Br . Bl) ?\s (Bc . Bc) ?⇒))
+                    ("<=" . (?\s (Br . Bl) ?\s (Bc . Bc) ?⇐))))
     (cl-pushnew symbol prettify-symbols-alist :test #'equal))
   :hook
   (prog-mode . display-line-numbers-mode)
   (prog-mode . whitespace-mode)
   (prog-mode . hs-minor-mode))
-
-(global-prettify-symbols-mode 1)
 
 (use-package highlight-indent-guides
   :hook

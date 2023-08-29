@@ -9,6 +9,16 @@
 (require 'recentf)
 (require 'savehist)
 
+(defun tm/recentf-keep-predicate (file)
+  "Return non-nil if FILE should be kept in the recent list.
+
+It handles the case of remote files as well."
+  (cond
+   ((file-remote-p file))
+   ((file-readable-p file))))
+
+(setq recentf-max-saved-items 200)
+
 ;; Disable GUI features.
 (toggle-scroll-bar -1)
 (menu-bar-mode -1)
@@ -98,6 +108,12 @@
 ;; https://github.com/bbatsov/emacs.d/blob/965d39c245bdbe79e88dd228756a9cf621670ac0/init.el#L99-L104
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 8)
+
+(use-package persistent-scratch
+  :straight
+  (:host github :repo "Fanael/persistent-scratch")
+  :hook
+  (after-init . persistent-scratch-setup-default))
 
 (provide 'init-settings)
 ;;; init-settings.el ends here

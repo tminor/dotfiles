@@ -29,6 +29,7 @@
 	evil-want-integration t
 	evil-want-fine-undo t
         evil-cross-lines t)
+  (evil-set-undo-system 'undo-redo)
   :general
   ;; Override `evil-search-forward' binding in favor of `swiper'.
   (:states '(normal motion)
@@ -56,11 +57,6 @@
   (evil-collection-term-sync-state-and-mode-p t)
   :init
   (evil-collection-init))
-
-(use-package evil-magit
-  :after magit
-  :init
-  (setq evil-magit-use-y-for-yank nil))
 
 (use-package evil-org
   :after org

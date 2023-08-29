@@ -20,7 +20,8 @@
   (setq vterm-shell "fish"
 	tramp-shell-prompt-pattern "\\(?:^\\|\\)[^]#$%>\n]*#?[]#$%>].* *\\(^[\\[[0-9;]*[a-zA-Z] *\\)*"
 	tramp-default-method "ssh"
-        vterm-buffer-name-string "vterm %s")
+        vterm-buffer-name-string "vterm %s"
+        vterm-max-scrollback 100000)
   :hook
   (evil-insert-state-entry
    . (lambda ()
@@ -72,6 +73,32 @@
                                    (fish_color_selection . default)
                                    (fish_color_status . default)
                                    (fish_color_user . default))))
+
+(defun tm/counsel-yank-pop-advice (fun args)
+  (if (equal major-mode 'vterm-mode)
+      (let ((counsel-yank-pop-action-fun (symbol-function
+                                          'counsel-yank-pop-action))
+            (last-command-yank-p (eq last-command 'yank)))
+        (cl-letf (((symbol-function 'counsel-yank-pop-action)
+                   (lambda (s)
+                     (let ((inhibit-read-only t)
+                           (last-command (if (memq last-command
+                                                   '(counsel-yank-pop
+                                                     ivy-previous-line
+                                                     ivy-next-line))
+                                             'yank
+                                           last-command))
+                           (yank-undo-function (when last-command-yank-p
+                                                 (lambda (_start _end)
+                                                   (vterm-undo)))))
+                       (cl-letf (((symbol-function 'insert-for-yank)
+                                  'vterm-insert))
+                         (funcall counsel-yank-pop-action-fun s))))))
+          (apply fun args)))
+    (apply fun args)))
+
+(define-advice counsel-yank-pop (:around (fun &rest args))
+  (tm/counsel-yank-pop-advice fun args))
 
 (provide 'init-term)
 ;;; init-ivy.el ends here

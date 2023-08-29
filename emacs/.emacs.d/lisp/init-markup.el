@@ -37,6 +37,10 @@
     (setq outline-regexp "^\\([ ]\\{2\\}\\)*\\([-] \\)?\\([\"][^\"]*[\"]\\|[a-zA-Z0-9_-]*\\): *\\([>|]\\|&[a-zA-Z0-9_-]*\\)?$")
     (setq outline-level 'tm/yaml-outline-level)))
 
+(use-package yaml-pro
+  :straight
+  (:repo "zkry/yaml-pro" :host github))
+
 (use-package csv-mode)
 
 (use-package grip-mode
